@@ -8,7 +8,7 @@ include dirname(__FILE__) . '/../include/class_cron.php';
 */
 
 $minute = 10;
-$query	= DB::query('DELETE FROM pkm_mapcoordinate WHERE time <= ' . ($_SERVER['REQUEST_TIME'] - 60 * $minute));
+$query  = DB::query('DELETE FROM pkm_mapcoordinate WHERE time <= ' . ($_SERVER['REQUEST_TIME'] - 60 * $minute));
 
 Cron::LogInsert('Delete expired coordinates');
 

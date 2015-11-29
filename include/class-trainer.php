@@ -30,7 +30,7 @@ class Trainer {
 
     /**
      * Update trainer's exp
-     * @param $user array for trainer's info
+     * @param     $user array for trainer's info
      * @param int $exp_adding
      * @return bool|mysqli_result
      */
@@ -49,7 +49,7 @@ class Trainer {
 
     /**
      * Update trainer's stat
-     * @param $stat
+     * @param     $stat
      * @param int $adding
      * @return int
      */

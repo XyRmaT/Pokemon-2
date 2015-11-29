@@ -1,7 +1,7 @@
 <?php
 
-function LargeNum($num,$point=0) {
-    $num = (string)$num;
+function LargeNum($num, $point = 0) {
+    $num  = (string)$num;
     $lnum = sprintf('%.' . $point . 'f', $num);
     return $lnum;
 }

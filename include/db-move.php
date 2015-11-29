@@ -22,7 +22,7 @@ class MoveDb extends Battle {
 
 	public static function __9() { # 雷电拳
 
-		parent::AlterStatus(parent::$def, 'PAR',10);
+		parent::AlterStatus(parent::$def, 'PAR', 10);
 
 	}
 
@@ -73,7 +73,7 @@ class MoveDb extends Battle {
 	public static function __19() { # 飞空
 
 		parent::__MoveCharge(parent::$atk[0]['name'] . '飞上了高空！');
-		
+
 		parent::$charged || parent::__MoveCurrentPlace(parent::$atk, 1);
 
 	}
@@ -113,7 +113,7 @@ class MoveDb extends Battle {
 		parent::AlterStatus(parent::$def, 'PAR', 30);
 
 	}
-	
+
 	public static function __35() { # 卷紧
 
 		parent::__MoveTrap(2);
@@ -183,13 +183,13 @@ class MoveDb extends Battle {
 	public static function __50() { # 残废
 
 		if(parent::$def[1][2][16]) {
-		
+
 			return parent::FailMove();
 
 		} else {
-		
+
 			parent::$def[1][2][16] = 4;
-			
+
 		}
 
 	}
@@ -229,7 +229,7 @@ class MoveDb extends Battle {
 		parent::AlterSubStatus(parent::$def, 'CFS', 10);
 
 	}
-	
+
 	public static function __61() { # 泡沫光线
 
 		parent::AlterStatLevel(parent::$def, 'SPD-DEC', 1, 10);
@@ -247,15 +247,15 @@ class MoveDb extends Battle {
 		parent::$m['recoilper'] = 1 / 4;
 
 	}
-	
+
 	public static function __67() { # 过肩摔
 
-		if(parent::$def[0]['weight'] < 11)		parent::$m['power'] = 20;
-		elseif(parent::$def[0]['weight'] < 25)	parent::$m['power'] = 40;
-		elseif(parent::$def[0]['weight'] < 50)	parent::$m['power'] = 60;
-		elseif(parent::$def[0]['weight'] < 100)	parent::$m['power'] = 80;
-		elseif(parent::$def[0]['weight'] < 200)	parent::$m['power'] = 100;
-		else									parent::$m['power'] = 120;
+		if(parent::$def[0]['weight'] < 11) parent::$m['power'] = 20;
+		elseif(parent::$def[0]['weight'] < 25) parent::$m['power'] = 40;
+		elseif(parent::$def[0]['weight'] < 50) parent::$m['power'] = 60;
+		elseif(parent::$def[0]['weight'] < 100) parent::$m['power'] = 80;
+		elseif(parent::$def[0]['weight'] < 200) parent::$m['power'] = 100;
+		else                                    parent::$m['power'] = 120;
 
 	}
 
@@ -271,11 +271,11 @@ class MoveDb extends Battle {
 		parent::AlterStatLevel(parent::$atk, 'SPATK-INC', (parent::$field['weather']{0} === '1') ? 2 : 1);
 
 	}
-	
+
 	public static function __76() { # 太阳光线
 
 		parent::__MoveCharge(parent::$atk[0]['name'] . '正在吸收阳光！');
-		
+
 	}
 
 	public static function __77() { # 毒粉
@@ -289,26 +289,26 @@ class MoveDb extends Battle {
 		parent::AlterStatus(parent::$def, 'PAR', 100, 0, TRUE);
 
 	}
-	
+
 	public static function __79() { # 催眠粉
 
 		parent::AlterStatus(parent::$def, 'SLP', 100, 0, TRUE);
 
 	}
-	
+
 	public static function __81() { # 吐丝
 
 		parent::AlterStatLevel(parent::$def, 'ATK-DEC');
 
 	}
-	
+
 	public static function __82() { # 龙之怒
 
 		parent::$stabledamage = 40;
 
 	}
 
-	
+
 	public static function __83() { # 火漩涡
 
 		parent::__MoveTrap(3);
@@ -340,11 +340,11 @@ class MoveDb extends Battle {
 	}
 
 	public static function __91() { # 挖洞
-	
+
 		parent::__MoveCharge(parent::$atk[0]['name'] . '潜入了地下！');
-		
+
 		parent::$charged || parent::__MoveCurrentPlace(parent::$atk, 3);
-		
+
 	}
 
 	public static function __92() { # 剧毒
@@ -358,7 +358,7 @@ class MoveDb extends Battle {
 		parent::AlterSubStatus(parent::$def, 'CFS', 10);
 
 	}
-	
+
 	public static function __95() { # 催眠术
 
 		parent::AlterStatus(parent::$def, 'SLP', 100, 0, TRUE);
@@ -376,7 +376,7 @@ class MoveDb extends Battle {
 		parent::AlterStatLevel(parent::$atk, 'SPD-INC', 2);
 
 	}
-	
+
 	public static function __101() { # 黑夜魔影
 
 		parent::$stabledamage = parent::$atk[0]['level'];
@@ -408,7 +408,7 @@ class MoveDb extends Battle {
 		parent::AlterStatLevel(parent::$atk, 'EVA-INC', 2);
 
 	}
-	
+
 	public static function __108() { # 烟幕
 
 		parent::AlterStatLevel(parent::$def, 'ACC-DEC', 1);
@@ -446,7 +446,7 @@ class MoveDb extends Battle {
 		if(parent::$def[0]['abi'] === '6') {
 
 			return parent::FailMove();
-			
+
 		} else {
 
 			parent::$atk[0]['hp'] = 0;
@@ -496,15 +496,15 @@ class MoveDb extends Battle {
 		parent::__MoveTrap(4);
 
 	}
-	
+
 	public static function __130() { # 火箭头槌
 
 		parent::__MoveCharge(parent::$atk[0]['name'] . '将脑袋缩进了壳里！');
 
 		parent::$charged || parent::AlterStatLevel(parent::$atk, 'DEF-INC', 1, 100, FALSE);
-		
+
 	}
-	
+
 	public static function __132() { # 缠绕
 
 		parent::AlterStatLevel(parent::$def, 'SPD-DEC', 1, 10, FALSE);
@@ -516,7 +516,7 @@ class MoveDb extends Battle {
 		parent::AlterStatLevel(parent::$atk, 'SPDEF-INC', 2);
 
 	}
-	
+
 	public static function __134() { # 弄弯勺子
 
 		parent::AlterStatLevel(parent::$def, 'ACC-DEC', 1);
@@ -534,7 +534,7 @@ class MoveDb extends Battle {
 		parent::AlterStatus(parent::$def, 'PSN', 100, 0, TRUE);
 
 	}
-	
+
 	public static function __142() { # 恶魔之吻
 
 		parent::AlterStatus(parent::$def, 'SLP', 100, 0, TRUE);
@@ -544,11 +544,11 @@ class MoveDb extends Battle {
 	public static function __143() { # 神鸟
 
 		parent::__MoveCharge(parent::$atk[0]['name'] . '正从高空飞速俯冲而下！');
-		
+
 		parent::$charged && parent::AlterInstantStatus(parent::$def, 1, 1, 30);
 
 	}
-	
+
 	public static function __145() { # 水泡
 
 		parent::AlterStatLevel(parent::$def, 'SPD-DEC', 1, 10, FALSE);
@@ -560,26 +560,26 @@ class MoveDb extends Battle {
 		parent::AlterSubStatus(parent::$def, 'CFS', 20);
 
 	}
-	
+
 	public static function __147() { # 蘑菇孢子
 
 		parent::AlterStatus(parent::$def, 'SLP', 100, 0, TRUE);
 
 	}
-	
+
 	public static function __148() { # 闪光
 
 		parent::AlterStatLevel(parent::$def, 'ACC-DEC');
 
 	}
-	
+
 	public static function __149() { # 精神波动
 
 		parent::$stabledamage = parent::$atk[0]['level'] * rand(5, 15) / 10;
 
 	}
 
-	
+
 	public static function __150() { # 弹跳
 
 		parent::$report .= parent::$atk[0]['name'] . '跳啊跳~<br>';
@@ -597,7 +597,7 @@ class MoveDb extends Battle {
 		if(parent::$def[0]['abi'] === '6') {
 
 			return parent::FailMove();
-			
+
 		} else {
 
 			parent::$atk[0]['hp'] = 0;
@@ -628,12 +628,12 @@ class MoveDb extends Battle {
 
 		$randnum = rand(0, 255);
 
-		if($randnum < 17) 		parent::AlterStatus(parent::$def, 'PAR');
-		elseif($randnum < 34)	parent::AlterStatus(parent::$def, 'BRN');
-		elseif($randnum < 51)	parent::AlterStatus(parent::$def, 'FRZ');
+		if($randnum < 17) parent::AlterStatus(parent::$def, 'PAR');
+		elseif($randnum < 34) parent::AlterStatus(parent::$def, 'BRN');
+		elseif($randnum < 51) parent::AlterStatus(parent::$def, 'FRZ');
 
 	}
-	
+
 	public static function __162() { # 愤怒门牙
 
 		parent::$stabledamage = max(floor(parent::$def[0]['hp'] / 2), 1);
@@ -662,7 +662,7 @@ class MoveDb extends Battle {
 
 	public static function __174() { # 诅咒
 
-		if(!in_array('16', array(parent::$atk[0]['type'], parent::$atk[0]['typeb']))) {
+		if(!in_array('16', [parent::$atk[0]['type'], parent::$atk[0]['typeb']])) {
 
 			parent::AlterStatLevel(parent::$atk, 'ATK-INC');
 			parent::AlterStatLevel(parent::$atk, 'DEF-INC');
@@ -674,13 +674,13 @@ class MoveDb extends Battle {
 
 		} else {
 
-			parent::$def[1][2][10]	= 1;
-			parent::$report			.= parent::$def[0]['name'] . '被诅咒了！<br>';
+			parent::$def[1][2][10] = 1;
+			parent::$report .= parent::$def[0]['name'] . '被诅咒了！<br>';
 
 		}
 
 	}
-	
+
 	public static function __178() { # 棉花孢子
 
 		parent::AlterStatLevel(parent::$def, 'SPD-DEC', 2);
@@ -692,7 +692,7 @@ class MoveDb extends Battle {
 		parent::AlterStatus(parent::$def, 'FRZ', 10);
 
 	}
-	
+
 	public static function __184() { # 恐惧颜
 
 		parent::AlterStatLevel(parent::$def, 'SPD-DEC', 2);
@@ -744,11 +744,11 @@ class MoveDb extends Battle {
 
 	public static function __214() { # 梦话、in process...
 
-		$exception			= '13,19,76,91,117,119,130,143,214,253,291,382,383,448,467,507,553,554,264';
-		$count				= DB::result_first('SELECT COUNT(*) FROM pkm_movedata WHERE mid NOT IN (' . $exception);
-		$move				= DB::fetch_first('SELECT mid, name, type, class, power, acc, pp, prio, freq, critrt, effect, btlefct FROM pkm_movedata LIMIT ' . rand(0, $count - 1) . ', 1');
-		parent::$m['power']	= $move['power'];
-		parent::$report		.= parent::$atk[0]['name'] . '使出了' . parent::$atkmove['name'] . '！<br>';
+		$exception          = '13,19,76,91,117,119,130,143,214,253,291,382,383,448,467,507,553,554,264';
+		$count              = DB::result_first('SELECT COUNT(*) FROM pkm_movedata WHERE mid NOT IN (' . $exception);
+		$move               = DB::fetch_first('SELECT mid, name, type, class, power, acc, pp, prio, freq, critrt, effect, btlefct FROM pkm_movedata LIMIT ' . rand(0, $count - 1) . ', 1');
+		parent::$m['power'] = $move['power'];
+		parent::$report .= parent::$atk[0]['name'] . '使出了' . parent::$atkmove['name'] . '！<br>';
 
 		if($move['effect'] !== '1') {
 
@@ -764,14 +764,14 @@ class MoveDb extends Battle {
 
 		$randnum = rand(0, 255);
 
-		if($randnum < 102)		parent::$m['power'] = 40;
-		elseif($randnum < 178)	parent::$m['power']	= 80;
-		elseif($randnum < 204)	parent::$m['power'] = 120;
+		if($randnum < 102) parent::$m['power'] = 40;
+		elseif($randnum < 178) parent::$m['power'] = 80;
+		elseif($randnum < 204) parent::$m['power'] = 120;
 		else {
-		
-			parent::$def[0]['hp']		= min(parent::$def[0]['hp'] + floor(parent::$def[0]['maxhp'] * 0.25), parent::$def[0]['maxhp']);
-			parent::$atkmove['class']	= '0';
-			
+
+			parent::$def[0]['hp']     = min(parent::$def[0]['hp'] + floor(parent::$def[0]['maxhp'] * 0.25), parent::$def[0]['maxhp']);
+			parent::$atkmove['class'] = '0';
+
 		}
 
 		parent::$report .= parent::$def[0]['name'] . '打开一看，' . (($randnum < 204) ? '原来是个炸弹！' : '里面是瓶伤药！') . '<br>';
@@ -786,10 +786,10 @@ class MoveDb extends Battle {
 
 	public static function __222() { # 震级变化
 
-		$randkey			= substr(str_shuffle('01122223333334444556'), 0, 1);
-		$tmp				= array(10, 30, 50, 70, 90, 110, 150);
-		parent::$m['power']	= $tmp[$randkey];
-		parent::$report		.=  '震级' . ($randkey + 4) . '，' . (($randkey < 6) ? '没什么感觉。' : ($randkey < 9) ? '感觉大地在震动……' : '山崩地裂！');
+		$randkey            = substr(str_shuffle('01122223333334444556'), 0, 1);
+		$tmp                = [10, 30, 50, 70, 90, 110, 150];
+		parent::$m['power'] = $tmp[$randkey];
+		parent::$report .= '震级' . ($randkey + 4) . '，' . (($randkey < 6) ? '没什么感觉。' : ($randkey < 9) ? '感觉大地在震动……' : '山崩地裂！');
 
 	}
 
@@ -815,10 +815,10 @@ class MoveDb extends Battle {
 
 		if(parent::$moveflag === 'CALTYPE') {
 
-			$iv					= explode(',', parent::$atk[0]['iv']);
-			$typearr			= array('6', '7', '9', '11', '10', '8', '16', '12', '1', '2', '3', '4', '14', '13', '17', '15');
-			parent::$m['type']	= $typearr[floor((($iv[0] & 1) + 2 * ($iv[1] & 1) + 4 * ($iv[2] & 1) + 8 * ($iv[5] & 1) + 16 * ($iv[3] & 1) + 32 * ($iv[4] & 1)) * 15 / 63)];
-			parent::$m['power']	= floor(((in_array($iv[0] % 4, array(2, 3)) ? 1 : 0) + 2 * (in_array($iv[1] % 4, array(2, 3)) ? 1 : 0) + 4 * (in_array($iv[2] % 4, array(2, 3)) ? 1 : 0) + 8 * (in_array($iv[5] % 4, array(2, 3)) ? 1 : 0) + 16 * (in_array($iv[3] % 4, array(2, 3)) ? 1 : 0) + 32 * (in_array($iv[4] % 4, array(2, 3)) ? 1 : 0)) * 40 / 63 + 30);
+			$iv                 = explode(',', parent::$atk[0]['iv']);
+			$typearr            = ['6', '7', '9', '11', '10', '8', '16', '12', '1', '2', '3', '4', '14', '13', '17', '15'];
+			parent::$m['type']  = $typearr[floor((($iv[0] & 1) + 2 * ($iv[1] & 1) + 4 * ($iv[2] & 1) + 8 * ($iv[5] & 1) + 16 * ($iv[3] & 1) + 32 * ($iv[4] & 1)) * 15 / 63)];
+			parent::$m['power'] = floor(((in_array($iv[0] % 4, [2, 3]) ? 1 : 0) + 2 * (in_array($iv[1] % 4, [2, 3]) ? 1 : 0) + 4 * (in_array($iv[2] % 4, [2, 3]) ? 1 : 0) + 8 * (in_array($iv[5] % 4, [2, 3]) ? 1 : 0) + 16 * (in_array($iv[3] % 4, [2, 3]) ? 1 : 0) + 32 * (in_array($iv[4] % 4, [2, 3]) ? 1 : 0)) * 40 / 63 + 30);
 
 		}
 	}
@@ -840,7 +840,7 @@ class MoveDb extends Battle {
 		parent::AlterStatLevel(parent::$def, 'DEF-DEC', 1, 50);
 
 	}
-	
+
 	public static function __250() { # 漩涡
 
 		parent::__MoveTrap(5);
@@ -864,7 +864,7 @@ class MoveDb extends Battle {
 			parent::$report .= parent::$atk[0]['name'] . '把能量存储在了体内！<br>';
 
 			parent::$atk[1][2][26] ? ++parent::$atk[1][2][26] : (parent::$atk[1][2][26] = 1);
-			
+
 			parent::AlterStatLevel(parent::$atk, 'DEF-INC', 1, 100, FALSE);
 			parent::AlterStatLevel(parent::$atk, 'SPDEF-INC', 1, 100, FALSE);
 
@@ -880,9 +880,9 @@ class MoveDb extends Battle {
 
 		} else {
 
-			parent::$m['power']		= parent::$atk[1][2][26] * 100;
-			parent::$atk[1][2][26]	= FALSE;
-			parent::$report			.= parent::$atk[0]['name'] . '体内的能量造成了冲击波！<br>';
+			parent::$m['power']    = parent::$atk[1][2][26] * 100;
+			parent::$atk[1][2][26] = FALSE;
+			parent::$report .= parent::$atk[0]['name'] . '体内的能量造成了冲击波！<br>';
 
 			parent::AlterStatLevel(parent::$atk, 'DEF-EMP');
 			parent::AlterStatLevel(parent::$atk, 'SPDEF-EMP');
@@ -892,7 +892,7 @@ class MoveDb extends Battle {
 	}
 
 	public static function __256() { # 能量吸入
-return;
+		return;
 		if(!parent::$atk[1][2][26]) {
 
 			return parent::FailMove();
@@ -903,8 +903,8 @@ return;
 			parent::AlterStatLevel(parent::$atk, 'DEF-EMP');
 			parent::AlterStatLevel(parent::$atk, 'SPDEF-EMP');
 
-			parent::$atk[1][2][26]	= FALSE;
-			parent::$report			.= parent::$atk[0]['name'] . '用体内的能量回复了！';
+			parent::$atk[1][2][26] = FALSE;
+			parent::$report .= parent::$atk[0]['name'] . '用体内的能量回复了！';
 
 		}
 
@@ -943,17 +943,17 @@ return;
 		parent::AlterStatLevel(parent::$atk, 'DEF-DEC');
 
 	}
-	
+
 	public static function __283() { # 莽撞
 
 		// parent::$stabledamage = parent::$atk[0]['hp'];
-		
+
 		if(parent::$def[0]['hp'] <= parent::$atk[0]['hp']) {
-		
+
 			return parent::FailMove();
-			
+
 		} else {
-		
+
 			parent::$def[0]['hp'] = parent::$atk[0]['hp'];
 
 		}
@@ -961,11 +961,11 @@ return;
 	}
 
 	public static function __291() { # 潜水
-	
+
 		parent::__MoveCharge(parent::$atk[0]['name'] . '潜入了水中！');
-		
+
 		parent::$charged || parent::__MoveCurrentPlace(parent::$atk, 2);
-		
+
 	}
 
 	public static function __294() { # 萤火
@@ -1045,9 +1045,9 @@ return;
 			parent::AlterStatLevel(parent::$atk, 'SPD-INC');
 
 		}
-	
+
 	}
-	
+
 	public static function __320() { # 草笛
 
 		parent::AlterStatus(parent::$def, 'SLP', 100, 0, TRUE);
@@ -1079,7 +1079,7 @@ return;
 		parent::AlterInstantStatus(parent::$def, 1, 1, 10);
 
 	}
-	
+
 	public static function __328() { # 沙地狱
 
 		parent::__MoveTrap(6);
@@ -1104,13 +1104,13 @@ return;
 		parent::AlterStatLevel(parent::$atk, 'DEF-INC');
 
 	}
-	
+
 	public static function __340() { # 飞跃
-	
+
 		parent::__MoveCharge(parent::$atk[0]['name'] . '跳得很高！');
-		
+
 		parent::$charged ? parent::AlterStatus(parent::$def, 'PAR', 30) : parent::__MoveCurrentPlace(parent::$atk, 1);
-		
+
 	}
 
 	public static function __342() { # 毒尾
@@ -1154,7 +1154,7 @@ return;
 
 	public static function __363() { # 自然恩惠
 
-		if(empty(parent::$atk[0]['crritem']) || !in_array('0', array(parent::$field['other']{2}, parent::$def[1][2][7]))) {
+		if(empty(parent::$atk[0]['crritem']) || !in_array('0', [parent::$field['other']{2}, parent::$def[1][2][7]])) {
 
 			return parent::FailMove();
 
@@ -1178,10 +1178,10 @@ return;
 	}
 
 	public static function __387() { # 最终手段
-	
+
 		return;
 
-		$arr = array();
+		$arr = [];
 
 		foreach(parent::$atk[0]['move'] as $val) {
 
@@ -1258,21 +1258,21 @@ return;
 
 	public static function __422() { # 雷之牙
 
-		parent::AlterStatus(parent::$def, 'PAR',10);
+		parent::AlterStatus(parent::$def, 'PAR', 10);
 		parent::AlterInstantStatus(parent::$def, 1, 1, 10);
 
 	}
 
 	public static function __423() { # 冰之牙
 
-		parent::AlterStatus(parent::$def, 'FRZ',10);
+		parent::AlterStatus(parent::$def, 'FRZ', 10);
 		parent::AlterInstantStatus(parent::$def, 1, 1, 10);
 
 	}
 
 	public static function __424() { # 火之牙
 
-		parent::AlterStatus(parent::$def, 'BRN',10);
+		parent::AlterStatus(parent::$def, 'BRN', 10);
 		parent::AlterInstantStatus(parent::$def, 1, 1, 10);
 
 	}
@@ -1327,10 +1327,10 @@ return;
 
 	public static function __445() { # 诱惑
 
-		if(in_array('0', array(parent::$atk[0]['gender'], parent::$def[0]['gender'])) || parent::$atk[0]['gender'] | parent::$def[0]['gender'] !== 3 || parent::$def[0]['abi'] === '12') { # 无性、异性、钝感
+		if(in_array('0', [parent::$atk[0]['gender'], parent::$def[0]['gender']]) || parent::$atk[0]['gender'] | parent::$def[0]['gender'] !== 3 || parent::$def[0]['abi'] === '12') { # 无性、异性、钝感
 
 			return parent::FailMove();
-			
+
 		} else {
 
 			parent::AlterStatLevel(parent::$def, 'SPATK-DEC', 2);
@@ -1348,22 +1348,54 @@ return;
 	public static function __449() { # 制裁之砾
 
 		switch(parent::$atk[0]['crritem']) {
-			case '火球石板': parent::$m['type'] = '1';	break;
-			case '水珠石板': parent::$m['type'] = '2';	break;
-			case '碧绿石板': parent::$m['type'] = '3';	break;
-			case '雷电石板': parent::$m['type'] = '4';	break;
-			case '拳击石板': parent::$m['type'] = '6';	break;
-			case '青空石板': parent::$m['type'] = '7';	break;
-			case '昆虫石板': parent::$m['type'] = '8';	break;
-			case '猛毒石板': parent::$m['type'] = '9';	break;
-			case '岩石石板': parent::$m['type'] = '10';	break;
-			case '大地石板': parent::$m['type'] = '11';	break;
-			case '钢铁石板': parent::$m['type'] = '12';	break;
-			case '冰柱石板': parent::$m['type'] = '13';	break;
-			case '神秘石板': parent::$m['type'] = '14';	break;
-			case '恐惧石板': parent::$m['type'] = '15';	break;
-			case '阴魂石板': parent::$m['type'] = '16';	break;
-			case '龙之石板': parent::$m['type'] = '17';	break;
+			case '火球石板':
+				parent::$m['type'] = '1';
+				break;
+			case '水珠石板':
+				parent::$m['type'] = '2';
+				break;
+			case '碧绿石板':
+				parent::$m['type'] = '3';
+				break;
+			case '雷电石板':
+				parent::$m['type'] = '4';
+				break;
+			case '拳击石板':
+				parent::$m['type'] = '6';
+				break;
+			case '青空石板':
+				parent::$m['type'] = '7';
+				break;
+			case '昆虫石板':
+				parent::$m['type'] = '8';
+				break;
+			case '猛毒石板':
+				parent::$m['type'] = '9';
+				break;
+			case '岩石石板':
+				parent::$m['type'] = '10';
+				break;
+			case '大地石板':
+				parent::$m['type'] = '11';
+				break;
+			case '钢铁石板':
+				parent::$m['type'] = '12';
+				break;
+			case '冰柱石板':
+				parent::$m['type'] = '13';
+				break;
+			case '神秘石板':
+				parent::$m['type'] = '14';
+				break;
+			case '恐惧石板':
+				parent::$m['type'] = '15';
+				break;
+			case '阴魂石板':
+				parent::$m['type'] = '16';
+				break;
+			case '龙之石板':
+				parent::$m['type'] = '17';
+				break;
 		}
 
 	}
@@ -1392,13 +1424,13 @@ return;
 		parent::$m['recoilper'] = 1 / 2;
 
 	}
-	
+
 	public static function __463() { # 熔岩风暴
 
 		parent::__MoveTrap(7);
 
 	}
-	
+
 	public static function __464() { # 黑洞
 
 		parent::AlterStatus(parent::$def, 'SLP', 100, 0, TRUE);
@@ -1406,11 +1438,11 @@ return;
 	}
 
 	public static function __467() { # 影袭
-	
+
 		parent::__MoveCharge(parent::$atk[0]['name'] . '消失了！');
-		
+
 		parent::$charged ? (parent::$def[1]['insstatus'] = 0) : parent::__MoveCurrentPlace(parent::$atk, 4);
-		
+
 	}
 
 	public static function __468() { # 磨爪
@@ -1535,14 +1567,22 @@ return;
 	public static function __546() { # 科技爆破
 
 		switch(parent::$atk[0]['crritem']) {
-			case '火焰卡带': parent::$m['type'] = '1';	break;
-			case '海洋卡带': parent::$m['type'] = '2';	break;
-			case '雷电卡带': parent::$m['type'] = '4';	break;
-			case '冰冻卡带': parent::$m['type'] = '13';	break;
+			case '火焰卡带':
+				parent::$m['type'] = '1';
+				break;
+			case '海洋卡带':
+				parent::$m['type'] = '2';
+				break;
+			case '雷电卡带':
+				parent::$m['type'] = '4';
+				break;
+			case '冰冻卡带':
+				parent::$m['type'] = '13';
+				break;
 		}
 
 	}
-	
+
 	public static function __547() { # 古代之歌
 
 		parent::AlterStatus(parent::$def, 'SLP', 10);
@@ -1562,19 +1602,19 @@ return;
 	}
 
 	public static function __553() { # 冰结电击
-	
+
 		parent::__MoveCharge(parent::$atk[0]['name'] . '的身上被蓝黄色的寒气所笼盖！');
-		
+
 		parent::$charged && parent::AlterStatus(parent::$def, 'PAR', 30);
-		
+
 	}
-	
+
 	public static function __554() { # 冰冷闪光
-	
+
 		parent::__MoveCharge(parent::$atk[0]['name'] . '的身上被红蓝色的寒气所笼盖！');
-		
+
 		parent::$charged && parent::AlterStatus(parent::$def, 'BRN', 30);
-		
+
 	}
 
 	public static function __556() { # 冰柱坠落

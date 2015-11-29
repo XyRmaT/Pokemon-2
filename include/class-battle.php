@@ -13,37 +13,37 @@ define('ROOTBATTLE', ROOT . '/cache/battle');
 
 class Battle {
 
-    public static $report = '';
-    public static $item = '';
-    public static $order = '01';
+    public static $report    = '';
+    public static $item      = '';
+    public static $order     = '01';
     public static $movefirst = '00';
-    public static $movelast = '00';
-    public static $pokemon = [];
-    public static $move = [];
-    public static $field = [];
+    public static $movelast  = '00';
+    public static $pokemon   = [];
+    public static $move      = [];
+    public static $field     = [];
     public static $reportcur = [];
     public static $reportend = [];
-    public static $wild = 1;
-    public static $swappid = 0;
-    public static $isend = FALSE;
-    public static $passturn = FALSE;
-    public static $failed = FALSE;
-    public static $swapped = FALSE;
+    public static $wild      = 1;
+    public static $swappid   = 0;
+    public static $isend     = FALSE;
+    public static $passturn  = FALSE;
+    public static $failed    = FALSE;
+    public static $swapped   = FALSE;
     public static $faintswap = TRUE;
-    public static $charged = FALSE;
+    public static $charged   = FALSE;
 
-    public static $atkkey = [];
-    public static $defkey = [];
-    public static $atk = [];
-    public static $def = [];
+    public static $atkkey   = [];
+    public static $defkey   = [];
+    public static $atk      = [];
+    public static $def      = [];
     public static $atkfield = [];
     public static $deffield = [];
-    public static $atkmove = [];
-    public static $defmove = [];
+    public static $atkmove  = [];
+    public static $defmove  = [];
 
     protected static $stabledamage = 0;
-    protected static $moveflag = '';
-    protected static $m = [];
+    protected static $moveflag     = '';
+    protected static $m            = [];
 
     private static $tempsaver = [];
 
@@ -68,46 +68,24 @@ class Battle {
 
     }
 
-    /**
-     * This method creates/deletes user's battle data saved in filesystem.
-     * @param $uid uid of the user
-     * @param $data content that is gonna be written in
-     * @param string $action DEL for deletion, otherwise write the files
-     */
-    public static function WriteBattleData($uid, $data, $action = '') {
-
-        $path = ROOTBATTLE . '/user-' . $uid;
-
-        // Performing deletion and ends the method directly
-        if ($action === 'DEL') {
-            unlink($path);
-            return;
-        }
-
-        $fp = fopen($path, 'w+');
-        fwrite($fp, gzdeflate(serialize($data), 9));
-        fclose($fp);
-
-    }
-
     public static function AlterInstantStatus(&$pokemon, $status, $value, $chance) {
 
-        if (rand(1, 100) <= $chance) $pokemon[1]['insstatus'] = $value;
+        if(rand(1, 100) <= $chance) $pokemon[1]['insstatus'] = $value;
 
     }
 
     public static function AlterStatLevel(&$pokemon, $action, $value = 1, $chance = 100, $report = TRUE) {
 
-        if (rand(1, 100) > $chance) return FALSE;
+        if(rand(1, 100) > $chance) return FALSE;
 
-        $action     = explode('-', $action);
-        $namearr    = ['ATK' => 0, 'DEF' => 1, 'SPATK' => 2, 'SPDEF' => 3, 'SPD' => 4, 'ACC' => 5, 'EVA' => 6];
-        $statarr    = ['攻击', '防御', '特攻', '特防', '速度', '命中', '回避'];
-        $part       = '提升';
-        $key        = $namearr[$action[0]];
-        $stat       = &$pokemon[1][1][$key];
+        $action  = explode('-', $action);
+        $namearr = ['ATK' => 0, 'DEF' => 1, 'SPATK' => 2, 'SPDEF' => 3, 'SPD' => 4, 'ACC' => 5, 'EVA' => 6];
+        $statarr = ['攻击', '防御', '特攻', '特防', '速度', '命中', '回避'];
+        $part    = '提升';
+        $key     = $namearr[$action[0]];
+        $stat    = &$pokemon[1][1][$key];
 
-        switch ($action[1]) {
+        switch($action[1]) {
             case 'INC':
                 $diff = 6 - ($stat + $value);
                 $stat = min($stat + $value, 6);
@@ -126,45 +104,45 @@ class Battle {
                 break;
         }
 
-        if ($value > 1 && $diff > -1 * ($value - 1))
+        if($value > 1 && $diff > -1 * ($value - 1))
             self::$report .= $pokemon[0]['name'] . '的' . $statarr[$key] . '急速' . $part . '！<br>';
-        elseif ($diff >= -1 * ($value - 1))
+        elseif($diff >= -1 * ($value - 1))
             self::$report .= $pokemon[0]['name'] . '的' . $statarr[$key] . $part . '了！<br>';
-        elseif ($diff >= -$value && $report === TRUE)
+        elseif($diff >= -$value && $report === TRUE)
             self::$report .= $pokemon[0]['name'] . '的' . $statarr[$key] . '不能再' . $part . '了！<br>';
 
     }
 
     public static function AlterStatus(&$pokemon, $status, $chance = 100, $round = 0, $failreport = FALSE) {
 
-        $statusarr = array('BRN' => '烧伤', 'FRZ' => '冰冻', 'PAR' => '麻痹', 'SLP' => '睡眠', 'PSN' => '中毒', 'TXC' => '中毒');
+        $statusarr = ['BRN' => '烧伤', 'FRZ' => '冰冻', 'PAR' => '麻痹', 'SLP' => '睡眠', 'PSN' => '中毒', 'TXC' => '中毒'];
 
-        if (!empty($pokemon[0]['status']) ||                                                                                                # 存在状态
+        if(!empty($pokemon[0]['status']) ||                                                                                                # 存在状态
             $chance >= 0 && rand(0, 100) > $chance ||                                                                                    # 随机数未命中
             $status === 'BUR' && ($pokemon[0]['type'] == '0' || $pokemon[0]['abi'] === '41') ||                                            # 烧伤 - 火属性、水之掩护
             $status === 'FRZ' && ($pokemon[0]['type'] == '13' || $pokemon[0]['abi'] === '40') ||                                         # 冰冻 - 冰属性、熔岩盔甲
-            $status === 'SLP' && in_array($pokemon[0]['abi'], array('15', '72')) ||                                                        # 睡眠 - 不眠、干劲
-            in_array($status, array('PSN', 'TXC')) && (in_array($pokemon[0]['type'], array('9', '12')) || $pokemon[0]['abi'] === '17')    # 中毒 - 毒属性、钢属性、免疫
+            $status === 'SLP' && in_array($pokemon[0]['abi'], ['15', '72']) ||                                                        # 睡眠 - 不眠、干劲
+            in_array($status, ['PSN', 'TXC']) && (in_array($pokemon[0]['type'], ['9', '12']) || $pokemon[0]['abi'] === '17')    # 中毒 - 毒属性、钢属性、免疫
         ) {
 
-            if ($failreport === TRUE) self::FailMove();
+            if($failreport === TRUE) self::FailMove();
 
             return FALSE;
 
         }
 
-        $actarr = array(NULL,
-            'BRN' => array('1', '烧伤了'),
-            'FRZ' => array('2', '被冻住了'),
-            'PAR' => array('3', '麻痹了'),
-            'SLP' => array('4', '睡着了'),
-            'PSN' => array('5', '中毒了'),
-            'TXC' => array('6', '中了剧毒')
-        );
+        $actarr = [NULL,
+            'BRN' => ['1', '烧伤了'],
+            'FRZ' => ['2', '被冻住了'],
+            'PAR' => ['3', '麻痹了'],
+            'SLP' => ['4', '睡着了'],
+            'PSN' => ['5', '中毒了'],
+            'TXC' => ['6', '中了剧毒']
+        ];
 
         $pokemon[0]['status'] = $actarr[$status][0];
 
-        if ($status === 'SLP') { # 睡眠
+        if($status === 'SLP') { # 睡眠
 
             /*
                 - If pokemon's ability is Early Bird, half the round
@@ -179,236 +157,11 @@ class Battle {
 
     }
 
-    public static function AlterSubStatus(&$pokemon, $status, $chance = 100, $round = '2-5', $failreport = FALSE) {
+    public static function FailMove() {
 
-        $statusarr = array('CFS' => '混乱');
+        self::$report .= '什么都没发生……<br>';
 
-        if (/*$pokemon[1][2][$actarr[$status][0]] !== FALSE || */
-            $chance >= 0 && rand(0, 100) > $chance ||
-            $status === 'CFS' && $pokemon[0]['abi'] === '20' # Confusion - Own Tempo
-        ) {
-
-            if ($failreport === TRUE) self::FailMove();
-
-            return FALSE;
-
-        } else {
-
-            $actarr = array(NULL,
-                'CFS' => array('0', '混乱了')
-            );
-
-            $pokemon[1][2][$actarr[$status][0]] = rand($round{0}, substr($round, -1));
-
-        }
-
-        self::$report .= $pokemon[0]['name'] . $actarr[$status][1] . '！';
-
-    }
-
-    public static function CatchPokemon($iid) {
-
-        global $user;
-
-        $mod = $smod = 1;
-        $heal = $caught = FALSE;
-
-        $catchrate = DB::result_first('SELECT catchrt FROM pkm_pkmdata WHERE id = ' . self::$pokemon[0][0]['id']);
-
-        switch ($iid) {
-            case '2':
-                $mod = 1.5;
-                break;    # 超级球
-            case '3':
-                $mod = 2;
-                break;    # 特级球
-            case '4':
-                $mod = 100;
-                break;    # 大师球
-            case '6':                        # 等级球
-
-                if (self::$pokemon[1][0]['level'] > self::$pokemon[0][0]['level'] * 4) $mod = 8;
-                elseif (self::$pokemon[1][0]['level'] > self::$pokemon[0][0]['level'] * 2) $mod = 4;
-                elseif (self::$pokemon[1][0]['level'] > self::$pokemon[0][0]['level']) $mod = 2;
-
-                break;
-            case '7':                        # 月亮球
-
-                if (unserialize(self::$pokemon[0][0]['evldata'])[5] === '31') $mod = 4;
-
-                break;
-            case '10':                        # 爱心球
-
-                $chain = [];
-                $query = DB::query('SELECT id FROM pkm_pkmextra WHERE devolve = ' . self::$pokemon[0][0]['id']);
-
-                while ($info = DB::fetch($query)) {
-
-                    $chain[] = $info['id'];
-
-                }
-
-                if ((!empty($inchain) && in_array(self::$pokemon[1][0]['id'], $inchain, TRUE) ||
-                        self::$pokemon[0][0]['id'] === self::$pokemon[1][0]['id']) &&
-                    self::$pokemon[0][0]['gender'] != self::$pokemon[1][0]['gender']
-                )
-
-                    $mod = 8;
-
-                break;
-            case '11':                        # 速度球
-
-                if (explode(',', self::$pokemon[0][0]['bs'])[5] > 99) $mod = 4;
-
-                break;
-            case '12':                        # 重量球
-
-                $weight = self::$pokemon[0][0]['weight'] / 10;
-
-                if ($weight > 400) $catchrate += 40;
-                elseif ($weight > 300 && $weight < 401) $catchrate += 30;
-                elseif ($weight > 200 && $weight < 301) $catchrate += 20;
-                elseif ($weight < 100) $catchrate = max(3, $catchrate - 20);
-
-                break;
-            case '13':
-                $mod = 1.5;
-                break;    # 运动球
-            case '14':                        # 网球
-
-                if (in_array(self::$pokemon[0][0]['type'], array('2', '8')) ||
-                    in_array(self::$pokemon[0][0]['typeb'], array('2', '8'))
-                )
-
-                    $mod = 3;
-
-                break;
-            case '16':                        # 巢球
-
-                if (self::$pokemon[0][0]['level'] < 30) $mod = (40 - self::$pokemon[0][0]['level']) / 10;
-
-                break;
-            case '18':
-                $mod = min(4, 1 + self::$field['turn'] * 0.3);
-                break; # 时间球
-            case '21':
-                $mod = 1;
-                break; # 黑暗球
-            case '23':
-                $mod = 1;
-                break; # 快速球
-
-        }
-
-        if (in_array((string)self::$pokemon[0][0]['status'], array('1', '3', '5', '6'), TRUE))
-
-            $smod = 1.5;
-
-        elseif (in_array((string)self::$pokemon[0][0]['status'], array('2', '4'), TRUE))
-
-            $smod = 2;
-
-        $diff = self::$pokemon[0][0]['level'] - self::$pokemon[1][0]['level'];
-
-        $lmod = min(($diff > 0) ? 1 - $diff / 100 : 1 + $diff / 100, 1.05);
-
-        $x = (3 * self::$pokemon[0][0]['maxhp'] - 2 * self::$pokemon[0][0]['hp']) * $catchrate * (($catchrate < 10) ? 0.5 : 1) * $mod * $smod * $lmod / 3 / self::$pokemon[0][0]['maxhp'];
-
-        if ($x >= 255) {
-
-            $caught = TRUE;
-
-        } else {
-
-            $caught = TRUE;
-            $y = 65535 / pow(255 / $x, 0.25);
-
-            for ($i = 0; $i < 3; $i++) {
-
-                if (rand(0, 65535) >= $y) {
-
-                    $caught = FALSE;
-
-                    break;
-
-                }
-
-            }
-
-        }
-
-        if ($caught === FALSE) {
-
-            self::$report .= self::$pokemon[0][0]['name'] . '从球里逃了出来！<br>';
-
-            return FALSE;
-
-        }
-
-        $place = Obtain::DepositBox($user['uid']);
-
-        if ($place === FALSE) return FALSE;
-
-        $info = array(
-            'id' => self::$pokemon[0][0]['id'],
-            'nickname' => '\'' . self::$pokemon[0][0]['name'] . '\'',
-            'gender' => self::$pokemon[0][0]['gender'],
-            'pv' => '\'' . self::$pokemon[0][0]['pv'] . '\'',
-            'iv' => '\'' . self::$pokemon[0][0]['iv'] . '\'',
-            'ev' => '\'' . self::$pokemon[0][0]['ev'] . '\'',
-            'shiny' => self::$pokemon[0][0]['shiny'],
-            'originuid' => $user['uid'],
-            'nature' => self::$pokemon[0][0]['nature'],
-            'level' => self::$pokemon[0][0]['level'],
-            'exp' => self::$pokemon[0][0]['exp'],
-            'crritem' => self::$pokemon[0][0]['crritem'],
-            'hpns' => ($iid == '9') ? 200 : self::$pokemon[0][0]['hpns'],
-            'move' => '\'' . serialize(self::$pokemon[0][0]['move']) . '\'',
-            'mtlevel' => self::$pokemon[0][0]['level'],
-            'mtdate' => $_SERVER['REQUEST_TIME'],
-            'mtplace' => self::$pokemon[0][0]['mtplace'],
-            'abi' => self::$pokemon[0][0]['abi'],
-            'uid' => $user['uid'],
-            'capitem' => $iid,
-            'hp' => self::$pokemon[0][0][($iid == '22' || $place > 6) ? 'maxhp' : 'hp'],
-            'place' => $place,
-            'status' => ($iid == '22' || $place > 6) ? 0 : self::$pokemon[0][0]['status'],
-            'imgname' => '\'' . self::$pokemon[0][0]['imgname'] . '\''
-        );
-
-        self::$isend = TRUE;
-        self::$report .= '捕获成功！<br>';
-
-        DB::query('INSERT INTO pkm_mypkm (' . implode(',', array_keys($info)) . ') VALUES (' . implode(',', array_values($info)) . ')');
-
-        if (in_array(Pokemon::Register($info['id'], TRUE), array('0', FALSE), TRUE))
-
-            self::$report .= self::$pokemon[0][0]['name'] . '的信息记录在了图鉴中。<br>';
-
-        ++$user['addexp'];
-
-        return TRUE;
-
-    }
-
-    public static function Item(&$pokemon, $action, $iid = 0) {
-
-        if ($action === 'DROP' && !empty($pokemon[0]['crritem'])) {
-
-            $pokemon[1][10] = $pokemon[0]['crritem'];
-            $pokemon[0]['crritem'] = '0';
-
-        } elseif ($action === 'OBTAIN' && !empty($iid)) {
-
-            $pokemon[0]['crritem'] = $iid;
-
-        } elseif ($action === 'SWAP' && is_array($swappokemon)) {
-
-            $tmp = self::$atk[0]['crritem'];
-            self::$atk[0]['crritem'] = self::$def[0]['crritem'];
-            self::$def[0]['crritem'] = self::$atk[0]['crritem'];
-
-        }
+        return FALSE;
 
     }
 
@@ -425,7 +178,7 @@ class Battle {
 
         // Obtain the final stat of pokemon
 
-        for ($i = 0; $i < 2; $i++) {
+        for($i = 0; $i < 2; $i++) {
 
             $tmp = $i ^ 1;
 
@@ -436,7 +189,7 @@ class Battle {
         // Obtain the attack order with priority calculations
 
         self::ObtainAttackOrder();
-        Kit::Library('db', array('move'));
+        Kit::Library('db', ['move']);
 
         // Starts to attack
 
@@ -444,19 +197,19 @@ class Battle {
 
         BATTLE: {
 
-            if ($i > -1) {
+            if($i > -1) {
 
                 BATTLEEND: {
 
-                    if (self::$failed === FALSE && $_GET['process'] === 'usemove' && !self::$charged)
+                    if(self::$failed === FALSE && $_GET['process'] === 'usemove' && !self::$charged)
 
                         --$atk[0]['move'][$atkmove['key']][1];
 
-                    if (self::$isend === TRUE || $atk[0]['hp'] < 1 || $def[0]['hp'] < 1)
+                    if(self::$isend === TRUE || $atk[0]['hp'] < 1 || $def[0]['hp'] < 1)
 
                         goto TAIL;
 
-                    elseif ($i >= 1) {
+                    elseif($i >= 1) {
 
                         $atk[1]['insstatus'] = 0;
                         $def[1]['insstatus'] = 0;
@@ -466,9 +219,9 @@ class Battle {
                     }
 
                     self::$stabledamage = 0;
-                    self::$m = [];
-                    self::$failed = FALSE;
-                    self::$charged = FALSE;
+                    self::$m            = [];
+                    self::$failed       = FALSE;
+                    self::$charged      = FALSE;
 
                     $atk[1][7] = $atkmove['mid'] ? $atkmove['mid'] : 0;
 
@@ -487,32 +240,32 @@ class Battle {
             $atkkey = !isset($defkey) ? strpos(self::$order, '1') : $defkey;
             $defkey = $atkkey ^ 1;
 
-            self::$atkkey = $atkkey;
-            self::$defkey = $defkey;
-            self::$atk = &self::$pokemon[$atkkey];
-            self::$def = &self::$pokemon[$defkey];
+            self::$atkkey   = $atkkey;
+            self::$defkey   = $defkey;
+            self::$atk      = &self::$pokemon[$atkkey];
+            self::$def      = &self::$pokemon[$defkey];
             self::$atkfield = &self::$field[7 + $atkkey];
             self::$deffield = &self::$field[7 + $defkey];
-            self::$atkmove = &self::$move[$atkkey];
-            self::$defmove = &self::$move[$defkey];
+            self::$atkmove  = &self::$move[$atkkey];
+            self::$defmove  = &self::$move[$defkey];
 
-            $atk = &self::$pokemon[$atkkey];
-            $def = &self::$pokemon[$defkey];
+            $atk      = &self::$pokemon[$atkkey];
+            $def      = &self::$pokemon[$defkey];
             $atkfield = &self::$field[$atkkey];
             $deffield = &self::$field[$defkey];
-            $atkmove = &self::$move[$atkkey];
-            $defmove = &self::$move[$defkey];
+            $atkmove  = &self::$move[$atkkey];
+            $defmove  = &self::$move[$defkey];
 
-            $abifunc = '__' . $atk[0]['abi'];
+            $abifunc  = '__' . $atk[0]['abi'];
             $movefunc = '__' . $atkmove['mid'];
 
-            if ($_GET['process'] === 'useitem' && $atkkey === 1) {
+            if($_GET['process'] === 'useitem' && $atkkey === 1) {
 
                 self::UseItem();
 
                 goto BATTLE;
 
-            } elseif ($_GET['process'] === 'swappm' && $atkkey === 1) {
+            } elseif($_GET['process'] === 'swappm' && $atkkey === 1) {
 
                 Battle::$swapped = self::ReorderPokemon(intval($_GET['pid']));
 
@@ -520,12 +273,12 @@ class Battle {
 
             }
 
-            if ($i === 1) {
+            if($i === 1) {
 
-                for ($j = 0; $j < 2; $j++) {
+                for($j = 0; $j < 2; $j++) {
 
-                    if ($j === 0) self::ObtainStat($atk, $def, $atkmove, isset($defmove) ? $defmove : []);
-                    elseif ($j === 1) self::ObtainStat($def, $atk, isset($defmove) ? $defmove : [], $atkmove);
+                    if($j === 0) self::ObtainStat($atk, $def, $atkmove, isset($defmove) ? $defmove : []);
+                    elseif($j === 1) self::ObtainStat($def, $atk, isset($defmove) ? $defmove : [], $atkmove);
 
                 }
 
@@ -539,7 +292,7 @@ class Battle {
                 which allows several ability, field to activate
             */
 
-            if (1 === 2 && $_GET['process'] === 'swappm' && self::$order{1} === '1') {
+            if(1 === 2 && $_GET['process'] === 'swappm' && self::$order{1} === '1') {
 
                 /*
                     because reference variables do not update values after the source has been updated when it's an value of an array
@@ -547,11 +300,11 @@ class Battle {
                 */
 
                 self::$pokemon = self::ReorderPokemon(self::$pokemon, self::$swapid);
-                $atk = &self::$pokemon[$atkkey];
+                $atk           = &self::$pokemon[$atkkey];
 
-                if ($atk[0]['abi'] !== '98') { # 魔法守护
+                if($atk[0]['abi'] !== '98') { # 魔法守护
 
-                    if ($atkfield{0} > 0 && !in_array('7', array($atk[0]['type'], $atk[0]['typeb'])) && $atk[0]['abi'] !== '26' && $atk[0]['crritem'] != '140') {
+                    if($atkfield{0} > 0 && !in_array('7', [$atk[0]['type'], $atk[0]['typeb']]) && $atk[0]['abi'] !== '26' && $atk[0]['crritem'] != '140') {
 
                         $atk[0]['hp'] -= floor($atk[0]['maxhp'] / (10 - 2 * $field{0}));
                         self::$report .= '锋利的菱片扎在了' . $atk[0]['name'] . '的脚上<br>';
@@ -561,7 +314,7 @@ class Battle {
 
                     // Stealth Rock activation, damage formula: [type restriction] * [max hp] / 8
 
-                    if ($atkfield{1} > 0) {
+                    if($atkfield{1} > 0) {
 
 
                         $atk[0]['hp'] -= floor(self::ObtainRestrictModifier('10', $atk[0]['type'], $atk[0]['typeb']) * $atk[0]['maxhp'] / 8);
@@ -580,12 +333,12 @@ class Battle {
                             It poisons the current pokemon, the poison level based on times it has been used, maximum 2
                     */
 
-                    if ($atkfield{2} > 0 && in_array('9', array($atk[0]['type'], $atk[0]['typeb']))) {
+                    if($atkfield{2} > 0 && in_array('9', [$atk[0]['type'], $atk[0]['typeb']])) {
 
                         $atkfield{2} = '0';
                         self::$report .= '脚低下的毒菱都没了！<br>';
 
-                    } elseif ($atkfield{2} > 0 && $atk[1][2][36] === FALSE && !in_array(7, array($atk[0]['type'], $atk[0]['typeb'])) && !in_array($atk[0]['abi'], array('17', '26'))) {
+                    } elseif($atkfield{2} > 0 && $atk[1][2][36] === FALSE && !in_array(7, [$atk[0]['type'], $atk[0]['typeb']]) && !in_array($atk[0]['abi'], ['17', '26'])) {
 
                         $atk[0]['status'] = strval(min(4 + $atkfield{2}, 6));
                         self::$report .= '紫红的妖菱扎在了' . $atk[0]['name'] . '的脚上<br>';
@@ -596,7 +349,7 @@ class Battle {
 
                 # 降雨、无天气、威吓、复制、起沙、压力、干旱、天气锁、下载、破格、预知梦、缓慢启动、降雪、洞察、替代物、涡轮火花、垓级电压
 
-                if (in_array($atk[0]['abi'], array('2', '13', '22', '36', '45', '46', '46', '76', '88', '104', '108', '112', '117', '119', '150', '163', '164'))) {
+                if(in_array($atk[0]['abi'], ['2', '13', '22', '36', '45', '46', '46', '76', '88', '104', '108', '112', '117', '119', '150', '163', '164'])) {
 
                     //AbilityDb::$abifunc();
 
@@ -604,7 +357,7 @@ class Battle {
 
                 $atk[0]['crritem'] === '140' && self::$report .= $atk[0]['name'] . '漂浮在了空中。<br>'; # 气球
 
-            } elseif ($_GET['process'] === 'usemove' || in_array($_GET['process'], array('useitem', 'swappm')) && $atkkey === 0) {
+            } elseif($_GET['process'] === 'usemove' || in_array($_GET['process'], ['useitem', 'swappm']) && $atkkey === 0) {
 
                 /*
                     Focus punch in process..
@@ -612,9 +365,9 @@ class Battle {
 
                 // determine whether or not there is a charged move
 
-                if (self::$atk[1][6]) {
+                if(self::$atk[1][6]) {
 
-                    self::$charged = TRUE;
+                    self::$charged   = TRUE;
                     self::$atk[1][6] = 0;
 
                 }
@@ -630,17 +383,17 @@ class Battle {
                 $atk[1][2][3] && --$atk[1][2][3];            # 状态 - 束缚
 
 
-                if ($atk[1][2][44]) { # 僵直
+                if($atk[1][2][44]) { # 僵直
 
                     $atk[1][2][44] = FALSE;
-                    self::$failed = TRUE;
+                    self::$failed  = TRUE;
                     self::$report .= $atk[0]['name'] . '无法动弹。<br>';
 
                     goto BATTLE;
 
                 }
 
-                if ($atk[1][2][15] > 0) {
+                if($atk[1][2][15] > 0) {
 
                     // Awaiting for the report
 
@@ -651,9 +404,9 @@ class Battle {
                 }
 
 
-                if ($atk[0]['status'] === '2') { # 冰冻
+                if($atk[0]['status'] === '2') { # 冰冻
 
-                    if (rand(1, 10) > 3) {
+                    if(rand(1, 10) > 3) {
 
                         self::$report .= $atk[0]['name'] . '被冻住了。<br>';
                         self::$failed = TRUE;
@@ -664,11 +417,11 @@ class Battle {
 
                     }
 
-                } elseif ($atk[0]['status'] === '4' && !in_array($atkmove['mid'], array('173', '214'), TRUE)) { # 睡眠
+                } elseif($atk[0]['status'] === '4' && !in_array($atkmove['mid'], ['173', '214'], TRUE)) { # 睡眠
 
-                    if ($atk[1][11] === 0) {
+                    if($atk[1][11] === 0) {
 
-                        $atk[1][11] = FALSE;
+                        $atk[1][11]       = FALSE;
                         $atk[0]['status'] = '0';
                         self::$report .= $atk[0]['name'] . '醒来了！<br>';
 
@@ -684,17 +437,17 @@ class Battle {
                 }
 
 
-                if ($atk[1][2][37]) { # 懒惰
+                if($atk[1][2][37]) { # 懒惰
 
                     $atk[1][2][37] = FALSE;
-                    self::$failed = TRUE;
+                    self::$failed  = TRUE;
                     self::$report .= $atk[0]['name'] . '懒洋洋地。<br>';
 
                     goto BATTLE;
 
                 }
 
-                if ($atk[1][2][16] && $atkmove['mid'] == $atk[1][7]) { // 3. 残废 && 待确认回合数
+                if($atk[1][2][16] && $atkmove['mid'] == $atk[1][7]) { // 3. 残废 && 待确认回合数
 
                     self::$report .= $atk[0]['name'] . '的技能被封锁了。<br>';
 
@@ -704,7 +457,7 @@ class Battle {
 
                 }
 
-                if ($atk[1][2][30] && in_array($atkmove['mid'], $atk[1][2][30])) { // 4. 封印
+                if($atk[1][2][30] && in_array($atkmove['mid'], $atk[1][2][30])) { // 4. 封印
 
                     self::$report .= $atk[0]['name'] . '的技能被封印了。<br>';
 
@@ -714,7 +467,7 @@ class Battle {
 
                 }
 
-                if ($atk[1][2][9] && $atkmove['btlefct']{9} === '1') { // 5. 回复封印
+                if($atk[1][2][9] && $atkmove['btlefct']{9} === '1') { // 5. 回复封印
 
                     self::$report .= $atk[0]['name'] . '无法回复。<br>';
 
@@ -724,18 +477,18 @@ class Battle {
 
                 }
 
-                if ($atk[1][2][0] === 0) {
+                if($atk[1][2][0] === 0) {
 
                     $atk[1][2][0] = FALSE;
                     self::$report .= $atk[0]['name'] . '解除了混乱！<br>';
 
-                } elseif ($atk[1][2][0] && $atk[0]['abi'] !== '20') { # 主状态 - 混乱、自我中心
+                } elseif($atk[1][2][0] && $atk[0]['abi'] !== '20') { # 主状态 - 混乱、自我中心
 
                     self::$report .= $atk[0]['name'] . '混乱了！<br>';
 
                     self::$failed = TRUE;
 
-                    if (rand(1, 2) === 2) {
+                    if(rand(1, 2) === 2) {
 
                         self::$report .= $atk[0]['name'] . '打了自己。<br>';
                         $atk[0]['hp'] -= min(floor(floor(floor($atk[0]['level'] * 2 / 5 + 2) * 40 * $atk[0]['atk'] / $atk[0]['def']) / 50) + 2, $atk[0]['maxhp'] - $atk[0]['hp']);
@@ -748,9 +501,9 @@ class Battle {
 
                 }
 
-                if ($atk[1]['insstatus'] === 1 && $atk[0]['abi'] != '39') { # 特性 - 精神力
+                if($atk[1]['insstatus'] === 1 && $atk[0]['abi'] != '39') { # 特性 - 精神力
 
-                    if ($atk[0]['abi'] === '80') {# 特性 - 不屈之心
+                    if($atk[0]['abi'] === '80') {# 特性 - 不屈之心
 
                         //AbilityDb::$abifunc();
 
@@ -766,7 +519,7 @@ class Battle {
 
                 }
 
-                if ($atk[1][2][5] && $atkmove['class'] === '0') { # 副状态 - 挑拨
+                if($atk[1][2][5] && $atkmove['class'] === '0') { # 副状态 - 挑拨
 
                     self::$report .= $atk[0]['name'] . '盯着对方。<br>';
 
@@ -776,7 +529,7 @@ class Battle {
 
                 }
 
-                if (self::$field['gravity'] > 0 && in_array($atkmove['mid'], array(19, 26, 136, 150, 340, 393, 477, 507))) { # 场地状态 - 重力
+                if(self::$field['gravity'] > 0 && in_array($atkmove['mid'], [19, 26, 136, 150, 340, 393, 477, 507])) { # 场地状态 - 重力
 
                     self::$report .= $atk[0]['name'] . '感觉身体很重。<br>';
 
@@ -786,7 +539,7 @@ class Battle {
 
                 }
 
-                if ($atk[1][2][1] && $def[0]['pid'] == $atk[1][2][1] && rand(1, 2) === 2) { # 副状态 - 着迷
+                if($atk[1][2][1] && $def[0]['pid'] == $atk[1][2][1] && rand(1, 2) === 2) { # 副状态 - 着迷
 
                     self::$report .= $atk[0]['name'] . '用迷离的眼神望着对方。<br>';
                     self::$failed = TRUE;
@@ -795,7 +548,7 @@ class Battle {
 
                 }
 
-                if ($atk[0]['status'] === '3' && $atk[0]['abi'] !== '95' && rand(1, 4) === 1) {
+                if($atk[0]['status'] === '3' && $atk[0]['abi'] !== '95' && rand(1, 4) === 1) {
 
                     self::$report .= $atk[0]['name'] . '被麻痹折服了无法动弹！<br>';
 
@@ -805,7 +558,7 @@ class Battle {
 
                 }
 
-                if ($atk[0]['move'][$atkmove['key']][1] <= 0 && !self::$charged) {
+                if($atk[0]['move'][$atkmove['key']][1] <= 0 && !self::$charged) {
 
                     self::$report .= $atk[0]['name'] . '的PP不足。<br>';
 
@@ -830,13 +583,13 @@ class Battle {
 
                     self::$report .= $atk[0]['name'] . '使出了' . $atkmove['name'] . '！<br>';
 
-                    if ($atkmove['btlefct']{6} === '1' && $atk[0]['crritem'] === '83') { # 力量香草
+                    if($atkmove['btlefct']{6} === '1' && $atk[0]['crritem'] === '83') { # 力量香草
 
                         //self::DropItem($atk); // @ marked: DropItem
 
                         self::$report .= '力量香草给予了' . $atk[0]['name'] . '力量！';
 
-                    } elseif (!self::$charged && self::$atkmove['btlefct']{6} === '1' && method_exists('MoveDb', $movefunc)) {
+                    } elseif(!self::$charged && self::$atkmove['btlefct']{6} === '1' && method_exists('MoveDb', $movefunc)) {
 
                         MoveDb::$movefunc();
 
@@ -846,26 +599,26 @@ class Battle {
 
                     self::__MoveCurrentPlace($atk, FALSE);
 
-                    self::$m = array(
-                        'type' => $atkmove['type'],
-                        'power' => $atkmove['power'],
-                        'defstat' => ($atkmove['class'] === '1') ? 'def' : (($atkmove['class'] === '2') ? 'spdef' : NULL),
+                    self::$m = [
+                        'type'      => $atkmove['type'],
+                        'power'     => $atkmove['power'],
+                        'defstat'   => ($atkmove['class'] === '1') ? 'def' : (($atkmove['class'] === '2') ? 'spdef' : NULL),
                         'recoilper' => 0
-                    );
+                    ];
 
                     /*
                         Calculating move's type
                     */
 
-                    if (in_array($atkmove['mid'], array('546', '449', '363', '237'), TRUE)) { # 科技爆破、制裁之砾、自然恩惠、觉醒力量
+                    if(in_array($atkmove['mid'], ['546', '449', '363', '237'], TRUE)) { # 科技爆破、制裁之砾、自然恩惠、觉醒力量
 
                         self::$moveflag = 'CALTYPE';
 
-                        if (method_exists('MoveDb', $movefunc))
+                        if(method_exists('MoveDb', $movefunc))
 
                             MoveDb::$movefunc();
 
-                    } elseif ($atk[0]['abi'] === '96') { # 普通皮肤
+                    } elseif($atk[0]['abi'] === '96') { # 普通皮肤
 
                         //AbilityDb::$abifunc();
 
@@ -877,35 +630,35 @@ class Battle {
                         Dream Eater, Synchronoise and Captivate are also excluded here for later move function activation
                     */
 
-                    $typemod = (in_array($atkmove['class'], array('1', '2')) ||
+                    $typemod = (in_array($atkmove['class'], ['1', '2']) ||
                         $atkmove['mid'] == '86' && $def[0]['type'] == '11')
                         ? self::ObtainRestrictModifier($atkmove['type'], $def[0]['type'], $def[0]['typeb']) : 1;
 
-                    if ($typemod === 0) {
+                    if($typemod === 0) {
 
                         self::$report .= '技能没有效果……<br>';
 
                         goto MOVEFAILED;
 
-                    } elseif ($atkmove['type'] == '11' && $atkmove['class'] != 0 && $def[0]['abi'] === '26') { # 浮游
+                    } elseif($atkmove['type'] == '11' && $atkmove['class'] != 0 && $def[0]['abi'] === '26') { # 浮游
 
                         //Ability::$abifunc();
 
                         goto MOVEFAILED;
 
-                    } elseif ($def[1]['insstatus'] === 2 && $atk[1][2][42] !== 4) { # 保护
+                    } elseif($def[1]['insstatus'] === 2 && $atk[1][2][42] !== 4) { # 保护
 
                         self::$report .= $def[0]['name'] . '保护了自己！';
 
                         goto MOVEFAILED;
 
-                    } elseif (($def[1]['insstatus'] === 4 || $def[0]['abi'] === '156') && $atkmove['btlefct']{3} === '1') { # 魔装反射
+                    } elseif(($def[1]['insstatus'] === 4 || $def[0]['abi'] === '156') && $atkmove['btlefct']{3} === '1') { # 魔装反射
 
                         self::$moveflag = 'REFLECTED';
 
-                        if ($def[1]['status'] === 4) {
+                        if($def[1]['status'] === 4) {
 
-                            if (method_exists('MoveDb', $movefunc))
+                            if(method_exists('MoveDb', $movefunc))
 
                                 MoveDb::$movefunc();
 
@@ -916,9 +669,9 @@ class Battle {
 
                         self::$tempsaver[0] = $def;
                         self::$tempsaver[1] = $defmove;
-                        $def = $atk;
-                        $defmove = $atkmove;
-                        $abifunc = '__' . $atk[0]['abi'];
+                        $def                = $atk;
+                        $defmove            = $atkmove;
+                        $abifunc            = '__' . $atk[0]['abi'];
 
                     }
 
@@ -966,31 +719,31 @@ class Battle {
 
                     $movehit = FALSE;
 
-                    if (in_array('99', array($atk[0]['abi'], $def[0]['abi'])) ||    # 无防御
+                    if(in_array('99', [$atk[0]['abi'], $def[0]['abi']]) ||    # 无防御
                         $def[1][2][4] && $atk[0]['pid'] == $def[1][2][4] ||        # 锁定、心眼
                         //$atkmove['btlefct']{14} !== '1' && $def[1][2][39] ||                                                # 念动力 @ marked: btlefct
                         //$atk[0]['crritem'] === '神秘果' && $atk[0]['hpper'] < $atk[0]['hpeat'] && self::DropItem($atk) ||    # 神秘果 @ marked: DropItem
                         $atkmove['acc'] > 100 ||                                                                            # 必中技能
-                        in_array($atkmove['mid'], array('89', '90', '222'), TRUE) && $def[1][2][42] === 3 ||                        # 地震、地裂震级变化
-                        in_array($atkmove['mid'], array('57', '250'), TRUE) && $def[1][2][42] === 2 ||                            # 冲浪、漩涡
-                        in_array($atkmove['mid'], array('16', '89', '239', '327', '479', '542'), TRUE) && $def[1][2][42] === 1 || # 起风、雷电、龙卷风、升空拳、击坠、暴风
-                        self::$field['weather']{0} === '2' && in_array($atkmove['mid'], array('87', '542'), TRUE) ||                # 雨天、雷电、暴风
+                        in_array($atkmove['mid'], ['89', '90', '222'], TRUE) && $def[1][2][42] === 3 ||                        # 地震、地裂震级变化
+                        in_array($atkmove['mid'], ['57', '250'], TRUE) && $def[1][2][42] === 2 ||                            # 冲浪、漩涡
+                        in_array($atkmove['mid'], ['16', '89', '239', '327', '479', '542'], TRUE) && $def[1][2][42] === 1 || # 起风、雷电、龙卷风、升空拳、击坠、暴风
+                        self::$field['weather']{0} === '2' && in_array($atkmove['mid'], ['87', '542'], TRUE) ||                # 雨天、雷电、暴风
                         self::$field['weather']{0} === '4' && $atkmove['mid'] === '59'
                     ) {                                        # 冰雹、暴风雪
 
                         $movehit = TRUE;
 
-                    } elseif ($def[1][2][42]) {
+                    } elseif($def[1][2][42]) {
 
                         // do nothing
 
-                    } elseif ($atkmove['btlefct']{14} === '1') { # OHKO
+                    } elseif($atkmove['btlefct']{14} === '1') { # OHKO
 
-                        if ($atk[0]['level'] >= $def[0]['level'] && rand(1, 100) <= 30 + $atk[0]['level'] - $def[0]['level']) {
+                        if($atk[0]['level'] >= $def[0]['level'] && rand(1, 100) <= 30 + $atk[0]['level'] - $def[0]['level']) {
 
                             $movehit = TRUE;
 
-                        } elseif ($atk[0]['level'] < $def[0]['level']) {
+                        } elseif($atk[0]['level'] < $def[0]['level']) {
 
                             self::$report .= '可惜没有效果！<br>';
 
@@ -1000,51 +753,51 @@ class Battle {
 
                     } else {
 
-                        $accmod = 1;                                    # accuracy modifier
-                        $accneva = array($atk[1][1][5], $def[1][1][6]);    # accuracy and evasive for pokemon
+                        $accmod  = 1;                                    # accuracy modifier
+                        $accneva = [$atk[1][1][5], $def[1][1][6]];    # accuracy and evasive for pokemon
 
-                        if (self::$field['weather']{0} === '3' && $def[0]['abi'] === '8' ||
+                        if(self::$field['weather']{0} === '3' && $def[0]['abi'] === '8' ||
                             self::$field['weather']{0} === '4' && $def[0]['abi'] === '81'
                         ) $accmod *= 0.8;        # 沙暴+沙隐、冰雹+雪隐
-                        elseif (self::$field['weather']{0} === '5') $accmod *= 0.6;        # 雾
+                        elseif(self::$field['weather']{0} === '5') $accmod *= 0.6;        # 雾
 
-                        if ($atk[0]['abi'] === '14') $accmod *= 1.3;        # 复眼
-                        elseif ($atk[0]['abi'] === '55' && $atkmove['class'] == '1') $accmod *= 0.8;     # 紧张
-                        elseif ($atk[0]['abi'] === '162') $accmod *= 1.1;        # 胜利之星
-                        elseif ($atk[0]['abi'] === '109') $accneva[1] = 0;    # 天然
+                        if($atk[0]['abi'] === '14') $accmod *= 1.3;        # 复眼
+                        elseif($atk[0]['abi'] === '55' && $atkmove['class'] == '1') $accmod *= 0.8;     # 紧张
+                        elseif($atk[0]['abi'] === '162') $accmod *= 1.1;        # 胜利之星
+                        elseif($atk[0]['abi'] === '109') $accneva[1] = 0;    # 天然
 
-                        if ($def[0]['abi'] === '77' && $def[1][2][0] !== FALSE) $accmod *= 0.8;        # 蹒跚
-                        elseif ($def[0]['abi'] === '109') $accneva[0] = 0;    # 天然
+                        if($def[0]['abi'] === '77' && $def[1][2][0] !== FALSE) $accmod *= 0.8;        # 蹒跚
+                        elseif($def[0]['abi'] === '109') $accneva[0] = 0;    # 天然
 
-                        if (!in_array(0, array($atk[1][2][40], $atk[1][2][41]), TRUE) && $accneva[1] > 0) $accneva[1] = 0;    # 识破、嗅觉、奇迹之眼
+                        if(!in_array(0, [$atk[1][2][40], $atk[1][2][41]], TRUE) && $accneva[1] > 0) $accneva[1] = 0;    # 识破、嗅觉、奇迹之眼
 
-                        if ($atk[0]['crritem'] === '77') $accmod *= 1.1;        # 广角镜
-                        elseif ($atk[0]['crritem'] === '88' && self::$order{1} === '1') $accmod *= 1.2;        # 放大镜
-                        elseif (in_array($def[0]['crritem'], array('39', '72'), TRUE)) $accmod *= 0.9;        # 光粉、舒畅之香
+                        if($atk[0]['crritem'] === '77') $accmod *= 1.1;        # 广角镜
+                        elseif($atk[0]['crritem'] === '88' && self::$order{1} === '1') $accmod *= 1.2;        # 放大镜
+                        elseif(in_array($def[0]['crritem'], ['39', '72'], TRUE)) $accmod *= 0.9;        # 光粉、舒畅之香
 
-                        if (self::$field['gravity'] == '1') $accmod *= 5 / 3;    # 重力
+                        if(self::$field['gravity'] == '1') $accmod *= 5 / 3;    # 重力
 
-                        if (self::$field['weather']{0} === '1' && in_array($atkmove['mid'], array('87', '542'), TRUE))            # 晴天、雷电、暴风
+                        if(self::$field['weather']{0} === '1' && in_array($atkmove['mid'], ['87', '542'], TRUE))            # 晴天、雷电、暴风
 
                             $atkmove['acc'] = 50;
 
-                        $acclevel = max(-6, min(6, $accneva[0] - $accneva[1]));
-                        $acclevelarr = array(33, 36, 43, 50, 60, 75, 100, 133, 166, 200, 250, 266, 300);
-                        $accuracy = floor($atkmove['acc'] * $acclevelarr[$acclevel + 6] / 100 * $accmod);
+                        $acclevel    = max(-6, min(6, $accneva[0] - $accneva[1]));
+                        $acclevelarr = [33, 36, 43, 50, 60, 75, 100, 133, 166, 200, 250, 266, 300];
+                        $accuracy    = floor($atkmove['acc'] * $acclevelarr[$acclevel + 6] / 100 * $accmod);
 
-                        if (rand(1, 100) <= $accuracy) $movehit = TRUE;
+                        if(rand(1, 100) <= $accuracy) $movehit = TRUE;
 
                     }
 
-                    if ($movehit === FALSE) {
+                    if($movehit === FALSE) {
 
-                        if (!($typemod === 0))
+                        if(!($typemod === 0))
 
                             self::$report .= '技能没有命中。<br>';
 
                         MOVEFAILED:
 
-                        if (in_array($atkmove['mid'], array('26', '136'), TRUE) && $atk[0]['abi'] != '98') # 飞踢、飞膝踢、魔法守护
+                        if(in_array($atkmove['mid'], ['26', '136'], TRUE) && $atk[0]['abi'] != '98') # 飞踢、飞膝踢、魔法守护
 
                             self::__MoveMissRecoil();
 
@@ -1061,33 +814,33 @@ class Battle {
 
                 }
 
-                if ($typemod > 1) {
+                if($typemod > 1) {
 
                     self::$report .= '效果拔群！<br>';
 
-                } elseif ($typemod < 1 && $typemod > 0) {
+                } elseif($typemod < 1 && $typemod > 0) {
 
                     self::$report .= '不是很有效……<br>';
 
                 }
 
-                if ($atkmove['btlefct']{14} === '1')
+                if($atkmove['btlefct']{14} === '1')
 
                     self::__MoveOHKO();
 
-                if (method_exists('MoveDb', $movefunc))
+                if(method_exists('MoveDb', $movefunc))
 
                     MoveDb::$movefunc();
 
-                if ($atkmove['class'] === '0')
+                if($atkmove['class'] === '0')
 
                     goto REPORTMAKE;
 
-                if (!empty($atkmove['freq'])) {
+                if(!empty($atkmove['freq'])) {
 
-                    if ($atkmove['freq'] === '25') {
+                    if($atkmove['freq'] === '25') {
 
-                        $rand = rand(0, 3);
+                        $rand            = rand(0, 3);
                         $atkmove['freq'] = ($rand === 0) ? 2 : (($rand === 1) ? 3 : rand(0, 3) + 2);
 
                     } else {
@@ -1106,13 +859,13 @@ class Battle {
 
                     self::$report .= $atk[0]['name'] . '对' . $def[0]['name'] . '造成了' . $damage . '点伤害。<br>';
 
-                    if ($def[1][8] > 0) { # 替身
+                    if($def[1][8] > 0) { # 替身
 
-                        if ($def[0]['crritem'] === '140')
+                        if($def[0]['crritem'] === '140')
 
                             self::$report .= '气球爆了！<br>';
 
-                        if (($def[1][8] = max(0, $def[1][8] - $damage)) === 0)
+                        if(($def[1][8] = max(0, $def[1][8] - $damage)) === 0)
 
                             self::$report .= $def[0]['name'] . '的替身没了！';
 
@@ -1120,7 +873,7 @@ class Battle {
 
                         // 气息腰带、气息头巾、忍耐
 
-                        if (($def[0]['crritem'] === '87' && $def[0]['maxhp'] == $def[0]['hp'] ||
+                        if(($def[0]['crritem'] === '87' && $def[0]['maxhp'] == $def[0]['hp'] ||
                                 $def[0]['crritem'] === '50' && rand(0, 99) < 10 ||
                                 $def[1]['insstatus'] === 3) &&
                             $damage >= $def[0]['hp']
@@ -1129,7 +882,7 @@ class Battle {
                             $def[0]['hp'] = 1;
                             self::$report .= $def[0]['name'] . '承受住了攻击！';
 
-                            if (in_array($def[0]['crritem'], ['87', '50'], TRUE))
+                            if(in_array($def[0]['crritem'], ['87', '50'], TRUE))
 
                                 self::Item($def, 'DROP');
 
@@ -1142,7 +895,7 @@ class Battle {
                     }
 
 
-                    if ($atk[1][2][43] - 1 === 0 && in_array($atkmove['mid'], ['37', '80', '200'])) { // Thrash, Petal Dance, Outrage
+                    if($atk[1][2][43] - 1 === 0 && in_array($atkmove['mid'], ['37', '80', '200'])) { // Thrash, Petal Dance, Outrage
 
                         self::$report .= $atk[0]['name'] . '的头有点晕...';
 
@@ -1152,7 +905,7 @@ class Battle {
 
                     }
 
-                    if ($def[0]['hp'] === 0) {
+                    if($def[0]['hp'] === 0) {
 
                         self::$report .= $def[0]['name'] . '倒下了！<br>';
 
@@ -1160,16 +913,16 @@ class Battle {
 
                     }
 
-                    if (self::$atkmove['btlefct']{16} === '1' &&
+                    if(self::$atkmove['btlefct']{16} === '1' &&
                         self::$m['recoilper'] &&
                         !in_array(self::$atk[0]['abi'], ['69', '98'], TRUE)
                     )
 
                         self::__MoveRecoil($damage); // 技能反伤
 
-                    if (!empty($atkmove['freq'])) self::$report .= $moveused . '连击！<br>';
+                    if(!empty($atkmove['freq'])) self::$report .= $moveused . '连击！<br>';
 
-                    if ($atk[0]['hp'] === 0) {
+                    if($atk[0]['hp'] === 0) {
 
                         self::$report .= $def[0]['name'] . '倒下了！<br>';
 
@@ -1177,7 +930,7 @@ class Battle {
 
                     }
 
-                    if (!empty($atkmove['freq']) && $moveused < $atkmove['freq']) {
+                    if(!empty($atkmove['freq']) && $moveused < $atkmove['freq']) {
 
                         ++$moveused;
 
@@ -1191,7 +944,7 @@ class Battle {
 
                 REPORTMAKE: {
 
-                    if (!empty(self::$reportcur)) {
+                    if(!empty(self::$reportcur)) {
 
                         self::$report .= implode('<br>', self::$reportcur) . '<br>';
 
@@ -1202,10 +955,10 @@ class Battle {
                 }
 
 
-                if (!self::$moveflag === 'REFLECTED') {
+                if(!self::$moveflag === 'REFLECTED') {
 
-                    self::$def = self::$tempsaver[0];
-                    self::$defmove = self::$tempsaver[1];
+                    self::$def       = self::$tempsaver[0];
+                    self::$defmove   = self::$tempsaver[1];
                     self::$tempsaver = NULL;
 
                 }
@@ -1220,46 +973,46 @@ class Battle {
 
         TAIL:
 
-        for ($i = 0; $i < 2; $i++) {
+        for($i = 0; $i < 2; $i++) {
 
             $atkkey = !isset($defkey) ? strpos(self::$order, '1') : $defkey;
             $defkey = $atkkey ^ 1;
-            $atk = &self::$pokemon[$atkkey];
-            $def = &self::$pokemon[$defkey];
+            $atk    = &self::$pokemon[$atkkey];
+            $def    = &self::$pokemon[$defkey];
 
             self::$atk = &self::$pokemon[$atkkey];
             self::$def = &self::$pokemon[$defkey];
 
 
-            if ($atk[1][2][3] !== FALSE) { # 状态 - 束缚
+            if($atk[1][2][3] !== FALSE) { # 状态 - 束缚
 
                 $tmp = substr($atk[1][2][3], -1, 1);
 
-                if ($tmp === '0') {
+                if($tmp === '0') {
 
                     self::$reportend[] = $atk[0]['name'] . '摆脱了束缚！';
-                    $atk[1][2][3] = FALSE;
+                    $atk[1][2][3]      = FALSE;
 
                 } else {
 
                     self::$reportend[] = $atk[0]['name'] . self::$langtrapped[floor($atk[1][2][3] / 10)];
 
-                    if ($atk[0]['abi'] !== '98')
+                    if($atk[0]['abi'] !== '98')
 
                         $atk[0]['hp'] = max(0, $atk[0]['hp'] - floor($def[0]['maxhp'] / (($def[0]['crritem'] === '143') ? 8 : 16)));
 
-                    if (self::SelfExamine()) continue;
+                    if(self::SelfExamine()) continue;
 
                 }
 
             }
 
-            if ($atk[1][2][16] === 0) {    # 状态 - 残废
+            if($atk[1][2][16] === 0) {    # 状态 - 残废
 
-                $atk[1][2][16] = FALSE;
+                $atk[1][2][16]     = FALSE;
                 self::$reportcur[] = $atk[0]['name'] . '行动自如了！';
 
-            } elseif ($atk[1][2][16]) {
+            } elseif($atk[1][2][16]) {
 
                 --$atk[1][2][16];
 
@@ -1269,7 +1022,7 @@ class Battle {
 
         }
 
-        if (!empty(self::$reportend))
+        if(!empty(self::$reportend))
 
             self::$report .= implode('<br>', self::$reportend) . '<br>';
 
@@ -1277,153 +1030,164 @@ class Battle {
 
     }
 
-    public static function SelfExamine() {
+    public static function ObtainStat(&$atk, $def, $atkmove, $defmove, $specific = []) {
 
-        if (self::$atk[0]['hp'] < 1) {
+        $atk[0]          = array_merge($atk[0], Obtain::Stat($atk[0]['level'], $atk[0]['bs'], $atk[0]['iv'], $atk[0]['ev'], $atk[0]['nature'], $atk[0]['hp']));
+        $atk[0]['hpeat'] = ($atk[0]['abi'] === '82') ? 50 : 25;
 
-            self::$reportend[] = self::$atk[0]['name'] . '倒下了！';
+        if($atk[0]['abi'] != '109') {
 
-            return TRUE;
-
-        }
-
-    }
-
-    public static function End() {
-
-        global $user;
-
-        if (BATTLEMODE === 'WILD') {
-
-            $hptotal = 0;
-
-            foreach (self::$pokemon as $key => $val) {
-
-                if ($key > 0 && $key < 7) $hptotal += $val[0]['hp'];
-
-            }
-
-            if (self::$pokemon[0][0]['hp'] === 0) {
-
-                self::GainExp();
-
-                define('ITEMDROP', FALSE);
-
-                if (ITEMDROP === TRUE && rand(1, 100) <= 8 && Trainer::Item('OBTAIN', $user['uid'], 213, 1, 'UNKNOWN', 99))
-
-                    self::$report .= '<i>好像从' . self::$pokemon[0][0]['name'] . '的身上掉下了什么……</i><br>';
-
-                if (self::$pokemon[1][0]['crritem'] === '212' && rand(1, 100) <= 3) {
-
-                    $iid = range(1, 3) + range(165, 169) + range(179, 184) + array(190, 209);
-                    $iid = $iid[array_rand($iid)];
-
-                    $item = DB::fetch_first('SELECT mi.num, i.name FROM pkm_myitem mi LEFT JOIN pkm_itemdata i ON i.iid = mi.iid WHERE mi.iid = ' . $iid . ' AND mi.uid = ' . $user['uid']);
-
-                    if (Trainer::Item('OBTAIN', $user['uid'], $iid, 1, $item['num'], 99))
-
-                        self::$report .= '<i>在脚底下发现了一个' . $item['name'] . '！</i><br>';
-
-                }
-
-            } elseif (self::$isend === FALSE && $hptotal > 0) {
-
-                self::WriteBattleData($user['uid'], self::$pokemon);
-
-                if (!self::$faintswap)
-
-                    DB::query('UPDATE pkm_battlefield SET weather = \'' . self::$field['weather'] . '\', trkroom = ' . self::$field['trkroom'] . ', gravity = ' . self::$field['gravity'] . ', turn = ' . ++self::$field['turn'] . ' WHERE uid = ' . $user['uid']);
-
-                goto UPDATEPOKEMON;
-
-            }
-
-            DB::query('DELETE FROM pkm_battlefield WHERE uid = ' . $user['uid']);
-            DB::query('UPDATE pkm_trainerdata SET inbtl = 0 WHERE uid = ' . $user['uid']);
-
-            self::WriteBattleData($user['uid'], [], 'DEL');
-
-            self::$isend = TRUE;
-
-            UPDATEPOKEMON: {
-
-                $sql = [];
-
-                foreach (self::$pokemon as $key => $val) {
-
-                    if ($key < 1 || $key > 6) continue;
-
-                    $sql[] = '(' . $val[0]['pid'] . ', ' . $val[0]['hp'] . ', ' . $val[0]['status'] . ', \'' . serialize($val[0]['move']) . '\')';
-
-                }
-
-                DB::query('INSERT INTO pkm_mypkm (pid, hp, status, move) VALUES ' . implode(',', $sql) . ' ON DUPLICATE KEY UPDATE hp = VALUES(hp), STATUS = VALUES(STATUS), move = VALUES(move)');
-
-            }
+            $atk[0]['atk'] *= ($atk[1][1][0] > 0 ? 2 + $atk[1][1][0] : 2) / ($atk[1][1][0] < 0 ? 2 + abs($atk[1][1][0]) : 2);
+            $atk[0]['def'] *= ($atk[1][1][1] > 0 ? 2 + $atk[1][1][1] : 2) / ($atk[1][1][1] < 0 ? 2 + abs($atk[1][1][1]) : 2);
+            $atk[0]['spatk'] *= ($atk[1][1][2] > 0 ? 2 + $atk[1][1][2] : 2) / ($atk[1][1][2] < 0 ? 2 + abs($atk[1][1][2]) : 2);
+            $atk[0]['spdef'] *= ($atk[1][1][3] > 0 ? 2 + $atk[1][1][3] : 2) / ($atk[1][1][3] < 0 ? 2 + abs($atk[1][1][3]) : 2);
+            $atk[0]['spd'] *= ($atk[1][1][4] > 0 ? 2 + $atk[1][1][4] : 2) / ($atk[1][1][4] < 0 ? 2 + abs($atk[1][1][4]) : 2);
 
         }
 
-    }
+        if(empty($atkmove))
 
-    public static function GainExp() {
+            $atkmove['type'] = '0';
 
-        global $user;
+        if($def[0]['abi'] === '47' && !empty($atkmove['class']) && in_array($atkmove['type'], ['1', '13']) || $atk[0]['abi'] === '129' && $atk[0]['hpper'] < 50) { # 厚脂肪、懦弱
 
-        $baseexp = DB::result_first('SELECT baseexp FROM pkm_pkmdata WHERE id = ' . self::$pokemon[0][0]['id']);
+            $atk[0]['atk'] *= 0.5;
+            $atk[0]['spatk'] *= 0.5;
 
-        $sql = [];
-        $participate = 0;
+        } elseif(($atk[0]['abi'] === '65' && $atkmove['type'] == '3' ||
+                $atk[0]['abi'] === '66' && $atkmove['type'] == '1' ||
+                $atk[0]['abi'] === '67' && $atkmove['type'] == '2' ||
+                $atk[0]['abi'] === '68' && $atkmove['type'] == '8') && $atk[0]['hpper'] < 33
+        ) { # 深绿、猛火、激流、虫之预感
 
-        foreach (self::$pokemon as $key => $val) {
+            $atk[0]['atk'] *= 1.5;
+            $atk[0]['spatk'] *= 1.5;
 
-            if ($key < 1 || $key > 6) continue;
+        } elseif($atk[0]['abi'] === '62' && !empty($atk[0]['status'])) { # 根性
 
-            if ($val[1][4] === 1) ++$participate;
+            $atk[0]['atk'] *= 1.5;
+
+        } elseif(in_array($atk[0]['abi'], ['37', '74'])) { # 大力士、瑜伽之力
+
+            $atk[0]['atk'] *= 2;
+
+        } elseif($atk[0]['abi'] === '94' && self::$field['weather']{0} === '1') { # 太阳力量
+
+            $atk[0]['spatk'] *= 1.5;
+
+        } elseif($atk[0]['abi'] === '55') { # 紧张
+
+            $atk[0]['atk'] *= 1.5;
+            // $atk[1]['evamul']    *= 0.8;
+
+        } elseif($atk[0]['abi'] === '112' && $atk[1][2][45]) { # 缓慢启动
+
+            $atk[0]['atk'] *= 0.5;
+            $atk[0]['spd'] *= 0.5;
+
+        } elseif($atk[0]['abi'] === '122' && self::$field['weather']{0} === '1') { # 花之礼物
+
+            $atk[0]['atk'] *= 1.5;
+            $atk[0]['spdef'] *= 1.5;
+
+        } elseif($atk[0]['abi'] === '63' && !empty($atk[0]['status'])) { # 神秘鳞片
+
+            $atk[0]['def'] *= 1.5;
+
+        } elseif($atk[0]['abi'] === '34' && self::$field['weather']{0} === '1' || $atk[0]['abi'] === '33' && self::$field['weather']{0} === '2' || $atk[0]['abi'] === '146' && self::$field['weather']{0} === '3') { # 叶绿素、轻快、挖沙
+
+            $atk[0]['spd'] *= 2;
 
         }
 
-        foreach (self::$pokemon as $key => $val) {
+        if($atk[0]['crritem'] === '75' && in_array($atk[0]['id'], ['104', '105'])) { # 可拉可拉、嘎啦嘎啦
 
-            if ($key < 1 || $key > 6 || $val[0]['level'] > 99 || $val[0]['hp'] < 1 || $val[1][4] === 0 && $val[0]['crritem'] != '208') continue;
+            $atk[0]['atk'] *= 2;
 
-            $exp = floor(floor(sqrt(self::$pokemon[0][0]['level'] * 2 + 10) * pow(self::$pokemon[0][0]['level'] * 2 + 10, 2)) * floor(floor(floor(floor(floor($baseexp * self::$pokemon[0][0]['level'] / 5) * (($val[0]['uid'] === $user['uid']) ? 1 : 1.5)) * (($val[0]['crritem'] === '214') ? 1.5 : 1)) * ($val[0]['crritem'] == '208' ? 0.5 : 1)) / $participate) / floor(sqrt(self::$pokemon[0][0]['level'] + $val[0]['level'] + 10) * pow(self::$pokemon[0][0]['level'] + $val[0]['level'] + 10, 2))) + 1;
+        } elseif($atk[0]['crritem'] === '78' && $atk[0]['id'] === '366') { #珍珠贝
 
-            self::$pokemon[$key][0]['exp'] += $exp;
+            $atk[0]['spatk'] *= 2;
 
-            self::$report .= $val[0]['name'] . '获得了' . $exp . '点经验。<br>';
+        } elseif($atk[0]['crritem'] === '79' && $atk[0]['id'] == '366') { # 珍珠贝
 
-            $tmp = array($val[0]['level'], $val[0]['id']);
+            $atk[0]['spdef'] *= 1.5;
 
-            Pokemon::LevelUp(self::$pokemon[$key][0]);
+        } elseif($atk[0]['crritem'] === '54' && $atk[0]['id'] === '25') { # 皮卡丘
 
-            if ($tmp[0] != self::$pokemon[$key][0]['level'])
+            $atk[0]['atk'] *= 2;
+            $atk[0]['spatk'] *= 2;
 
-                self::$report .= $val[0]['name'] . '升到了' . self::$pokemon[$key][0]['level'] . '级！<br>';
+        } elseif($atk[0]['crritem'] === '47' && in_array($atk[0]['id'], ['380', '381'])) { # 拉帝亚斯、拉帝欧斯
 
-            if ($tmp[1] != self::$pokemon[$key][0]['id'])
+            $atk[0]['spatk'] *= 1.5;
+            $atk[0]['spdef'] *= 1.5;
 
-                self::$report .= $val[0]['name'] . '进化成了' . self::$pokemon[$key][0]['name'] . '！<br>';
+        } elseif($atk[0]['crritem'] === '74' && $atk[0]['id'] == '132') { # 金属粉末（百变怪）
 
-            $sql[] = '(' . $val[0]['pid'] . ', ' . $exp . ', ' . (($val[0]['crritem'] == '211') ? 2 : 1) . ')';
+            $atk[0]['def'] *= 1.5;
+
+        } elseif($atk[0]['crritem'] === '86' && $atk[0]['id'] == '132') { # 速度粉末（百变怪）
+
+            $atk[0]['spd'] *= 2;
+
+        } elseif($atk[0]['crritem'] === '137' && !empty($atk[0]['evldata'])) { # 进化辉石
+
+            $atk[0]['def'] *= 1.5;
+            $atk[0]['spdef'] *= 1.5;
+
+        } elseif($atk[0]['crritem'] === '44') { # 专爱头巾
+
+            $atk[0]['atk'] *= 1.5;
+
+        } elseif($atk[0]['crritem'] === '109') { # 专爱眼镜
+
+            $atk[0]['spatk'] *= 1.5;
+
+        } elseif($atk[0]['crritem'] === '99') { # 专爱围巾
+
+            $atk[0]['spd'] *= 1.5;
+
+        } elseif(in_array($atk[0]['crritem'], ['41', '101', '102', '103', '104', '105', '106'], TRUE)) { # 矫正背心、力量负重、力量护腕、力量腰带、力量镜片、力量束带、力量护踝
+
+            $atk[0]['spd'] *= 0.5;
 
         }
 
-        if (!empty($sql))
+        if($atk[0]['status'] === '3' && $atk[0]['abi'] != '95') { # 非早足麻痹
 
-            DB::query('INSERT INTO pkm_mypkm (pid, exp, hpns) VALUES ' . implode(',', $sql) . ' ON DUPLICATE KEY UPDATE exp = exp + VALUES(exp), hpns = hpns + VALUES(hpns)');
+            $atk[0]['spd'] *= 0.25;
 
-    }
+        } elseif($atk[0]['status'] === '3' && $atk[0]['abi'] === '95') { # 早足
 
-    public static function GenerateBattleData($pid = 0, $place = 0) {
+            $atk[0]['spd'] *= 1.5;
 
-        return array($pid, array(0, 0, 0, 0, 0, 0, 0), array_fill(0, self::$num['ssn'], FALSE), $place, 0, 0, 0, 0, 0, 0, 0, FALSE, 'insstatus' => 0);
+        }
 
-    }
+        if($atk[1][2][35] && $atkmove['type'] == '1') { # 引火
 
-    public static function GenerateFieldData() {
+            $atk[0]['spatk'] *= 1.5;
 
-        return '0000000000';
+        }
 
+        if($atk[1][2][38]) { # 顺风
+
+            $atk[0]['spd'] *= 2;
+
+        }
+
+        if(self::$field['weather']{0} === '3' && in_array('10', [$atk[0]['type'], $atk[0]['typeb']])) { # 沙暴
+
+            $atk[0]['spdef'] *= 1.5;
+
+        }
+
+        $atk[0]['atk']   = floor($atk[0]['atk']);
+        $atk[0]['def']   = floor($atk[0]['def']);
+        $atk[0]['spatk'] = floor($atk[0]['spatk']);
+        $atk[0]['spdef'] = floor($atk[0]['spdef']);
+        $atk[0]['spd']   = floor($atk[0]['spd']);
+
+        return TRUE;
     }
 
     public static function ObtainAttackOrder() {
@@ -1436,20 +1200,20 @@ class Battle {
             then determine change it the order to 10 or not
         */
 
-        $spddiff = self::$pokemon[0][0]['spd'] - self::$pokemon[1][0]['spd'];
+        $spddiff   = self::$pokemon[0][0]['spd'] - self::$pokemon[1][0]['spd'];
         $randorder = (rand(0, 1) === 0) ? '10' : '01';
 
-        if (in_array($_GET['process'], array('useitem', 'swappm'))) { # 捕获、换人
+        if(in_array($_GET['process'], ['useitem', 'swappm'])) { # 捕获、换人
 
             return TRUE;
 
-        } elseif ($_GET['process'] === 'swappm' && self::$move[0]['mid'] == '228') {
+        } elseif($_GET['process'] === 'swappm' && self::$move[0]['mid'] == '228') {
 
             # MOVE ACTIVATION - 追击
 
             self::$move[$key]['prio'] = 7;
 
-        } elseif ($_GET['process'] === 'swappm') {
+        } elseif($_GET['process'] === 'swappm') {
 
             /*
                 To switch to another pokemon
@@ -1462,19 +1226,19 @@ class Battle {
 
         # ABILITY ACTIVATION - 恶作剧之心
 
-        for ($i = 0; $i < 2; $i++) {
+        for($i = 0; $i < 2; $i++) {
 
-            if (self::$pokemon[$i][0]['abi'] === '158' && self::$move[$i]['class'] === '0')
+            if(self::$pokemon[$i][0]['abi'] === '158' && self::$move[$i]['class'] === '0')
 
                 ++self::$move[$i]['prio'];
 
         }
 
-        if (self::$move[0]['prio'] > self::$move[1]['prio']) {
+        if(self::$move[0]['prio'] > self::$move[1]['prio']) {
 
             self::$order = '10';
 
-        } elseif (self::$move[0]['prio'] == self::$move[1]['prio']) {
+        } elseif(self::$move[0]['prio'] == self::$move[1]['prio']) {
 
             /*
                 The class properties movefirst and movelast are a fixed priority state
@@ -1482,25 +1246,25 @@ class Battle {
                 But if they are the same, follow the conditions
             */
 
-            foreach (self::$pokemon as $key => $val) {
+            foreach(self::$pokemon as $key => $val) {
 
-                if ($val[0]['crritem'] === '42' && rand(1, 100) <= 20) { # 先制之爪
+                if($val[0]['crritem'] === '42' && rand(1, 100) <= 20) { # 先制之爪
 
                     self::$movefirst{$key} = '1';
 
-                } elseif ($val[0]['crritem'] === '番荔果' && $val[0]['hpper'] < $val[0]['hpeat']) { # 番荔果
+                } elseif($val[0]['crritem'] === '番荔果' && $val[0]['hpper'] < $val[0]['hpeat']) { # 番荔果
 
                     self::$movefirst{$key} = '1';
 
                     self::MakeReport($val[0]['name'] . '发动了' . self::$item[$val[0]['crritem']] . '！', $val[0]['id'], 'BERRY1');
 
-                } elseif (in_array($val[0]['crritem'], array('91', '128'), TRUE) || $val[0]['abi'] === '100') { # 后攻尾巴 满腹之香
+                } elseif(in_array($val[0]['crritem'], ['91', '128'], TRUE) || $val[0]['abi'] === '100') { # 后攻尾巴 满腹之香
 
                     self::$movelast{$key} = '1';
 
                 }
 
-                if ($key > 0) break;
+                if($key > 0) break;
 
             }
 
@@ -1509,26 +1273,26 @@ class Battle {
                 also do some same speed calculation if they have the same speed
             */
 
-            $tmp = array(
+            $tmp = [
                 strpos('1', self::$movefirst),
                 strpos('1', self::$movelast)
-            );
+            ];
 
-            if (!in_array(FALSE, $tmp)) {
+            if(!in_array(FALSE, $tmp)) {
 
-                if (self::$movefirst === '11')
+                if(self::$movefirst === '11')
 
                     self::$order = ($spddiff > 0) ? '10' : (($spddiff === 0) ? $randorder : '01');
 
-                elseif (self::$movelast === '11')
+                elseif(self::$movelast === '11')
 
                     self::$order = ($spddiff < 0) ? '10' : (($spddiff === 0) ? $randorder : '01');
 
-                elseif ($tmp[0] == '0')
+                elseif($tmp[0] == '0')
 
                     self::$order = '10';
 
-                elseif ($tmp[1] == '0')
+                elseif($tmp[1] == '0')
 
                     self::$order = '01';
 
@@ -1538,7 +1302,7 @@ class Battle {
 
             # MOVE ACTIVATION - 欺骗空间
 
-            if (self::$field['trkroom'] !== '0') {
+            if(self::$field['trkroom'] !== '0') {
 
                 self::$order = ($spddiff < 0) ? '10' : (($spddiff === 0) ? $randorder : '01');
 
@@ -1555,208 +1319,416 @@ class Battle {
 
     }
 
-    public static function ObtainMoveModifier() {
+    public static function UseItem() {
 
-        $mod = 1;
+        global $user;
 
-        if (self::$atk[0]['abi'] === '101' && self::$m['power'] <= 60 ||
-            self::$atk[0]['abi'] === '138' && self::$atk[0]['status'] === '1' && self::$atkmove['class'] === '2' ||
-            self::$atk[0]['abi'] === '137' && in_array(self::$atk[0]['status'], array('5', '6'), TRUE) && self::$atkmove['class'] === '1'
-        ) { # 技师、热暴走、毒暴走
+        $iid = isset($_GET['iid']) ? intval($_GET['iid']) : 0;
 
-            $mod *= 1.5;
+        if($iid === 0) goto ITEMFAILED;
 
-        } elseif (self::$atk[0]['abi'] === '148' && !in_array(self::$atkmove['mid'], array('248', '353')) && self::$order{1} === '1' ||
-            self::$atk[0]['abi'] === '159' && in_array(self::$m['type'], array('10', '11', '12')) ||
-            self::$atk[0]['abi'] === '125' && self::$atkmove['posefct'] === '1'
-        ) { # 分析、沙之力量、全力攻击
+        $item = DB::fetch_first('SELECT mi.iid, mi.num, i.name, i.effect, i.btlefct, i.usable, i.type FROM pkm_myitem mi LEFT JOIN pkm_itemdata i ON mi.iid = i.iid WHERE mi.iid = ' . $iid . ' AND mi.uid = ' . $user['uid']);
 
-            $mod *= 1.3;
+        if(empty($item) || $item['num'] <= 0 || $item['effect'] === '' && $item['btlefct'] === '' && $item['type'] !== '1')
 
-        } elseif (self::$atk[0]['abi'] === '79') { # 斗争心
+            goto ITEMFAILED;
 
-            switch (self::$atk[0]['gender'] + self::$def[0]['gender']) {
-                case 3:
-                    $mod *= 0.75;
-                    break;
-                case 2:
-                    $mod *= 1.25;
-                    break;
+        self::$report .= $GLOBALS['_G']['username'] . '使用了' . $item['name'] . '！<br>';
+
+        if($item['type'] === '1') {
+
+            $success = self::CatchPokemon($item['iid']);
+            $pokemon = &self::$pokemon[0][0];
+
+        } else {
+
+            $effect  = [];
+            $pokemon = &self::$pokemon[1][0];
+
+            if(!empty($item['effect']))
+
+                foreach(explode('|', $item['effect']) as $val) {
+
+                    $tmp             = explode(':', $val);
+                    $effect[$tmp[0]] = $tmp[1];
+
+                }
+
+            if($pokemon['hp'] <= 0 && (!empty($effect['hp']) || !empty($effect['status'])))
+
+                goto ITEMFAILED;
+
+            else {
+
+                if($item['type'] === '4') {
+
+                    $success     = FALSE;
+                    $effectcount = 0;
+
+                    foreach($effect as $key => $val) {
+
+                        switch($key) {
+
+                            default:
+
+                                continue;
+
+                                break;
+
+                            case 'hp':
+
+                                if($pokemon['hp'] == $pokemon['maxhp'])
+
+                                    continue;
+
+                                $pokemon['hp'] += min((substr($val, -1, 1) === '%') ? floor($pokemon['maxhp'] * $val / 100) : $val, $pokemon['maxhp'] - $pokemon['hp']);
+                                $success = TRUE;
+
+                                ++$effectcount;
+
+                                break;
+
+                            case 'status':
+
+                                if($pokemon['status'] === '0' || $val !== 'all' && $pokemon['status'] == $val)
+
+                                    break;
+
+                                $pokemon['status'] = 0;
+
+                                ++$effectcount;
+
+                                break;
+
+                            case 'sp':
+
+                                if(Kit::Library('db', ['item']) !== FALSE && ($tmp = new ItemDb()) && method_exists($tmp, '__' . $iid)) {
+
+                                    ItemDb::$pokemon = &$pokemon;
+                                    call_user_func(['ItemDb', '__' . $iid]);
+
+                                    if(!empty(ItemDb::$message))
+
+                                        self::$report .= ItemDb::$message . '<br>';
+
+                                }
+
+                                break;
+                        }
+                    }
+
+                    if($effectcount > 0)
+
+                        $success = TRUE;
+
+                }
+
             }
 
-        } elseif (self::$atk[0]['abi'] === '120' && self::$atkmove['btlefct']{16} === '1' ||
-            self::$atk[0]['abi'] === '89' && self::$atkmove['btlefct']{0} === '1'
-        ) { # 舍身、铁拳
-
-            $mod *= 1.2;
-
         }
 
-        if (self::$def[0]['abi'] === '85' && self::$m['type'] == '1') { # 耐热
+        if($success === TRUE || $item['type'] === '1') {
 
-            $mod *= 0.5;
+            Trainer::Item('DROP', $user['uid'], $iid, 1, $item['num']);
 
-        } elseif (self::$def[0]['abi'] === '87' && self::$m['type'] == '1') { # 干燥肌肤
+            if($item['type'] === '4')
 
-            $mod *= 1.25;
+                DB::query('UPDATE pkm_mypkm SET hp = ' . $pokemon['hp'] . ', status = ' . $pokemon['status'] . ' WHERE pid = ' . $pokemon['pid']);
+
+            if($item['type'] !== '1')
+
+                self::$report .= '对' . $pokemon['name'] . '使用' . $item['name'] . '成功！<br>';
+
+        } elseif($item['type'] !== '1') {
+
+            ITEMFAILED: {
+
+                self::$report .= '这个道具没什么效果……<br>';
+
+            }
 
         }
-
-        /*
-            如果攻击方携带属性强化道具，且技能是对应属性，威力修正×1.2。
-            如果攻击方携带力量头巾，且使用物理技能，威力修正×1.1。
-            如果攻击方携带知识眼镜，且使用特殊技能，威力修正×1.1。
-            如果攻击方携带怪异之香，且技能是超能属性，威力修正×1.2。
-            如果攻击方是携带金刚玉的帝牙卢卡，且技能是钢或龙属性，威力修正×1.2。
-            如果攻击方是携带白玉的帕路奇犽，且技能是水或龙属性，威力修正×1.2。
-            如果攻击方是携带白金玉的骑拉帝纳，且技能是鬼或龙属性，威力修正×1.2。
-            如果此次攻击发动了对应属性宝石，威力修正×1.5。
-            如果技能是潮水，且防御方HP≤50%，威力修正×2。
-            如果技能是毒液冲击，且防御方处于中毒状态，威力修正×2。
-            如果技能是报仇，且攻击方的队伍上回合有精灵濒死，威力修正×2。
-            如果技能是交织火焰，且回合内上一个成功使用的技能是交织闪电，威力修正×2，反之亦然。
-            如果技能是通过先取发出，威力修正×1.5。
-            如果天气是雨天、沙暴或冰雹，且技能是太阳光线，威力修正×0.5。如果场上存在无天气或天气锁特性的精灵，跳过此步骤。
-            如果攻击方处于充电状态，且技能是电属性，威力修正×2。
-            如果攻击方处于帮手状态，威力修正×1.5。
-            如果场上存在玩水状态，且攻击方是火属性，威力修正×0.5。
-            如果场上存在玩泥状态，且攻击方是电属性，威力修正×0.5。
-        */
-
-        return $mod;
 
     }
 
-    public static function ObtainDamage($typemod) {
+    public static function CatchPokemon($iid) {
 
-        $isct = FALSE;
-        $ctlevel = intval(self::$atkmove['ctrate']);
+        global $user;
 
-        if (!in_array(self::$def[0]['abi'], array('4', '75')) || # 战斗盔甲、贝壳盔甲
-            self::$deffield{8} === '0'
-        ) {
+        $mod  = $smod = 1;
+        $heal = $caught = FALSE;
 
-            if ($ctlevel === 6) {
+        $catchrate = DB::result_first('SELECT catchrt FROM pkm_pkmdata WHERE id = ' . self::$pokemon[0][0]['id']);
 
-                $isct = TRUE;
+        switch($iid) {
+            case '2':
+                $mod = 1.5;
+                break;    # 超级球
+            case '3':
+                $mod = 2;
+                break;    # 特级球
+            case '4':
+                $mod = 100;
+                break;    # 大师球
+            case '6':                        # 等级球
 
-                goto DAMAGECAL;
+                if(self::$pokemon[1][0]['level'] > self::$pokemon[0][0]['level'] * 4) $mod = 8;
+                elseif(self::$pokemon[1][0]['level'] > self::$pokemon[0][0]['level'] * 2) $mod = 4;
+                elseif(self::$pokemon[1][0]['level'] > self::$pokemon[0][0]['level']) $mod = 2;
 
-            }
+                break;
+            case '7':                        # 月亮球
 
-            if (self::$atk[1][2][27]) $ctlevel += 2;
-            if (self::$atk[0]['abi'] === '105') $ctlevel += 1; # 强运
+                if(unserialize(self::$pokemon[0][0]['evldata'])[5] === '31') $mod = 4;
 
-            if (in_array(self::$atk[0]['crritem'], array('51', '131'))) # 聚焦镜、锋锐之爪
+                break;
+            case '10':                        # 爱心球
 
-                $ctlevel += 1;
+                $chain = [];
+                $query = DB::query('SELECT id FROM pkm_pkmextra WHERE devolve = ' . self::$pokemon[0][0]['id']);
 
-            elseif (self::$atk[0]['crritem'] === '73' && self::$atk[0]['id'] == '113' || self::$atk[0]['crritem'] === '76' && self::$atk[0]['id'] == '83') # 幸运拳套（幸福蛋）、长葱（大葱鸭）
+                while($info = DB::fetch($query)) {
 
-                $ctlevel += 2;
+                    $chain[] = $info['id'];
 
-            if ($ctlevel > 4) $ctlevel = 4;
+                }
 
-            $tmp = array(16, 8, 4, 3, 2);
-            $isct = rand(1, 100) <= 100 / $tmp[$ctlevel];
+                if((!empty($inchain) && in_array(self::$pokemon[1][0]['id'], $inchain, TRUE) ||
+                        self::$pokemon[0][0]['id'] === self::$pokemon[1][0]['id']) &&
+                    self::$pokemon[0][0]['gender'] != self::$pokemon[1][0]['gender']
+                )
 
-        }
+                    $mod = 8;
 
-        DAMAGECAL: {
+                break;
+            case '11':                        # 速度球
 
-            $damage = (((self::$atk[0]['level'] * 2 / 5 + 2) * self::$m['power'] * self::ObtainMoveModifier() * self::$atk[0][self::$atkmove['class'] == '1' ? 'atk' : 'spatk'] / self::$def[0][self::$m['defstat']]) / 50) + 2;
+                if(explode(',', self::$pokemon[0][0]['bs'])[5] > 99) $mod = 4;
 
-            if (in_array(self::$field['weather']{0}, array('1', '2')) &&
-                !(in_array('13', array(self::$atk[0]['abi'], self::$def[0]['abi'])) ||    # 无天气
-                    in_array('76', array(self::$atk[0]['abi'], self::$def[0]['abi'])))        # 天气锁
-            ) {
+                break;
+            case '12':                        # 重量球
 
-                if (self::$field['weather']{0} == self::$m['type']) $damage *= 1.5;
-                elseif (self::$field['weather']{0} == (self::$m['type'] - 1 ^ 1) + 1) $damage *= 0.5;
+                $weight = self::$pokemon[0][0]['weight'] / 10;
 
-            }
+                if($weight > 400) $catchrate += 40;
+                elseif($weight > 300 && $weight < 401) $catchrate += 30;
+                elseif($weight > 200 && $weight < 301) $catchrate += 20;
+                elseif($weight < 100) $catchrate = max(3, $catchrate - 20);
 
-            if ($isct === TRUE) {
+                break;
+            case '13':
+                $mod = 1.5;
+                break;    # 运动球
+            case '14':                        # 网球
 
-                $damage *= 2;
+                if(in_array(self::$pokemon[0][0]['type'], ['2', '8']) ||
+                    in_array(self::$pokemon[0][0]['typeb'], ['2', '8'])
+                )
 
-                self::$report .= '命中要害！<br>';
+                    $mod = 3;
 
-            }
+                break;
+            case '16':                        # 巢球
 
-            $damage *= rand(85, 100) / 100 * $typemod;
+                if(self::$pokemon[0][0]['level'] < 30) $mod = (40 - self::$pokemon[0][0]['level']) / 10;
 
-            if (in_array(self::$m['type'], array(self::$atk[0]['type'], self::$atk[0]['typeb'])))                # STAB、适应力
-
-                $damage *= (self::$atk[0]['abi'] === '91') ? 2 : 1.5;
-
-            if (self::$atk[0]['status'] === '1' && self::$atkmove['class'] == '1' && self::$atk[0]['abi'] != '62')    # 非根性烧伤
-
-                $damage *= 0.5;
-
-            if (self::$atkfield{3} > 0 && self::$atkmove['class'] == '1' && $isct === FALSE ||                    # 反射盾
-                self::$atkfield{4} > 0 && self::$atkmove['class'] == '2' && $isct === FALSE
-            )                    # 光之壁
-
-                $damage *= 0.5;
-
-            if (self::$def[0]['abi'] === '136' && self::$def[0]['hp'] == self::$def[0]['maxhp'])                    # 多重鳞片
-
-                $damage *= 0.5;
-
-            elseif (in_array(self::$def[0]['abi'], array('111', '116')) && $typemod > 1)                            # 过滤器、坚岩
-
-                $damage *= 0.75;
-
-            if (self::$atk[0]['abi'] === '110' && $typemod > 0 && $typemod < 1)                                    # 有色眼镜
-
-                $damage *= 2;
-
-            elseif (self::$atk[0]['abi'] === '97' && $isct === TRUE)                                                # 狙击手
-
-                $damage *= 1.5;
-
-            if (self::$atk[0]['crritem'] === '89' && self::$atk[1][9] > 1)                                        # 节拍器
-
-                $damage *= min(1 + 0.2 * (self::$atk[1][8] - 1), 2);
-
-            elseif (self::$atk[0]['crritem'] === '80' && $typemod > 1)                                        # 达人腰带
-
-                $damage *= 1.2;
-
-            elseif (self::$atk[0]['crritem'] === '82')                                                        # 生命之玉
-
-                $damage *= 1.3;
-
-            // Currently type restraint berries
-
-            if (in_array(self::$atkmove['mid'], array('205', '537'), TRUE) && self::$def[1][2][20] === 1 ||     # 坚硬、坚硬滚动
-                in_array(self::$atkmove['mid'], array('89', '222'), TRUE) && self::$def[1][2][42] === 3 ||    # 地震、震级变化
-                in_array(self::$atkmove['mid'], array('57', '250'), TRUE) && self::$def[1][2][42] === 2 ||    # 冲浪、漩涡
-                in_array(self::$atkmove['mid'], array('16', '239'), TRUE) && self::$def[1][2][42] === 1
-            )    # 起风、龙卷风
-
-                $damage *= 2;
+                break;
+            case '18':
+                $mod = min(4, 1 + self::$field['turn'] * 0.3);
+                break; # 时间球
+            case '21':
+                $mod = 1;
+                break; # 黑暗球
+            case '23':
+                $mod = 1;
+                break; # 快速球
 
         }
 
-        return floor($damage);
+        if(in_array((string)self::$pokemon[0][0]['status'], ['1', '3', '5', '6'], TRUE))
+
+            $smod = 1.5;
+
+        elseif(in_array((string)self::$pokemon[0][0]['status'], ['2', '4'], TRUE))
+
+            $smod = 2;
+
+        $diff = self::$pokemon[0][0]['level'] - self::$pokemon[1][0]['level'];
+
+        $lmod = min(($diff > 0) ? 1 - $diff / 100 : 1 + $diff / 100, 1.05);
+
+        $x = (3 * self::$pokemon[0][0]['maxhp'] - 2 * self::$pokemon[0][0]['hp']) * $catchrate * (($catchrate < 10) ? 0.5 : 1) * $mod * $smod * $lmod / 3 / self::$pokemon[0][0]['maxhp'];
+
+        if($x >= 255) {
+
+            $caught = TRUE;
+
+        } else {
+
+            $caught = TRUE;
+            $y      = 65535 / pow(255 / $x, 0.25);
+
+            for($i = 0; $i < 3; $i++) {
+
+                if(rand(0, 65535) >= $y) {
+
+                    $caught = FALSE;
+
+                    break;
+
+                }
+
+            }
+
+        }
+
+        if($caught === FALSE) {
+
+            self::$report .= self::$pokemon[0][0]['name'] . '从球里逃了出来！<br>';
+
+            return FALSE;
+
+        }
+
+        $place = Obtain::DepositBox($user['uid']);
+
+        if($place === FALSE) return FALSE;
+
+        $info = [
+            'id'        => self::$pokemon[0][0]['id'],
+            'nickname'  => '\'' . self::$pokemon[0][0]['name'] . '\'',
+            'gender'    => self::$pokemon[0][0]['gender'],
+            'pv'        => '\'' . self::$pokemon[0][0]['pv'] . '\'',
+            'iv'        => '\'' . self::$pokemon[0][0]['iv'] . '\'',
+            'ev'        => '\'' . self::$pokemon[0][0]['ev'] . '\'',
+            'shiny'     => self::$pokemon[0][0]['shiny'],
+            'originuid' => $user['uid'],
+            'nature'    => self::$pokemon[0][0]['nature'],
+            'level'     => self::$pokemon[0][0]['level'],
+            'exp'       => self::$pokemon[0][0]['exp'],
+            'crritem'   => self::$pokemon[0][0]['crritem'],
+            'hpns'      => ($iid == '9') ? 200 : self::$pokemon[0][0]['hpns'],
+            'move'      => '\'' . serialize(self::$pokemon[0][0]['move']) . '\'',
+            'mtlevel'   => self::$pokemon[0][0]['level'],
+            'mtdate'    => $_SERVER['REQUEST_TIME'],
+            'mtplace'   => self::$pokemon[0][0]['mtplace'],
+            'abi'       => self::$pokemon[0][0]['abi'],
+            'uid'       => $user['uid'],
+            'capitem'   => $iid,
+            'hp'        => self::$pokemon[0][0][($iid == '22' || $place > 6) ? 'maxhp' : 'hp'],
+            'place'     => $place,
+            'status'    => ($iid == '22' || $place > 6) ? 0 : self::$pokemon[0][0]['status'],
+            'imgname'   => '\'' . self::$pokemon[0][0]['imgname'] . '\''
+        ];
+
+        self::$isend = TRUE;
+        self::$report .= '捕获成功！<br>';
+
+        DB::query('INSERT INTO pkm_mypkm (' . implode(',', array_keys($info)) . ') VALUES (' . implode(',', array_values($info)) . ')');
+
+        if(in_array(Pokemon::Register($info['id'], TRUE), ['0', FALSE], TRUE))
+
+            self::$report .= self::$pokemon[0][0]['name'] . '的信息记录在了图鉴中。<br>';
+
+        ++$user['addexp'];
+
+        return TRUE;
+
+    }
+
+    public static function ReorderPokemon($focus = 0) {
+
+        if(!empty($focus) && self::$pokemon[1][0]['pid'] == $focus) {
+
+            self::$report .= self::$pokemon[1][0]['name'] . '正在战斗呢！<br>';
+
+            return FALSE;
+
+        } elseif(!empty($focus) && self::$atk[1][2][3] && self::$atk[0]['crritem'] !== '107') { # 束缚、漂亮脱壳
+
+            self::$report .= self::$pokemon[1][0]['name'] . '被束缚住了无法交换！<br>';
+
+            return FALSE;
+
+        }
+
+        $pokemon = [];
+
+        ksort(self::$pokemon);
+
+        foreach(self::$pokemon as $key => $val) {
+
+            if($key > 0 && $key < 7) {
+
+                $pokemon[] = $val;
+
+            }
+
+        }
+
+        $checked = FALSE;
+
+        foreach($pokemon as $key => $val) {
+
+            if($focus === 0 && $val[0]['hp'] < 1 && (empty($pokemon[$key - 1]) || $pokemon[$key - 1][0]['hp'] < 1)) {
+
+                $checked = TRUE;
+
+            } elseif(!empty($focus) && $focus == $val[0]['pid']) {
+
+                $checked = TRUE;
+
+                self::$report .= '就决定是你了！' . $val[0]['name'] . '！<br>';
+
+                unset($pokemon[$key]);
+
+                array_unshift($pokemon, $val);
+
+                break;
+
+            } elseif($checked) {
+
+                unset($pokemon[$key]);
+
+                array_unshift($pokemon, $val);
+
+                break;
+
+            }
+
+        }
+
+        if(!empty($focus) && $checked === FALSE)
+
+            self::$report .= '这是什么精灵？<br>';
+
+        array_unshift($pokemon, 0);
+
+        unset($pokemon[0]);
+
+        $pokemon[1][1][4] = 1;
+
+        self::$pokemon = array_replace(self::$pokemon, $pokemon);
+
+        ksort(self::$pokemon);
+
+        return $checked;
 
     }
 
     public static function ObtainRestrictModifier($atktype, $deftype, $deftypeb) {
 
         $modifier = 1;
-        $atktype = intval($atktype);
+        $atktype  = intval($atktype);
         $deftypes = [intval($deftype), intval($deftypeb)];
 
-        foreach ($deftypes as $val) {
+        foreach($deftypes as $val) {
 
-            if ($val === 0) continue;
+            if($val === 0) continue;
 
             $arr = [];
 
-            switch ($atktype) {
+            switch($atktype) {
                 case 1:
                     $arr = [[3, 8, 12, 13], [1, 2, 10, 17], []];
                     break;
@@ -1821,406 +1793,9 @@ class Battle {
 
     }
 
-    public static function ObtainStat(&$atk, $def, $atkmove, $defmove, $specific = []) {
+    public static function __MoveCurrentPlace(&$subject, $location) {
 
-        $atk[0] = array_merge($atk[0], Obtain::Stat($atk[0]['level'], $atk[0]['bs'], $atk[0]['iv'], $atk[0]['ev'], $atk[0]['nature'], $atk[0]['hp']));
-        $atk[0]['hpeat'] = ($atk[0]['abi'] === '82') ? 50 : 25;
-
-        if ($atk[0]['abi'] != '109') {
-
-            $atk[0]['atk'] *= ($atk[1][1][0] > 0 ? 2 + $atk[1][1][0] : 2) / ($atk[1][1][0] < 0 ? 2 + abs($atk[1][1][0]) : 2);
-            $atk[0]['def'] *= ($atk[1][1][1] > 0 ? 2 + $atk[1][1][1] : 2) / ($atk[1][1][1] < 0 ? 2 + abs($atk[1][1][1]) : 2);
-            $atk[0]['spatk'] *= ($atk[1][1][2] > 0 ? 2 + $atk[1][1][2] : 2) / ($atk[1][1][2] < 0 ? 2 + abs($atk[1][1][2]) : 2);
-            $atk[0]['spdef'] *= ($atk[1][1][3] > 0 ? 2 + $atk[1][1][3] : 2) / ($atk[1][1][3] < 0 ? 2 + abs($atk[1][1][3]) : 2);
-            $atk[0]['spd'] *= ($atk[1][1][4] > 0 ? 2 + $atk[1][1][4] : 2) / ($atk[1][1][4] < 0 ? 2 + abs($atk[1][1][4]) : 2);
-
-        }
-
-        if (empty($atkmove))
-
-            $atkmove['type'] = '0';
-
-        if ($def[0]['abi'] === '47' && !empty($atkmove['class']) && in_array($atkmove['type'], array('1', '13')) || $atk[0]['abi'] === '129' && $atk[0]['hpper'] < 50) { # 厚脂肪、懦弱
-
-            $atk[0]['atk'] *= 0.5;
-            $atk[0]['spatk'] *= 0.5;
-
-        } elseif (($atk[0]['abi'] === '65' && $atkmove['type'] == '3' ||
-                $atk[0]['abi'] === '66' && $atkmove['type'] == '1' ||
-                $atk[0]['abi'] === '67' && $atkmove['type'] == '2' ||
-                $atk[0]['abi'] === '68' && $atkmove['type'] == '8') && $atk[0]['hpper'] < 33
-        ) { # 深绿、猛火、激流、虫之预感
-
-            $atk[0]['atk'] *= 1.5;
-            $atk[0]['spatk'] *= 1.5;
-
-        } elseif ($atk[0]['abi'] === '62' && !empty($atk[0]['status'])) { # 根性
-
-            $atk[0]['atk'] *= 1.5;
-
-        } elseif (in_array($atk[0]['abi'], array('37', '74'))) { # 大力士、瑜伽之力
-
-            $atk[0]['atk'] *= 2;
-
-        } elseif ($atk[0]['abi'] === '94' && self::$field['weather']{0} === '1') { # 太阳力量
-
-            $atk[0]['spatk'] *= 1.5;
-
-        } elseif ($atk[0]['abi'] === '55') { # 紧张
-
-            $atk[0]['atk'] *= 1.5;
-            // $atk[1]['evamul']    *= 0.8;
-
-        } elseif ($atk[0]['abi'] === '112' && $atk[1][2][45]) { # 缓慢启动
-
-            $atk[0]['atk'] *= 0.5;
-            $atk[0]['spd'] *= 0.5;
-
-        } elseif ($atk[0]['abi'] === '122' && self::$field['weather']{0} === '1') { # 花之礼物
-
-            $atk[0]['atk'] *= 1.5;
-            $atk[0]['spdef'] *= 1.5;
-
-        } elseif ($atk[0]['abi'] === '63' && !empty($atk[0]['status'])) { # 神秘鳞片
-
-            $atk[0]['def'] *= 1.5;
-
-        } elseif ($atk[0]['abi'] === '34' && self::$field['weather']{0} === '1' || $atk[0]['abi'] === '33' && self::$field['weather']{0} === '2' || $atk[0]['abi'] === '146' && self::$field['weather']{0} === '3') { # 叶绿素、轻快、挖沙
-
-            $atk[0]['spd'] *= 2;
-
-        }
-
-        if ($atk[0]['crritem'] === '75' && in_array($atk[0]['id'], array('104', '105'))) { # 可拉可拉、嘎啦嘎啦
-
-            $atk[0]['atk'] *= 2;
-
-        } elseif ($atk[0]['crritem'] === '78' && $atk[0]['id'] === '366') { #珍珠贝
-
-            $atk[0]['spatk'] *= 2;
-
-        } elseif ($atk[0]['crritem'] === '79' && $atk[0]['id'] == '366') { # 珍珠贝
-
-            $atk[0]['spdef'] *= 1.5;
-
-        } elseif ($atk[0]['crritem'] === '54' && $atk[0]['id'] === '25') { # 皮卡丘
-
-            $atk[0]['atk'] *= 2;
-            $atk[0]['spatk'] *= 2;
-
-        } elseif ($atk[0]['crritem'] === '47' && in_array($atk[0]['id'], array('380', '381'))) { # 拉帝亚斯、拉帝欧斯
-
-            $atk[0]['spatk'] *= 1.5;
-            $atk[0]['spdef'] *= 1.5;
-
-        } elseif ($atk[0]['crritem'] === '74' && $atk[0]['id'] == '132') { # 金属粉末（百变怪）
-
-            $atk[0]['def'] *= 1.5;
-
-        } elseif ($atk[0]['crritem'] === '86' && $atk[0]['id'] == '132') { # 速度粉末（百变怪）
-
-            $atk[0]['spd'] *= 2;
-
-        } elseif ($atk[0]['crritem'] === '137' && !empty($atk[0]['evldata'])) { # 进化辉石
-
-            $atk[0]['def'] *= 1.5;
-            $atk[0]['spdef'] *= 1.5;
-
-        } elseif ($atk[0]['crritem'] === '44') { # 专爱头巾
-
-            $atk[0]['atk'] *= 1.5;
-
-        } elseif ($atk[0]['crritem'] === '109') { # 专爱眼镜
-
-            $atk[0]['spatk'] *= 1.5;
-
-        } elseif ($atk[0]['crritem'] === '99') { # 专爱围巾
-
-            $atk[0]['spd'] *= 1.5;
-
-        } elseif (in_array($atk[0]['crritem'], array('41', '101', '102', '103', '104', '105', '106'), TRUE)) { # 矫正背心、力量负重、力量护腕、力量腰带、力量镜片、力量束带、力量护踝
-
-            $atk[0]['spd'] *= 0.5;
-
-        }
-
-        if ($atk[0]['status'] === '3' && $atk[0]['abi'] != '95') { # 非早足麻痹
-
-            $atk[0]['spd'] *= 0.25;
-
-        } elseif ($atk[0]['status'] === '3' && $atk[0]['abi'] === '95') { # 早足
-
-            $atk[0]['spd'] *= 1.5;
-
-        }
-
-        if ($atk[1][2][35] && $atkmove['type'] == '1') { # 引火
-
-            $atk[0]['spatk'] *= 1.5;
-
-        }
-
-        if ($atk[1][2][38]) { # 顺风
-
-            $atk[0]['spd'] *= 2;
-
-        }
-
-        if (self::$field['weather']{0} === '3' && in_array('10', array($atk[0]['type'], $atk[0]['typeb']))) { # 沙暴
-
-            $atk[0]['spdef'] *= 1.5;
-
-        }
-
-        $atk[0]['atk'] = floor($atk[0]['atk']);
-        $atk[0]['def'] = floor($atk[0]['def']);
-        $atk[0]['spatk'] = floor($atk[0]['spatk']);
-        $atk[0]['spdef'] = floor($atk[0]['spdef']);
-        $atk[0]['spd'] = floor($atk[0]['spd']);
-
-        return TRUE;
-    }
-
-    /*
-        It re-orders pokemon in a specified focus pokemon
-        and also place pokemon with hp to the first position
-    */
-
-    public static function ReorderPokemon($focus = 0) {
-
-        if (!empty($focus) && self::$pokemon[1][0]['pid'] == $focus) {
-
-            self::$report .= self::$pokemon[1][0]['name'] . '正在战斗呢！<br>';
-
-            return FALSE;
-
-        } elseif (!empty($focus) && self::$atk[1][2][3] && self::$atk[0]['crritem'] !== '107') { # 束缚、漂亮脱壳
-
-            self::$report .= self::$pokemon[1][0]['name'] . '被束缚住了无法交换！<br>';
-
-            return FALSE;
-
-        }
-
-        $pokemon = [];
-
-        ksort(self::$pokemon);
-
-        foreach (self::$pokemon as $key => $val) {
-
-            if ($key > 0 && $key < 7) {
-
-                $pokemon[] = $val;
-
-            }
-
-        }
-
-        $checked = FALSE;
-
-        foreach ($pokemon as $key => $val) {
-
-            if ($focus === 0 && $val[0]['hp'] < 1 && (empty($pokemon[$key - 1]) || $pokemon[$key - 1][0]['hp'] < 1)) {
-
-                $checked = TRUE;
-
-            } elseif (!empty($focus) && $focus == $val[0]['pid']) {
-
-                $checked = TRUE;
-
-                self::$report .= '就决定是你了！' . $val[0]['name'] . '！<br>';
-
-                unset($pokemon[$key]);
-
-                array_unshift($pokemon, $val);
-
-                break;
-
-            } elseif ($checked) {
-
-                unset($pokemon[$key]);
-
-                array_unshift($pokemon, $val);
-
-                break;
-
-            }
-
-        }
-
-        if (!empty($focus) && $checked === FALSE)
-
-            self::$report .= '这是什么精灵？<br>';
-
-        array_unshift($pokemon, 0);
-
-        unset($pokemon[0]);
-
-        $pokemon[1][1][4] = 1;
-
-        self::$pokemon = array_replace(self::$pokemon, $pokemon);
-
-        ksort(self::$pokemon);
-
-        return $checked;
-
-    }
-
-    public static function UseItem() {
-
-        global $user;
-
-        $iid = isset($_GET['iid']) ? intval($_GET['iid']) : 0;
-
-        if ($iid === 0) goto ITEMFAILED;
-
-        $item = DB::fetch_first('SELECT mi.iid, mi.num, i.name, i.effect, i.btlefct, i.usable, i.type FROM pkm_myitem mi LEFT JOIN pkm_itemdata i ON mi.iid = i.iid WHERE mi.iid = ' . $iid . ' AND mi.uid = ' . $user['uid']);
-
-        if (empty($item) || $item['num'] <= 0 || $item['effect'] === '' && $item['btlefct'] === '' && $item['type'] !== '1')
-
-            goto ITEMFAILED;
-
-        self::$report .= $GLOBALS['_G']['username'] . '使用了' . $item['name'] . '！<br>';
-
-        if ($item['type'] === '1') {
-
-            $success = self::CatchPokemon($item['iid']);
-            $pokemon = &self::$pokemon[0][0];
-
-        } else {
-
-            $effect = [];
-            $pokemon = &self::$pokemon[1][0];
-
-            if (!empty($item['effect']))
-
-                foreach (explode('|', $item['effect']) as $val) {
-
-                    $tmp = explode(':', $val);
-                    $effect[$tmp[0]] = $tmp[1];
-
-                }
-
-            if ($pokemon['hp'] <= 0 && (!empty($effect['hp']) || !empty($effect['status'])))
-
-                goto ITEMFAILED;
-
-            else {
-
-                if ($item['type'] === '4') {
-
-                    $success = FALSE;
-                    $effectcount = 0;
-
-                    foreach ($effect as $key => $val) {
-
-                        switch ($key) {
-
-                            default:
-
-                                continue;
-
-                                break;
-
-                            case 'hp':
-
-                                if ($pokemon['hp'] == $pokemon['maxhp'])
-
-                                    continue;
-
-                                $pokemon['hp'] += min((substr($val, -1, 1) === '%') ? floor($pokemon['maxhp'] * $val / 100) : $val, $pokemon['maxhp'] - $pokemon['hp']);
-                                $success = TRUE;
-
-                                ++$effectcount;
-
-                                break;
-
-                            case 'status':
-
-                                if ($pokemon['status'] === '0' || $val !== 'all' && $pokemon['status'] == $val)
-
-                                    break;
-
-                                $pokemon['status'] = 0;
-
-                                ++$effectcount;
-
-                                break;
-
-                            case 'sp':
-
-                                if (Kit::Library('db', array('item')) !== FALSE && ($tmp = new ItemDb()) && method_exists($tmp, '__' . $iid)) {
-
-                                    ItemDb::$pokemon = &$pokemon;
-                                    call_user_func(array('ItemDb', '__' . $iid));
-
-                                    if (!empty(ItemDb::$message))
-
-                                        self::$report .= ItemDb::$message . '<br>';
-
-                                }
-
-                                break;
-                        }
-                    }
-
-                    if ($effectcount > 0)
-
-                        $success = TRUE;
-
-                }
-
-            }
-
-        }
-
-        if ($success === TRUE || $item['type'] === '1') {
-
-            Trainer::Item('DROP', $user['uid'], $iid, 1, $item['num']);
-
-            if ($item['type'] === '4')
-
-                DB::query('UPDATE pkm_mypkm SET hp = ' . $pokemon['hp'] . ', status = ' . $pokemon['status'] . ' WHERE pid = ' . $pokemon['pid']);
-
-            if ($item['type'] !== '1')
-
-                self::$report .= '对' . $pokemon['name'] . '使用' . $item['name'] . '成功！<br>';
-
-        } elseif ($item['type'] !== '1') {
-
-            ITEMFAILED: {
-
-                self::$report .= '这个道具没什么效果……<br>';
-
-            }
-
-        }
-
-    }
-
-    public static function FailMove() {
-
-        self::$report .= '什么都没发生……<br>';
-
-        return FALSE;
-
-    }
-
-    public static function __MoveCharge($report) {
-
-        if (!self::$charged) {
-
-            self::$atk[1][6] = self::$atkmove['mid'];
-            self::$report .= $report . '<br>';
-
-        }
-
-    }
-
-    public static function __MoveRecoil($damage) {
-
-        self::$atk[0]['hp'] = max(0, self::$atk[0]['hp'] - floor($damage * self::$m['recoilper']));
-        self::$report .= self::$atk[0]['name'] . '受到了反伤！<br>';
+        $subject[1][2][42] = $location;
 
     }
 
@@ -2231,36 +1806,9 @@ class Battle {
 
     }
 
-    public static function __MoveExplosion() {
-
-        if (self::$def[0]['abi'] === '6') { # 潮湿
-
-            self::$report .= self::$atk[0]['name'] . '的周围太潮湿，无法引爆！<br>';
-
-            return FALSE;
-
-        }
-
-        self::$atk['hp'] = 0;
-
-    }
-
-    /*
-        1 - Sky
-        2 - Underwater
-        3 - Underground
-        4 - Mystery location
-    */
-
-    public static function __MoveCurrentPlace(&$subject, $location) {
-
-        $subject[1][2][42] = $location;
-
-    }
-
     public static function __MoveOHKO() {
 
-        if (self::$def[0]['abi'] === '5') {
+        if(self::$def[0]['abi'] === '5') {
 
             self::$report .= self::$def[0]['abi'] . '坚如磐石，无法被击倒！<br>';
 
@@ -2273,9 +1821,461 @@ class Battle {
 
     }
 
+    public static function ObtainDamage($typemod) {
+
+        $isct    = FALSE;
+        $ctlevel = intval(self::$atkmove['ctrate']);
+
+        if(!in_array(self::$def[0]['abi'], ['4', '75']) || # 战斗盔甲、贝壳盔甲
+            self::$deffield{8} === '0'
+        ) {
+
+            if($ctlevel === 6) {
+
+                $isct = TRUE;
+
+                goto DAMAGECAL;
+
+            }
+
+            if(self::$atk[1][2][27]) $ctlevel += 2;
+            if(self::$atk[0]['abi'] === '105') $ctlevel += 1; # 强运
+
+            if(in_array(self::$atk[0]['crritem'], ['51', '131'])) # 聚焦镜、锋锐之爪
+
+                $ctlevel += 1;
+
+            elseif(self::$atk[0]['crritem'] === '73' && self::$atk[0]['id'] == '113' || self::$atk[0]['crritem'] === '76' && self::$atk[0]['id'] == '83') # 幸运拳套（幸福蛋）、长葱（大葱鸭）
+
+                $ctlevel += 2;
+
+            if($ctlevel > 4) $ctlevel = 4;
+
+            $tmp  = [16, 8, 4, 3, 2];
+            $isct = rand(1, 100) <= 100 / $tmp[$ctlevel];
+
+        }
+
+        DAMAGECAL: {
+
+            $damage = (((self::$atk[0]['level'] * 2 / 5 + 2) * self::$m['power'] * self::ObtainMoveModifier() * self::$atk[0][self::$atkmove['class'] == '1' ? 'atk' : 'spatk'] / self::$def[0][self::$m['defstat']]) / 50) + 2;
+
+            if(in_array(self::$field['weather']{0}, ['1', '2']) &&
+                !(in_array('13', [self::$atk[0]['abi'], self::$def[0]['abi']]) ||    # 无天气
+                    in_array('76', [self::$atk[0]['abi'], self::$def[0]['abi']]))        # 天气锁
+            ) {
+
+                if(self::$field['weather']{0} == self::$m['type']) $damage *= 1.5;
+                elseif(self::$field['weather']{0} == (self::$m['type'] - 1 ^ 1) + 1) $damage *= 0.5;
+
+            }
+
+            if($isct === TRUE) {
+
+                $damage *= 2;
+
+                self::$report .= '命中要害！<br>';
+
+            }
+
+            $damage *= rand(85, 100) / 100 * $typemod;
+
+            if(in_array(self::$m['type'], [self::$atk[0]['type'], self::$atk[0]['typeb']]))                # STAB、适应力
+
+                $damage *= (self::$atk[0]['abi'] === '91') ? 2 : 1.5;
+
+            if(self::$atk[0]['status'] === '1' && self::$atkmove['class'] == '1' && self::$atk[0]['abi'] != '62')    # 非根性烧伤
+
+                $damage *= 0.5;
+
+            if(self::$atkfield{3} > 0 && self::$atkmove['class'] == '1' && $isct === FALSE ||                    # 反射盾
+                self::$atkfield{4} > 0 && self::$atkmove['class'] == '2' && $isct === FALSE
+            )                    # 光之壁
+
+                $damage *= 0.5;
+
+            if(self::$def[0]['abi'] === '136' && self::$def[0]['hp'] == self::$def[0]['maxhp'])                    # 多重鳞片
+
+                $damage *= 0.5;
+
+            elseif(in_array(self::$def[0]['abi'], ['111', '116']) && $typemod > 1)                            # 过滤器、坚岩
+
+                $damage *= 0.75;
+
+            if(self::$atk[0]['abi'] === '110' && $typemod > 0 && $typemod < 1)                                    # 有色眼镜
+
+                $damage *= 2;
+
+            elseif(self::$atk[0]['abi'] === '97' && $isct === TRUE)                                                # 狙击手
+
+                $damage *= 1.5;
+
+            if(self::$atk[0]['crritem'] === '89' && self::$atk[1][9] > 1)                                        # 节拍器
+
+                $damage *= min(1 + 0.2 * (self::$atk[1][8] - 1), 2);
+
+            elseif(self::$atk[0]['crritem'] === '80' && $typemod > 1)                                        # 达人腰带
+
+                $damage *= 1.2;
+
+            elseif(self::$atk[0]['crritem'] === '82')                                                        # 生命之玉
+
+                $damage *= 1.3;
+
+            // Currently type restraint berries
+
+            if(in_array(self::$atkmove['mid'], ['205', '537'], TRUE) && self::$def[1][2][20] === 1 ||     # 坚硬、坚硬滚动
+                in_array(self::$atkmove['mid'], ['89', '222'], TRUE) && self::$def[1][2][42] === 3 ||    # 地震、震级变化
+                in_array(self::$atkmove['mid'], ['57', '250'], TRUE) && self::$def[1][2][42] === 2 ||    # 冲浪、漩涡
+                in_array(self::$atkmove['mid'], ['16', '239'], TRUE) && self::$def[1][2][42] === 1
+            )    # 起风、龙卷风
+
+                $damage *= 2;
+
+        }
+
+        return floor($damage);
+
+    }
+
+    public static function ObtainMoveModifier() {
+
+        $mod = 1;
+
+        if(self::$atk[0]['abi'] === '101' && self::$m['power'] <= 60 ||
+            self::$atk[0]['abi'] === '138' && self::$atk[0]['status'] === '1' && self::$atkmove['class'] === '2' ||
+            self::$atk[0]['abi'] === '137' && in_array(self::$atk[0]['status'], ['5', '6'], TRUE) && self::$atkmove['class'] === '1'
+        ) { # 技师、热暴走、毒暴走
+
+            $mod *= 1.5;
+
+        } elseif(self::$atk[0]['abi'] === '148' && !in_array(self::$atkmove['mid'], ['248', '353']) && self::$order{1} === '1' ||
+            self::$atk[0]['abi'] === '159' && in_array(self::$m['type'], ['10', '11', '12']) ||
+            self::$atk[0]['abi'] === '125' && self::$atkmove['posefct'] === '1'
+        ) { # 分析、沙之力量、全力攻击
+
+            $mod *= 1.3;
+
+        } elseif(self::$atk[0]['abi'] === '79') { # 斗争心
+
+            switch(self::$atk[0]['gender'] + self::$def[0]['gender']) {
+                case 3:
+                    $mod *= 0.75;
+                    break;
+                case 2:
+                    $mod *= 1.25;
+                    break;
+            }
+
+        } elseif(self::$atk[0]['abi'] === '120' && self::$atkmove['btlefct']{16} === '1' ||
+            self::$atk[0]['abi'] === '89' && self::$atkmove['btlefct']{0} === '1'
+        ) { # 舍身、铁拳
+
+            $mod *= 1.2;
+
+        }
+
+        if(self::$def[0]['abi'] === '85' && self::$m['type'] == '1') { # 耐热
+
+            $mod *= 0.5;
+
+        } elseif(self::$def[0]['abi'] === '87' && self::$m['type'] == '1') { # 干燥肌肤
+
+            $mod *= 1.25;
+
+        }
+
+        /*
+            如果攻击方携带属性强化道具，且技能是对应属性，威力修正×1.2。
+            如果攻击方携带力量头巾，且使用物理技能，威力修正×1.1。
+            如果攻击方携带知识眼镜，且使用特殊技能，威力修正×1.1。
+            如果攻击方携带怪异之香，且技能是超能属性，威力修正×1.2。
+            如果攻击方是携带金刚玉的帝牙卢卡，且技能是钢或龙属性，威力修正×1.2。
+            如果攻击方是携带白玉的帕路奇犽，且技能是水或龙属性，威力修正×1.2。
+            如果攻击方是携带白金玉的骑拉帝纳，且技能是鬼或龙属性，威力修正×1.2。
+            如果此次攻击发动了对应属性宝石，威力修正×1.5。
+            如果技能是潮水，且防御方HP≤50%，威力修正×2。
+            如果技能是毒液冲击，且防御方处于中毒状态，威力修正×2。
+            如果技能是报仇，且攻击方的队伍上回合有精灵濒死，威力修正×2。
+            如果技能是交织火焰，且回合内上一个成功使用的技能是交织闪电，威力修正×2，反之亦然。
+            如果技能是通过先取发出，威力修正×1.5。
+            如果天气是雨天、沙暴或冰雹，且技能是太阳光线，威力修正×0.5。如果场上存在无天气或天气锁特性的精灵，跳过此步骤。
+            如果攻击方处于充电状态，且技能是电属性，威力修正×2。
+            如果攻击方处于帮手状态，威力修正×1.5。
+            如果场上存在玩水状态，且攻击方是火属性，威力修正×0.5。
+            如果场上存在玩泥状态，且攻击方是电属性，威力修正×0.5。
+        */
+
+        return $mod;
+
+    }
+
+    public static function Item(&$pokemon, $action, $iid = 0) {
+
+        if($action === 'DROP' && !empty($pokemon[0]['crritem'])) {
+
+            $pokemon[1][10]        = $pokemon[0]['crritem'];
+            $pokemon[0]['crritem'] = '0';
+
+        } elseif($action === 'OBTAIN' && !empty($iid)) {
+
+            $pokemon[0]['crritem'] = $iid;
+
+        } elseif($action === 'SWAP' && is_array($swappokemon)) {
+
+            $tmp                     = self::$atk[0]['crritem'];
+            self::$atk[0]['crritem'] = self::$def[0]['crritem'];
+            self::$def[0]['crritem'] = self::$atk[0]['crritem'];
+
+        }
+
+    }
+
+    public static function AlterSubStatus(&$pokemon, $status, $chance = 100, $round = '2-5', $failreport = FALSE) {
+
+        $statusarr = ['CFS' => '混乱'];
+
+        if(/*$pokemon[1][2][$actarr[$status][0]] !== FALSE || */
+            $chance >= 0 && rand(0, 100) > $chance ||
+            $status === 'CFS' && $pokemon[0]['abi'] === '20' # Confusion - Own Tempo
+        ) {
+
+            if($failreport === TRUE) self::FailMove();
+
+            return FALSE;
+
+        } else {
+
+            $actarr = [NULL,
+                'CFS' => ['0', '混乱了']
+            ];
+
+            $pokemon[1][2][$actarr[$status][0]] = rand($round{0}, substr($round, -1));
+
+        }
+
+        self::$report .= $pokemon[0]['name'] . $actarr[$status][1] . '！';
+
+    }
+
+    /*
+        It re-orders pokemon in a specified focus pokemon
+        and also place pokemon with hp to the first position
+    */
+
+    public static function __MoveRecoil($damage) {
+
+        self::$atk[0]['hp'] = max(0, self::$atk[0]['hp'] - floor($damage * self::$m['recoilper']));
+        self::$report .= self::$atk[0]['name'] . '受到了反伤！<br>';
+
+    }
+
+    public static function SelfExamine() {
+
+        if(self::$atk[0]['hp'] < 1) {
+
+            self::$reportend[] = self::$atk[0]['name'] . '倒下了！';
+
+            return TRUE;
+
+        }
+
+    }
+
+    public static function End() {
+
+        global $user;
+
+        if(BATTLEMODE === 'WILD') {
+
+            $hptotal = 0;
+
+            foreach(self::$pokemon as $key => $val) {
+
+                if($key > 0 && $key < 7) $hptotal += $val[0]['hp'];
+
+            }
+
+            if(self::$pokemon[0][0]['hp'] === 0) {
+
+                self::GainExp();
+
+                define('ITEMDROP', FALSE);
+
+                if(ITEMDROP === TRUE && rand(1, 100) <= 8 && Trainer::Item('OBTAIN', $user['uid'], 213, 1, 'UNKNOWN', 99))
+
+                    self::$report .= '<i>好像从' . self::$pokemon[0][0]['name'] . '的身上掉下了什么……</i><br>';
+
+                if(self::$pokemon[1][0]['crritem'] === '212' && rand(1, 100) <= 3) {
+
+                    $iid = range(1, 3) + range(165, 169) + range(179, 184) + [190, 209];
+                    $iid = $iid[array_rand($iid)];
+
+                    $item = DB::fetch_first('SELECT mi.num, i.name FROM pkm_myitem mi LEFT JOIN pkm_itemdata i ON i.iid = mi.iid WHERE mi.iid = ' . $iid . ' AND mi.uid = ' . $user['uid']);
+
+                    if(Trainer::Item('OBTAIN', $user['uid'], $iid, 1, $item['num'], 99))
+
+                        self::$report .= '<i>在脚底下发现了一个' . $item['name'] . '！</i><br>';
+
+                }
+
+            } elseif(self::$isend === FALSE && $hptotal > 0) {
+
+                self::WriteBattleData($user['uid'], self::$pokemon);
+
+                if(!self::$faintswap)
+
+                    DB::query('UPDATE pkm_battlefield SET weather = \'' . self::$field['weather'] . '\', trkroom = ' . self::$field['trkroom'] . ', gravity = ' . self::$field['gravity'] . ', turn = ' . ++self::$field['turn'] . ' WHERE uid = ' . $user['uid']);
+
+                goto UPDATEPOKEMON;
+
+            }
+
+            DB::query('DELETE FROM pkm_battlefield WHERE uid = ' . $user['uid']);
+            DB::query('UPDATE pkm_trainerdata SET inbtl = 0 WHERE uid = ' . $user['uid']);
+
+            self::WriteBattleData($user['uid'], [], 'DEL');
+
+            self::$isend = TRUE;
+
+            UPDATEPOKEMON: {
+
+                $sql = [];
+
+                foreach(self::$pokemon as $key => $val) {
+
+                    if($key < 1 || $key > 6) continue;
+
+                    $sql[] = '(' . $val[0]['pid'] . ', ' . $val[0]['hp'] . ', ' . $val[0]['status'] . ', \'' . serialize($val[0]['move']) . '\')';
+
+                }
+
+                DB::query('INSERT INTO pkm_mypkm (pid, hp, status, move) VALUES ' . implode(',', $sql) . ' ON DUPLICATE KEY UPDATE hp = VALUES(hp), STATUS = VALUES(STATUS), move = VALUES(move)');
+
+            }
+
+        }
+
+    }
+
+    public static function GainExp() {
+
+        global $user;
+
+        $baseexp = DB::result_first('SELECT baseexp FROM pkm_pkmdata WHERE id = ' . self::$pokemon[0][0]['id']);
+
+        $sql         = [];
+        $participate = 0;
+
+        foreach(self::$pokemon as $key => $val) {
+
+            if($key < 1 || $key > 6) continue;
+
+            if($val[1][4] === 1) ++$participate;
+
+        }
+
+        foreach(self::$pokemon as $key => $val) {
+
+            if($key < 1 || $key > 6 || $val[0]['level'] > 99 || $val[0]['hp'] < 1 || $val[1][4] === 0 && $val[0]['crritem'] != '208') continue;
+
+            $exp = floor(floor(sqrt(self::$pokemon[0][0]['level'] * 2 + 10) * pow(self::$pokemon[0][0]['level'] * 2 + 10, 2)) * floor(floor(floor(floor(floor($baseexp * self::$pokemon[0][0]['level'] / 5) * (($val[0]['uid'] === $user['uid']) ? 1 : 1.5)) * (($val[0]['crritem'] === '214') ? 1.5 : 1)) * ($val[0]['crritem'] == '208' ? 0.5 : 1)) / $participate) / floor(sqrt(self::$pokemon[0][0]['level'] + $val[0]['level'] + 10) * pow(self::$pokemon[0][0]['level'] + $val[0]['level'] + 10, 2))) + 1;
+
+            self::$pokemon[$key][0]['exp'] += $exp;
+
+            self::$report .= $val[0]['name'] . '获得了' . $exp . '点经验。<br>';
+
+            $tmp = [$val[0]['level'], $val[0]['id']];
+
+            Pokemon::LevelUp(self::$pokemon[$key][0]);
+
+            if($tmp[0] != self::$pokemon[$key][0]['level'])
+
+                self::$report .= $val[0]['name'] . '升到了' . self::$pokemon[$key][0]['level'] . '级！<br>';
+
+            if($tmp[1] != self::$pokemon[$key][0]['id'])
+
+                self::$report .= $val[0]['name'] . '进化成了' . self::$pokemon[$key][0]['name'] . '！<br>';
+
+            $sql[] = '(' . $val[0]['pid'] . ', ' . $exp . ', ' . (($val[0]['crritem'] == '211') ? 2 : 1) . ')';
+
+        }
+
+        if(!empty($sql))
+
+            DB::query('INSERT INTO pkm_mypkm (pid, exp, hpns) VALUES ' . implode(',', $sql) . ' ON DUPLICATE KEY UPDATE exp = exp + VALUES(exp), hpns = hpns + VALUES(hpns)');
+
+    }
+
+    /**
+     * This method creates/deletes user's battle data saved in filesystem.
+     * @param        $uid    uid of the user
+     * @param        $data   content that is gonna be written in
+     * @param string $action DEL for deletion, otherwise write the files
+     */
+    public static function WriteBattleData($uid, $data, $action = '') {
+
+        $path = ROOTBATTLE . '/user-' . $uid;
+
+        // Performing deletion and ends the method directly
+        if($action === 'DEL') {
+            unlink($path);
+            return;
+        }
+
+        $fp = fopen($path, 'w+');
+        fwrite($fp, gzdeflate(serialize($data), 9));
+        fclose($fp);
+
+    }
+
+    public static function GenerateBattleData($pid = 0, $place = 0) {
+
+        return [$pid, [0, 0, 0, 0, 0, 0, 0], array_fill(0, self::$num['ssn'], FALSE), $place, 0, 0, 0, 0, 0, 0, 0, FALSE, 'insstatus' => 0];
+
+    }
+
+    public static function GenerateFieldData() {
+
+        return '0000000000';
+
+    }
+
+    /*
+        1 - Sky
+        2 - Underwater
+        3 - Underground
+        4 - Mystery location
+    */
+
+    public static function __MoveCharge($report) {
+
+        if(!self::$charged) {
+
+            self::$atk[1][6] = self::$atkmove['mid'];
+            self::$report .= $report . '<br>';
+
+        }
+
+    }
+
+    public static function __MoveExplosion() {
+
+        if(self::$def[0]['abi'] === '6') { # 潮湿
+
+            self::$report .= self::$atk[0]['name'] . '的周围太潮湿，无法引爆！<br>';
+
+            return FALSE;
+
+        }
+
+        self::$atk['hp'] = 0;
+
+    }
+
     public static function __MoveTrap($code) {
 
-        if (self::$def[1][2][3]) return FALSE;
+        if(self::$def[1][2][3]) return FALSE;
 
         # For condition issue, effect last turn counter is set to TURN + 1
         # Additional value has been added to the counter with $code * 10 to record trap type

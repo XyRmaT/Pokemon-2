@@ -20,12 +20,12 @@ class Database {
         return mysqli_query(self::$db, vsprintf($sql, $values));
     }
 
-    public static function fetch($resource, $type = MYSQLI_ASSOC) {
-        return mysqli_fetch_array($resource, $type);
-    }
-
     public static function fetch_first($sql, $values = []) {
         return self::fetch(mysqli_query(self::$db, vsprintf($sql, $values)));
+    }
+
+    public static function fetch($resource, $type = MYSQLI_ASSOC) {
+        return mysqli_fetch_array($resource, $type);
     }
 
     public static function result_first($sql, $values = []) {
@@ -42,4 +42,5 @@ class Database {
 
 }
 
-class DB extends Database { }
+class DB extends Database {
+}

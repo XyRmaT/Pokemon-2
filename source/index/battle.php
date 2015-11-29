@@ -1,6 +1,6 @@
 <?php
 
-Kit::Library('class', array('battle', 'pokemon'));
+Kit::Library('class', ['battle', 'pokemon']);
 
 $mapid = isset($_GET['mpid']) ? intval($_GET['mpid']) : 1;
 
@@ -20,8 +20,8 @@ if(!$map) {
 
 } elseif(!$user['inbtl']) {
 
-    $tmp    = [];
-    $query  = DB::query('SELECT id, levelmin, levelmax, rate
+    $tmp   = [];
+    $query = DB::query('SELECT id, levelmin, levelmax, rate
                          FROM pkm_encounterdata
                          WHERE mpid = ' . $mapid . ' AND timefrom < ' . $_SERVER['REQUEST_TIME'] . ' AND (timeto = 0 OR timeto > ' . $_SERVER['REQUEST_TIME'] . ') AND qty != 0');
 
@@ -41,7 +41,7 @@ if(!$map) {
 
     $i = 0;
 
-    for(;;) {
+    for(; ;) {
 
         $appearpkm = $tmp[array_rand($tmp)];
 
@@ -67,24 +67,24 @@ if(!$map) {
 
     DB::query('INSERT INTO pkm_battlefield (uid) VALUES (' . $_G['uid'] . ') ON DUPLICATE KEY UPDATE weather = 0, trkroom = 0, gravity = 0');
 
-    Battle::$pokemon[0] = array(
-        Pokemon::Generate($appearpkm['id'], $_G['uid'], array(
-            'mtplace'    => $map['mpid'],
-            'mtlevel'    => $appearpkm['level'],
-            'wild'        => 1
-        )),
+    Battle::$pokemon[0] = [
+        Pokemon::Generate($appearpkm['id'], $_G['uid'], [
+            'mtplace' => $map['mpid'],
+            'mtlevel' => $appearpkm['level'],
+            'wild'    => 1
+        ]),
         Battle::GenerateBattleData()
-    );
+    ];
 
     $query = DB::query('SELECT m.pid, m.id, m.nickname, m.gender, m.pv, m.iv, m.ev, m.nature, m.level, m.crritem, m.hpns, m.move, m.abi, m.hp, m.status, m.imgname, p.bs, p.type, p.typeb FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id WHERE m.uid = ' . $_G['uid'] . ' AND m.place IN (1, 2, 3, 4, 5, 6) AND m.id != 0 ORDER BY m.place ASC');
 
-    $hp    = 0;
-    $i    = 1;
+    $hp = 0;
+    $i  = 1;
 
     while($info = DB::fetch($query)) {
 
-        $hp                        += $info['hp'];
-        Battle::$pokemon[$i]    = array($info, Battle::GenerateBattleData($info['pid']));
+        $hp += $info['hp'];
+        Battle::$pokemon[$i] = [$info, Battle::GenerateBattleData($info['pid'])];
 
         ++$i;
 
@@ -98,13 +98,13 @@ if(!$map) {
 
     }
 
-debuginfo();
-    echo '<pre><img src="' . Obtain::Sprite('pokemon', 'png', Battle::$pokemon[0][0]['imgname']) . '"><img src="' . Obtain::Sprite('pokemon', 'png', Battle::$pokemon[1][0]['imgname']) . '"><br>Processed in ' . $_G['debuginfo']['time']  . 'second(s), ' . $_G['debuginfo']['queries'] . ' queries.';
+    debuginfo();
+    echo '<pre><img src="' . Obtain::Sprite('pokemon', 'png', Battle::$pokemon[0][0]['imgname']) . '"><img src="' . Obtain::Sprite('pokemon', 'png', Battle::$pokemon[1][0]['imgname']) . '"><br>Processed in ' . $_G['debuginfo']['time'] . 'second(s), ' . $_G['debuginfo']['queries'] . ' queries.';
     print_r(Battle::$pokemon[0][0]);
-exit;
+    exit;
 
-    Battle::$turn    = 'firstTurn';
-    Battle::$field   = array('000000000', '000000000');
+    Battle::$turn  = 'firstTurn';
+    Battle::$field = ['000000000', '000000000'];
     Battle::$report .= '野生的' . Battle::$pokemon[0][0]['name'] . '出现了！<br>';
 
     unset($tmp, $query, $appearpkm);

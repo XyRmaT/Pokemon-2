@@ -9,7 +9,6 @@
  * 9-丢弃
  * 10-交换
  * 101-200:箱子
- *
  * 想法
  * - 自由随机交配
  * - 和固定朋友交配
@@ -19,8 +18,8 @@
  * - 万圣节派发H蛋
  */
 
-Kit::Library('class', array('obtain'));
- 
+Kit::Library('class', ['obtain']);
+
 # Note that perhaps I will add Exp adding progress
 
 /*
@@ -28,20 +27,20 @@ Kit::Library('class', array('obtain'));
 	eggcheck records the timestamp of last time being checked if there is an egg or not, only modify when starts to check is it any eggs produced
 */
 
-$query		= DB::query('SELECT m.pid, m.level, m.nickname, m.id, m.dayctime, m.eggcheck, m.egg, m.gender, m.originuid, m.imgname, m.crritem, m.capitem, p.egggrp, p.egggrpb, p.name FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id WHERE place = 7 AND uid = ' . $_G['uid'] . ' LIMIT 2');
-$pokemon	= array();
+$query   = DB::query('SELECT m.pid, m.level, m.nickname, m.id, m.dayctime, m.eggcheck, m.egg, m.gender, m.originuid, m.imgname, m.crritem, m.capitem, p.egggrp, p.egggrpb, p.name FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id WHERE place = 7 AND uid = ' . $_G['uid'] . ' LIMIT 2');
+$pokemon = [];
 
 while($info = DB::fetch($query)) {
 
-	$info['incexp']			= floor(($_SERVER['REQUEST_TIME'] - $info['dayctime']) / 12);
-	$info['cost']			= (floor(($_SERVER['REQUEST_TIME'] - $info['dayctime']) / 2400) + 1) * 5;
-	$info['egggrpn']		= Obtain::EggGroupName($info['egggrp'], $info['egggrpb']);
-	$info['pkmimgpath']		= Obtain::Sprite('pokemon', 'png', $info['imgname']);
-	$info['gendersign']		= Obtain::GenderSign($info['gender']);
-	$info['capitem']		= Obtain::Sprite('item', 'png', 'item_' . $info['capitem']);
-	$info['itemimgpath']	= ($info['crritem']) ? Obtain::Sprite('item', 'png', 'item_' . $info['crritem']) : '';
+	$info['incexp']      = floor(($_SERVER['REQUEST_TIME'] - $info['dayctime']) / 12);
+	$info['cost']        = (floor(($_SERVER['REQUEST_TIME'] - $info['dayctime']) / 2400) + 1) * 5;
+	$info['egggrpn']     = Obtain::EggGroupName($info['egggrp'], $info['egggrpb']);
+	$info['pkmimgpath']  = Obtain::Sprite('pokemon', 'png', $info['imgname']);
+	$info['gendersign']  = Obtain::GenderSign($info['gender']);
+	$info['capitem']     = Obtain::Sprite('item', 'png', 'item_' . $info['capitem']);
+	$info['itemimgpath'] = ($info['crritem']) ? Obtain::Sprite('item', 'png', 'item_' . $info['crritem']) : '';
 
-	$pokemon[] 			= $info;
+	$pokemon[] = $info;
 
 }
 
@@ -63,20 +62,20 @@ if($pmcount === 2) {
 
 	$eggpossible = 0;
 
-	if(!in_array(15, array($pokemon[0]['egggrp'], $pokemon[1]['egggrp']))) {
+	if(!in_array(15, [$pokemon[0]['egggrp'], $pokemon[1]['egggrp']])) {
 
-		if(in_array(132, array($pokemon[0]['id'], $pokemon[1]['id']))) {
+		if(in_array(132, [$pokemon[0]['id'], $pokemon[1]['id']])) {
 
 			$eggpossible = 1;
 
-		} elseif($pokemon[0]['gender'] != $pokemon[1]['gender'] && !in_array(0, array($pokemon[0]['gender'], $pokemon[1]['gender']))) {
+		} elseif($pokemon[0]['gender'] != $pokemon[1]['gender'] && !in_array(0, [$pokemon[0]['gender'], $pokemon[1]['gender']])) {
 
-			if(in_array($pokemon[0]['egggrp'], array($pokemon[1]['egggrp'], $pokemon[1]['egggrpb'])) || !empty($pokemon[0]['egggrpb']) && in_array($pokemon[0]['egggrpb'], array($pokemon[1]['egggrp'], $pokemon[1]['egggrpb'])))
-			
+			if(in_array($pokemon[0]['egggrp'], [$pokemon[1]['egggrp'], $pokemon[1]['egggrpb']]) || !empty($pokemon[0]['egggrpb']) && in_array($pokemon[0]['egggrpb'], [$pokemon[1]['egggrp'], $pokemon[1]['egggrpb']]))
+
 				$eggpossible = 1;
-				
+
 		}
-		
+
 	}
 
 	if($eggpossible === 1) {
@@ -85,13 +84,13 @@ if($pmcount === 2) {
 
 			if($pokemon[0]['originuid'] === $pokemon[1]['originuid']) {
 
-				$randmax	= 50;
-				$psbstatus	= '两只精灵的感情还行。';
+				$randmax   = 50;
+				$psbstatus = '两只精灵的感情还行。';
 
 			} elseif($pokemon[0]['originuid'] != $pokemon[1]['originuid']) {
 
-				$randmax	= 70;
-				$psbstatus	= '两只精灵的感情不错啊！';
+				$randmax   = 70;
+				$psbstatus = '两只精灵的感情不错啊！';
 
 			}
 
@@ -99,30 +98,30 @@ if($pmcount === 2) {
 
 			if($pokemon[0]['originuid'] === $pokemon[1]['originuid']) {
 
-				$randmax	= 20;
-				$psbstatus	= '两只精灵的感情勉强说得过去吧……';
+				$randmax   = 20;
+				$psbstatus = '两只精灵的感情勉强说得过去吧……';
 
 			} elseif($pokemon[0]['originuid'] != $pokemon[1]['originuid']) {
 
-				$randmax	= 50;
-				$psbstatus	= '两只精灵的感情还行。';
+				$randmax   = 50;
+				$psbstatus = '两只精灵的感情还行。';
 
 			}
-		
+
 		}
 	}
 
 	if($pokemon[0]['egg'] + $pokemon[1]['egg'] === 2) {
-	
-		$randmax	= 70;
-		$psbstatus	= '这一对异性恋进行了一番巫山云雨，最终产下了悲剧的结晶！';
+
+		$randmax   = 70;
+		$psbstatus = '这一对异性恋进行了一番巫山云雨，最终产下了悲剧的结晶！';
 
 	} else {
-		
+
 		// If $eggpossible is 1, then start to get the relationship status, at the same time, define the max number for the random number
-		
+
 		if($eggpossible === 1) {
-			
+
 			/*
 				If two pokemon haven't got an egg, add a record for the egg which is produced
 				It is enough of using one of theirs eggcheck and dayctime
@@ -132,14 +131,14 @@ if($pmcount === 2) {
 				Do loops for $chktime times, each time generates a random number between 0 and 100, 
 				if the number is less or equal to the limitation variable $randmax, so an egg has been produced
 			*/
-			
+
 			# Note that it might be better to create another table of saving records of eggs rather than merge with the table pkm_mypkm
 
 			if(empty($pokemon[0]['egg']) || empty($pokemon[1]['egg'])) {
 
-				$hour		= 2;				// two hours
-				$stamp		= $hour * 60 * 60;	// change hours into seconds
-				$chktime	= !empty($pokemon[0]['eggcheck']) ? floor(($_SERVER['REQUEST_TIME'] - $pokemon[0]['eggcheck']) / $stamp) : floor(($_SERVER['REQUEST_TIME'] - $pokemon[0]['dayctime']) / $stamp); //每两小时加一次循环，计算循环次数，一次性计算是否生出了蛋，计算完毕后马上更新检查时间
+				$hour    = 2;                // two hours
+				$stamp   = $hour * 60 * 60;    // change hours into seconds
+				$chktime = !empty($pokemon[0]['eggcheck']) ? floor(($_SERVER['REQUEST_TIME'] - $pokemon[0]['eggcheck']) / $stamp) : floor(($_SERVER['REQUEST_TIME'] - $pokemon[0]['dayctime']) / $stamp); //每两小时加一次循环，计算循环次数，一次性计算是否生出了蛋，计算完毕后马上更新检查时间
 
 				if($chktime > 0) {
 
@@ -160,33 +159,33 @@ if($pmcount === 2) {
 						break;
 
 					}
-					
+
 				}
 
 			}
 
 		} elseif($eggpossible === 0) {
-		
+
 			$psbstatus = '嘛、两只精灵似乎做朋友更合适点？';
-			
+
 		}
 
 	}
 
-	$egg	= ($pokemon[0]['egg'] + $pokemon[1]['egg'] === 2) ? 1 : 0;
-	$status	= '精灵一切安好。';
-	
+	$egg    = ($pokemon[0]['egg'] + $pokemon[1]['egg'] === 2) ? 1 : 0;
+	$status = '精灵一切安好。';
+
 	if($egg === 1) {
-	
-		$eggsprite	= Obtain::Sprite('egg', 'png', '');
-		
+
+		$eggsprite = Obtain::Sprite('egg', 'png', '');
+
 	}
 
 
 } elseif($pmcount === 1) {
 
 	$status = '精灵一切安好。';
-	
+
 }
 
 
@@ -194,17 +193,17 @@ if($pmcount === 2) {
 
 if($pmcount < 2) {
 
-	$pokemon = array_merge($pokemon, array_fill($pmcount, 2 - $pmcount, array()));
+	$pokemon = array_merge($pokemon, array_fill($pmcount, 2 - $pmcount, []));
 
-	$query	= DB::query('SELECT m.id, m.nickname, m.pid, m.imgname, m.level, m.gender, p.egggrp, p.egggrpb, p.name FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id AND m.id != 0 WHERE place IN (1, 2, 3, 4, 5, 6) AND uid = ' . $_G['uid'] . ' LIMIT 6');
-	$party	= array();
+	$query = DB::query('SELECT m.id, m.nickname, m.pid, m.imgname, m.level, m.gender, p.egggrp, p.egggrpb, p.name FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id AND m.id != 0 WHERE place IN (1, 2, 3, 4, 5, 6) AND uid = ' . $_G['uid'] . ' LIMIT 6');
+	$party = [];
 
 	while($info = DB::fetch($query)) {
 
-		$info['egggrp']		= Obtain::EggGroupName($info['egggrp'], $info['egggrpb']);
-		$info['pkmimgpath']	= Obtain::Sprite('pokemon', 'png', $info['imgname']);
-		$info['gender']		= Obtain::GenderSign($info['gender']);
-	
+		$info['egggrp']     = Obtain::EggGroupName($info['egggrp'], $info['egggrpb']);
+		$info['pkmimgpath'] = Obtain::Sprite('pokemon', 'png', $info['imgname']);
+		$info['gender']     = Obtain::GenderSign($info['gender']);
+
 		$party[] = $info;
 
 	}

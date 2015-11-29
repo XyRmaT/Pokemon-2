@@ -1,15 +1,15 @@
 <?php
 
 
-define('INPOKE',        TRUE);
-define('INAJAX',        (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest' || !empty($_GET['aaa']) && $_GET['aaa'] === '1') ? TRUE : FALSE);
-define('ROOT',          dirname(__FILE__));
-define('YEAR',          date('Y', $_SERVER['REQUEST_TIME']));
-define('TEMPLATEID',    1);
-define('ROOTIMG',       './source_img');
-define('TPLDIR',        './source_tpl');
-define('ROOTCACHE',     './cache');
-define('ROOTREL',       '');
+define('INPOKE', TRUE);
+define('INAJAX', (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest' || !empty($_GET['aaa']) && $_GET['aaa'] === '1') ? TRUE : FALSE);
+define('ROOT', dirname(__FILE__));
+define('YEAR', date('Y', $_SERVER['REQUEST_TIME']));
+define('TEMPLATEID', 1);
+define('ROOTIMG', './source_img');
+define('TPLDIR', './source_tpl');
+define('ROOTCACHE', './cache');
+define('ROOTREL', '');
 
 
 // Include common libraries and initialize app
@@ -30,14 +30,14 @@ if($SYS['switch'] === 0 && $_G['uid'] != 8) exit($SYS['closereason']);
 
 // Load up the essential libraries
 
-Kit::Library('class', array('trainer', 'obtain'));
+Kit::Library('class', ['trainer', 'obtain']);
 
 
 // Set up some global variables, also keep the minified CSS file up to date
 
 //$SYS            = array_merge($SYS, DB::fetch_first('SELECT shopsell, shopopc FROM pkm_stat'));
-$index          = isset($_GET['index']) && in_array($_GET['index'], ['my', 'pc', 'copyright', 'starter', 'shop', 'daycare', 'index', 'battle', 'map', 'tempview', 'tempaward', 'ranking', 'shelter']) ? $_GET['index'] : 'index';
-$path['css']    = Cache::Css(array('index/stylesheet', 'css/jquery-ui-1.10.3.custom'), 'index/cssvar');
+$index       = isset($_GET['index']) && in_array($_GET['index'], ['my', 'pc', 'copyright', 'starter', 'shop', 'daycare', 'index', 'battle', 'map', 'tempview', 'tempaward', 'ranking', 'shelter']) ? $_GET['index'] : 'index';
+$path['css'] = Cache::Css(['index/stylesheet', 'css/jquery-ui-1.10.3.custom'], 'index/cssvar');
 
 
 // Change the default timezone to +8
@@ -59,10 +59,10 @@ if(!empty($_G['uid'])) {
 
     } else {
 
-        $user['extcredit']  = DB::fetch_first('SELECT ' . $SYS['moneyext'] . ', ' . $SYS['expext'] . ' FROM pre_common_member_count WHERE uid = ' . $_G['uid']);
-        $user['gm']         = in_array($_G['uid'], explode(',', $SYS['admin']));
-        $user['money']      = $user['extcredit'][$SYS['moneyext']];
-        $user['avatar']     = Obtain::Avatar($_G['uid']);
+        $user['extcredit'] = DB::fetch_first('SELECT ' . $SYS['moneyext'] . ', ' . $SYS['expext'] . ' FROM pre_common_member_count WHERE uid = ' . $_G['uid']);
+        $user['gm']        = in_array($_G['uid'], explode(',', $SYS['admin']));
+        $user['money']     = $user['extcredit'][$SYS['moneyext']];
+        $user['avatar']    = Obtain::Avatar($_G['uid']);
 
         // Add EXP gained from forum posts to the party, and clear the counter
 
@@ -84,17 +84,17 @@ if(!empty($_G['uid'])) {
         DB::query('INSERT INTO pkm_trainerstat (uid) VALUES (' . $user['uid'] . ')');
 
         $user['stat']['old'] = $user['stat']['new'] = [
-            'pmevolve'  => 0,
-            'itembuy'   => 0,
-            'pmhatch'   => 0
+            'pmevolve' => 0,
+            'itembuy'  => 0,
+            'pmhatch'  => 0
         ];
 
     } else {
 
         $user['stat']['old'] = $user['stat']['new'] = [
-            'pmevolve'  => $user['pmevolve'],
-            'itembuy'   => $user['itembuy'],
-            'pmhatch'   => $user['pmhatch']
+            'pmevolve' => $user['pmevolve'],
+            'itembuy'  => $user['itembuy'],
+            'pmhatch'  => $user['pmhatch']
         ];
 
     }
@@ -114,16 +114,16 @@ if($_SERVER['REQUEST_TIME'] - $user['hpnschk'] >= $SYS['hpnschktime']) {
 
 if(INAJAX && !empty($index)) {
 
-    if(empty($_G['uid']))       exit;
-    if(empty($user['sttchk']))  $index = 'starter';
-    if($index === 'my')          $index = 'memcp';
-    if($index === 'pc')          $index = 'pkmcenter';
+    if(empty($_G['uid'])) exit;
+    if(empty($user['sttchk'])) $index = 'starter';
+    if($index === 'my') $index = 'memcp';
+    if($index === 'pc') $index = 'pkmcenter';
 
     $return = [];
 
     require_once(ROOT . '/source/ajax/' . $index . '.php');
 
-    if($user['inbtl'] === '1' && !in_array($index, array('battle', 'map')))
+    if($user['inbtl'] === '1' && !in_array($index, ['battle', 'map']))
 
         DB::query('UPDATE pkm_trainerdata SET inbtl = 0 WHERE uid = ' . $user['uid']);
 
@@ -135,10 +135,10 @@ if(INAJAX && !empty($index)) {
 
     empty($_GET['section']) && $_GET['section'] = '';
 
-    ($index === 'my')       && $index   = 'memcp';
-    ($index === 'pc')       && $index   = 'pkmcenter';
-    empty($user['sttchk'])  && $index   = 'starter';
-    empty($_G['uid'])       && $index   = 'index';
+    ($index === 'my') && $index = 'memcp';
+    ($index === 'pc') && $index = 'pkmcenter';
+    empty($user['sttchk']) && $index = 'starter';
+    empty($_G['uid']) && $index = 'index';
 
     include ROOT . '/source/index/' . $index . '.php';
 
