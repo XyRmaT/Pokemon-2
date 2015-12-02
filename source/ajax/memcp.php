@@ -6,7 +6,7 @@ switch($_GET['process']) {
 
 		$pid = isset($_GET['pid']) ? intval($_GET['pid']) : 0;
 
-		if(DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE uid = ' . $user['uid']) === '0') {
+		if(DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE uid = ' . $trainer['uid']) === '0') {
 
 			$return['msg'] = '一只精灵都没有怎么行？';
 
@@ -34,11 +34,11 @@ switch($_GET['process']) {
 
 		if($info['id'] !== '0')
 
-			$user['addexp'] -= ($info['originuid'] === $info['uid']) ? 8 : 2;
+			$trainer['addexp'] -= ($info['originuid'] === $info['uid']) ? 8 : 2;
 
 		else
 
-			($info['originuid'] === $info['uid']) || ($user['addexp'] -= 8);
+			($info['originuid'] === $info['uid']) || ($trainer['addexp'] -= 8);
 
 		ob_start();
 
@@ -115,12 +115,12 @@ switch($_GET['process']) {
 
 		if($pid === 0) break;
 
-		$pkm = DB::fetch_first('SELECT pid, nickname, crritem FROM pkm_mypkm WHERE pid = ' . $pid . ' AND uid = ' . $user['uid']);
+		$pkm = DB::fetch_first('SELECT pid, nickname, crritem FROM pkm_mypkm WHERE pid = ' . $pid . ' AND uid = ' . $trainer['uid']);
 
 
 		if(!empty($fpid)) {
 
-			$fpokemon = DB::result_first('SELECT crritem FROM pkm_mypkm WHERE pid = ' . $fpid . ' AND uid = ' . $user['uid']);
+			$fpokemon = DB::result_first('SELECT crritem FROM pkm_mypkm WHERE pid = ' . $fpid . ' AND uid = ' . $trainer['uid']);
 
 			if(empty($fpokemon)) {
 
@@ -140,15 +140,15 @@ switch($_GET['process']) {
 
 			if(!empty($pkm['crritem'])) {
 
-				$num = DB::result_first('SELECT num FROM pkm_myitem WHERE iid = ' . $pkm['crritem'] . ' AND uid = ' . $user['uid']);
+				$num = DB::result_first('SELECT num FROM pkm_myitem WHERE iid = ' . $pkm['crritem'] . ' AND uid = ' . $trainer['uid']);
 
 				if(empty($num))
 
-					DB::query('INSERT INTO pkm_myitem (iid, num, uid) VALUES (' . $pkm['crritem'] . ', 1, ' . $user['uid'] . ')');
+					DB::query('INSERT INTO pkm_myitem (iid, num, uid) VALUES (' . $pkm['crritem'] . ', 1, ' . $trainer['uid'] . ')');
 
 				else
 
-					DB::query('UPDATE pkm_myitem SET num = ' . ($num + 1) . ' WHERE iid = ' . $pkm['crritem'] . ' AND uid = ' . $user['uid']);
+					DB::query('UPDATE pkm_myitem SET num = ' . ($num + 1) . ' WHERE iid = ' . $pkm['crritem'] . ' AND uid = ' . $trainer['uid']);
 
 			}
 
@@ -159,7 +159,7 @@ switch($_GET['process']) {
 
 		} elseif($iid > 0) {
 
-			$titem = DB::fetch_first('SELECT mi.num, i.name FROM pkm_myitem mi LEFT JOIN pkm_itemdata i ON mi.iid = i.iid WHERE mi.uid = ' . $user['uid'] . ' AND mi.iid = ' . $iid);
+			$titem = DB::fetch_first('SELECT mi.num, i.name FROM pkm_myitem mi LEFT JOIN pkm_itemdata i ON mi.iid = i.iid WHERE mi.uid = ' . $trainer['uid'] . ' AND mi.iid = ' . $iid);
 
 			if(empty($titem['num']) || $titem['num'] <= 0 || empty($pkm))
 
@@ -167,23 +167,23 @@ switch($_GET['process']) {
 
 			elseif($titem['num'] - 1 <= 0)
 
-				DB::query('DELETE FROM pkm_myitem WHERE uid = ' . $user['uid'] . ' AND iid = ' . $iid);
+				DB::query('DELETE FROM pkm_myitem WHERE uid = ' . $trainer['uid'] . ' AND iid = ' . $iid);
 
 			else
 
-				DB::query('UPDATE pkm_myitem SET num = num - 1 WHERE uid = ' . $user['uid'] . ' AND iid = ' . $iid);
+				DB::query('UPDATE pkm_myitem SET num = num - 1 WHERE uid = ' . $trainer['uid'] . ' AND iid = ' . $iid);
 
 			if(!empty($pkm['crritem'])) {
 
-				$fitem = DB::fetch_first('SELECT num FROM pkm_myitem WHERE iid = ' . $pkm['crritem'] . ' AND uid = ' . $user['uid']);
+				$fitem = DB::fetch_first('SELECT num FROM pkm_myitem WHERE iid = ' . $pkm['crritem'] . ' AND uid = ' . $trainer['uid']);
 
 				if(empty($fitem['num']))
 
-					DB::query('INSERT INTO pkm_myitem (iid, num, uid) VALUES (' . $pkm['crritem'] . ', 1, ' . $user['uid'] . ')');
+					DB::query('INSERT INTO pkm_myitem (iid, num, uid) VALUES (' . $pkm['crritem'] . ', 1, ' . $trainer['uid'] . ')');
 
 				else
 
-					DB::query('UPDATE pkm_myitem SET num = num + 1 WHERE uid = ' . $user['uid'] . ' AND iid = ' . $pkm['crritem']);
+					DB::query('UPDATE pkm_myitem SET num = num + 1 WHERE uid = ' . $trainer['uid'] . ' AND iid = ' . $pkm['crritem']);
 
 			}
 
@@ -198,15 +198,15 @@ switch($_GET['process']) {
 
 			$return['console'] = '把' . $pkm['nickname'] . '携带的道具卸下了。';
 
-			$crritemnum = DB::result_first('SELECT num FROM pkm_myitem WHERE uid = ' . $user['uid'] . ' AND iid = ' . $pkm['crritem']);
+			$crritemnum = DB::result_first('SELECT num FROM pkm_myitem WHERE uid = ' . $trainer['uid'] . ' AND iid = ' . $pkm['crritem']);
 
 			if(empty($crritemnum))
 
-				DB::query('INSERT INTO pkm_myitem (iid, num, uid) VALUES (' . $pkm['crritem'] . ', 1, ' . $user['uid'] . ')');
+				DB::query('INSERT INTO pkm_myitem (iid, num, uid) VALUES (' . $pkm['crritem'] . ', 1, ' . $trainer['uid'] . ')');
 
 			else
 
-				DB::query('UPDATE pkm_myitem SET num = num + 1 WHERE iid = ' . $pkm['crritem'] . ' AND uid = ' . $user['uid']);
+				DB::query('UPDATE pkm_myitem SET num = num + 1 WHERE iid = ' . $pkm['crritem'] . ' AND uid = ' . $trainer['uid']);
 
 		} else {
 
@@ -231,7 +231,7 @@ switch($_GET['process']) {
 
 		}
 
-		$item = DB::fetch_first('SELECT mi.num, i.name, i.effect, i.usable, i.type FROM pkm_myitem mi LEFT JOIN pkm_itemdata i ON mi.iid = i.iid WHERE mi.iid = ' . $iid . ' AND mi.uid = ' . $user['uid']);
+		$item = DB::fetch_first('SELECT mi.num, i.name, i.effect, i.usable, i.type FROM pkm_myitem mi LEFT JOIN pkm_itemdata i ON mi.iid = i.iid WHERE mi.iid = ' . $iid . ' AND mi.uid = ' . $trainer['uid']);
 
 		if(empty($item))
 
@@ -379,11 +379,11 @@ switch($_GET['process']) {
 
 					if($item['num'] - 1 <= 0)
 
-						DB::query('DELETE FROM pkm_myitem WHERE iid = ' . $iid . ' AND uid = ' . $user['uid']);
+						DB::query('DELETE FROM pkm_myitem WHERE iid = ' . $iid . ' AND uid = ' . $trainer['uid']);
 
 					else
 
-						DB::query('UPDATE pkm_myitem SET num = num - 1 WHERE iid = ' . $iid . ' AND uid = ' . $user['uid']);
+						DB::query('UPDATE pkm_myitem SET num = num - 1 WHERE iid = ' . $iid . ' AND uid = ' . $trainer['uid']);
 
 					if($evolve === FALSE) {
 
@@ -515,7 +515,7 @@ switch($_GET['process']) {
 	case 'achvcheck':
 
 		$achvid      = !empty($_GET['achvid']) ? intval($_GET['achvid']) : 0;
-		$achievement = DB::fetch_first('SELECT ac.name, mac.dateline FROM pkm_achievementdata ac LEFT JOIN pkm_myachievement mac ON mac.achvid = ac.achvid AND mac.uid = ' . $user['uid'] . ' WHERE ac.achvid = ' . $achvid);
+		$achievement = DB::fetch_first('SELECT ac.name, mac.dateline FROM pkm_achievementdata ac LEFT JOIN pkm_myachievement mac ON mac.achvid = ac.achvid AND mac.uid = ' . $trainer['uid'] . ' WHERE ac.achvid = ' . $achvid);
 
 		if($achvid === 0 || $achievement === FALSE) {
 
@@ -544,7 +544,7 @@ switch($_GET['process']) {
 
 		}
 
-		DB::query('INSERT INTO pkm_myachievement (achvid, uid, dateline) VALUES (' . $achvid . ', ' . $user['uid'] . ', ' . $_SERVER['REQUEST_TIME'] . ')');
+		DB::query('INSERT INTO pkm_myachievement (achvid, uid, dateline) VALUES (' . $achvid . ', ' . $trainer['uid'] . ', ' . $_SERVER['REQUEST_TIME'] . ')');
 
 		$return['msg']     = '恭喜你完成了成就【' . $achievement['name'] . '】！';
 		$return['succeed'] = !0;
@@ -552,7 +552,7 @@ switch($_GET['process']) {
 		break;
 	case 'inboxdel':
 
-		$msgid = DB::result_first('SELECT msgid FROM pkm_myinbox WHERE msgid = ' . (isset($_GET['msgid']) ? intval($_GET['msgid']) : 0) . ' AND receiver = ' . $user['uid']);
+		$msgid = DB::result_first('SELECT msgid FROM pkm_myinbox WHERE msgid = ' . (isset($_GET['msgid']) ? intval($_GET['msgid']) : 0) . ' AND receiver = ' . $trainer['uid']);
 
 		if(!$msgid) {
 

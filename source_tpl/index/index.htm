@@ -32,7 +32,7 @@
 		<div>
 			<div class="idx-title">训练师榜Top5<a href="pokemon.php?index=ranking" target="_blank">更多榜单</a></div>
 			<ul class="idx-rank">
-				<!--{loop $trainer $key $val}-->
+				<!--{loop $topTrainer $key $val}-->
 					<li>
 						<!--{if $key < 3}--><span class="top p{echo $key + 1}"></span><!--{else}--><span><!--{echo $key + 1}--></span><!--{/if}-->
 						<img src="$val[avatar]" class="blk-c"><br>

@@ -2,8 +2,8 @@
 
 $_GET['mapid'] = 1;
 
-if(!DB::result_first('SELECT uid FROM pkm_mapcoordinate WHERE uid = ' . $user['uid'])) {
-	DB::query('INSERT INTO pkm_mapcoordinate (uid, username, x, y, map_id, time) VALUES (' . $user['uid'] . ', \'' . $user['username'] . '\', 0, 10, ' . $_GET['mapid'] . ', ' . $_SERVER['REQUEST_TIME'] . ')');
+if(!DB::result_first('SELECT uid FROM pkm_mapcoordinate WHERE uid = ' . $trainer['uid'])) {
+	DB::query('INSERT INTO pkm_mapcoordinate (uid, username, x, y, map_id, time) VALUES (' . $trainer['uid'] . ', \'' . $trainer['username'] . '\', 0, 10, ' . $_GET['mapid'] . ', ' . $_SERVER['REQUEST_TIME'] . ')');
 }
 
 include ROOT . '/data/map/map-' . $_GET['mapid'] . '.php';
@@ -18,15 +18,15 @@ foreach($_tiles as $val) {
 
 $tilejs = '[' . implode(',', $tilejs) . '];';
 
-$query   = DB::query('SELECT uid, username, x, y FROM pkm_mapcoordinate WHERE map_id = ' . intval($_GET['mapid']));
-$trainer = [];
+$query         = DB::query('SELECT uid, username, x, y FROM pkm_mapcoordinate WHERE map_id = ' . intval($_GET['mapid']));
+$onlineTrainer = [];
 
 while($info = DB::fetch($query)) {
 
 	$info['x'] *= 16;
 	$info['y'] *= 16;
-	$info['id'] = ($info['uid'] == $user['uid']) ? 'me' : 't' . $info['uid'];
-	$trainer[]  = $info;
+	$info['id']      = ($info['uid'] == $trainer['uid']) ? 'me' : 't' . $info['uid'];
+	$onlineTrainer[] = $info;
 
 }
 

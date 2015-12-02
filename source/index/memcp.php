@@ -2,14 +2,14 @@
 
 Kit::Library('class', ['pokemon', 'obtain']);
 //error_reporting(E_ALL);
-//Pokemon::Generate(rand(1, 649), $user['uid'], array('shiny' => 1, 'mtlevel' => 20));
-//if($user['gm']) Pokemon::Generate(290, 8, array('mtlevel' => 1, 'shiny' => 0));
-//if($user['gm']) Pokemon::Generate(0, 4122, array('egg' => 's:1', 'mtplace' => 602));
-//if($user['gm']) DB::query('UPDATE pkm_mypkm SET exp = exp + 166566, hpns = 255');
-//if($user['gm']) DB::query('INSERT INTO pkm_myitem (iid, num, uid) VALUES (32, 100, 8)');
+//Pokemon::Generate(rand(1, 649), $trainer['uid'], array('shiny' => 1, 'mtlevel' => 20));
+//if($trainer['gm']) Pokemon::Generate(290, 8, array('mtlevel' => 1, 'shiny' => 0));
+//if($trainer['gm']) Pokemon::Generate(0, 4122, array('egg' => 's:1', 'mtplace' => 602));
+//if($trainer['gm']) DB::query('UPDATE pkm_mypkm SET exp = exp + 166566, hpns = 255');
+//if($trainer['gm']) DB::query('INSERT INTO pkm_myitem (iid, num, uid) VALUES (32, 100, 8)');
 //DB::query('UPDATE pre_common_member_count SET extcredits7 = 100000');
 
-/*if($user['gm']) {
+/*if($trainer['gm']) {
 	$move = [[162, 6666, 'STABLE', 6666, 0], [47, 6666, 'SLEEP', 6666, 0], [28, 6666, 'USELESS', 6666, 0]];
 	DB::query('UPDATE pkm_mypkm SET move = \'' . serialize($move) . '\' WHERE pid = 1');
 
@@ -17,9 +17,9 @@ Kit::Library('class', ['pokemon', 'obtain']);
 
 $_GET['section'] = (!empty($_GET['section']) && in_array($_GET['section'], ['pokedex', 'achievement', 'inbox', 'setting', 'inventory'], TRUE)) ? $_GET['section'] : '';
 
-$rank   = DB::result_first('SELECT COUNT(*) FROM pkm_trainerdata WHERE exp > ' . $user['exp']) + 1;
-$reqexp = Obtain::TrainerRequireExp($user['level'] + 1);
-$dexclt = DB::result_first('SELECT COUNT(*) FROM pkm_mypokedex WHERE uid = ' . $user['uid'] . ' AND own = 1');
+$rank   = DB::result_first('SELECT COUNT(*) FROM pkm_trainerdata WHERE exp > ' . $trainer['exp']) + 1;
+$reqexp = Obtain::TrainerRequireExp($trainer['level'] + 1);
+$dexclt = DB::result_first('SELECT COUNT(*) FROM pkm_mypokedex WHERE uid = ' . $trainer['uid'] . ' AND own = 1');
 
 switch($_GET['section']) {
 	case '':
@@ -31,7 +31,7 @@ switch($_GET['section']) {
 		$query   = DB::query('SELECT
 			m.id, m.pid, m.gender, m.hp, m.exp, m.level, m.nature, m.nickname, m.form, m.ev, m.iv, m.newmove, m.move, m.imgname, m.capitem, m.egghatch, m.mtdate, m.mtlevel, m.mtplace, m.beauty, m.crritem, m.hpns, m.pv, m.form, m.originuid, m.status, a.name abi, 
 			p.bs, p.type, p.typeb, p.exptype, p.name, p.evldata, mb.username 
-			FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id AND m.id != 0 LEFT JOIN pkm_abilitydata a ON m.abi = a.aid LEFT JOIN pre_common_member mb ON mb.uid = m.originuid WHERE m.place IN (1, 2, 3, 4, 5, 6) AND m.uid = ' . $user['uid'] . ' ORDER BY m.place ASC LIMIT 6');
+			FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id AND m.id != 0 LEFT JOIN pkm_abilitydata a ON m.abi = a.aid LEFT JOIN pre_common_member mb ON mb.uid = m.originuid WHERE m.place IN (1, 2, 3, 4, 5, 6) AND m.uid = ' . $trainer['uid'] . ' ORDER BY m.place ASC LIMIT 6');
 		$pokemon = $movecriteria = [];
 
 		while($info = DB::fetch($query)) {
@@ -129,7 +129,7 @@ switch($_GET['section']) {
 
 				if(strpos('.', $filename) === FALSE) {
 
-					$list .= '<option value="' . $i . (($i == $user['style']) ? '" selected="selected"' : '') . '>' . $filename . '</option>';
+					$list .= '<option value="' . $i . (($i == $trainer['style']) ? '" selected="selected"' : '') . '>' . $filename . '</option>';
 
 					++$i;
 
@@ -147,7 +147,7 @@ switch($_GET['section']) {
 
 		$seen    = 0;
 		$count   = DB::result_first('SELECT COUNT(DISTINCT id) FROM pkm_pkmdata');
-		$query   = DB::query('SELECT md.id, md.own, p.name, p.type, p.typeb FROM pkm_mypokedex md LEFT JOIN pkm_pkmdata p ON p.id = md.id WHERE md.uid = ' . $user['uid']);
+		$query   = DB::query('SELECT md.id, md.own, p.name, p.type, p.typeb FROM pkm_mypokedex md LEFT JOIN pkm_pkmdata p ON p.id = md.id WHERE md.uid = ' . $trainer['uid']);
 		$pokemon = array_fill(1, $count, ['own' => 'n']);
 
 		while($info = DB::fetch($query)) {
@@ -163,7 +163,7 @@ switch($_GET['section']) {
 		break;
 	case 'achievement':
 
-		$query       = DB::query('SELECT ac.achvid, ac.name, ac.catid, ac.dscptn, mac.dateline FROM pkm_achievementdata ac LEFT JOIN pkm_myachievement mac ON mac.achvid = ac.achvid AND mac.uid = ' . $user['uid'] . ' ORDER BY catid ASC, achvid ASC');
+		$query       = DB::query('SELECT ac.achvid, ac.name, ac.catid, ac.dscptn, mac.dateline FROM pkm_achievementdata ac LEFT JOIN pkm_myachievement mac ON mac.achvid = ac.achvid AND mac.uid = ' . $trainer['uid'] . ' ORDER BY catid ASC, achvid ASC');
 		$achievement = [];
 		$catarr      = ['未分类', '图鉴登录'];
 
@@ -181,11 +181,11 @@ switch($_GET['section']) {
 			Making the multipage
 		*/
 
-		$count  = DB::result_first('SELECT COUNT(*) FROM pkm_myinbox WHERE receiver = ' . $user['uid']);
+		$count  = DB::result_first('SELECT COUNT(*) FROM pkm_myinbox WHERE receiver = ' . $trainer['uid']);
 		$multi  = Kit::MultiPage(8, $count);
 		$unread = 0;
 
-		$query   = DB::query('SELECT msgid, title, content, dateline, marked, sender FROM pkm_myinbox WHERE receiver = ' . $user['uid'] . ' ORDER BY dateline DESC LIMIT ' . $multi['start'] . ', ' . $multi['limit']);
+		$query   = DB::query('SELECT msgid, title, content, dateline, marked, sender FROM pkm_myinbox WHERE receiver = ' . $trainer['uid'] . ' ORDER BY dateline DESC LIMIT ' . $multi['start'] . ', ' . $multi['limit']);
 		$message = [];
 
 		while($info = DB::fetch($query)) {
@@ -201,8 +201,8 @@ switch($_GET['section']) {
 
 		if($unread) {
 
-			DB::query('UPDATE pkm_trainerdata SET newmsg = 0 WHERE uid = ' . $user['uid']);
-			DB::query('UPDATE pkm_myinbox SET marked = 1, rdateline = ' . $_SERVER['REQUEST_TIME'] . ' WHERE receiver = ' . $user['uid'] . ' AND marked = 0');
+			DB::query('UPDATE pkm_trainerdata SET newmsg = 0 WHERE uid = ' . $trainer['uid']);
+			DB::query('UPDATE pkm_myinbox SET marked = 1, rdateline = ' . $_SERVER['REQUEST_TIME'] . ' WHERE receiver = ' . $trainer['uid'] . ' AND marked = 0');
 
 		}
 
@@ -227,7 +227,7 @@ switch($_GET['section']) {
 
 
 		$type  = (empty($_GET['type']) || $_GET['type'] < 1 && $_GET['type'] > 4) ? 0 : intval($_GET['type']);
-		$query = DB::query('SELECT mi.iid, mi.num, i.name, i.dscptn, i.type, i.usable FROM pkm_myitem mi LEFT JOIN pkm_itemdata i ON i.iid = mi.iid WHERE mi.uid = ' . $user['uid'] . ' AND mi.num > 0' . ($iids ? ' UNION ALL SELECT iid, 0 num, name_zh, dscptn, type, usable FROM pkm_itemdata WHERE iid IN (' . implode(',', $iids) . ')' : ''));
+		$query = DB::query('SELECT mi.iid, mi.num, i.name, i.dscptn, i.type, i.usable FROM pkm_myitem mi LEFT JOIN pkm_itemdata i ON i.iid = mi.iid WHERE mi.uid = ' . $trainer['uid'] . ' AND mi.num > 0' . ($iids ? ' UNION ALL SELECT iid, 0 num, name_zh, dscptn, type, usable FROM pkm_itemdata WHERE iid IN (' . implode(',', $iids) . ')' : ''));
 		$item  = [];
 		$types = ['球类', '进化石', '携带道具', '药物'];
 
@@ -245,7 +245,7 @@ switch($_GET['section']) {
 
 
 /*
-if($user['uid'] == 8) {
+if($trainer['uid'] == 8) {
 
 	$query = DB::query('SELECT mid, pp, name FROM pkm_movedata');
 	$move = $sql = array();
@@ -266,7 +266,7 @@ if($user['uid'] == 8) {
 }*/
 
 
-/*if($user['uid'] == 8) {
+/*if($trainer['uid'] == 8) {
 
 	//DB::query('DELETE FROM pkm_mypokedex');
 
@@ -288,7 +288,7 @@ if($user['uid'] == 8) {
 	
 }*/
 /*
-if($user['uid'] == 8 && $_GET['aaaa'] === '1') {
+if($trainer['uid'] == 8 && $_GET['aaaa'] === '1') {
 
 	$gift = [
 		4318 => [27 => 1, 29 => 1]
@@ -323,7 +323,7 @@ if($user['uid'] == 8 && $_GET['aaaa'] === '1') {
 	
 }*/
 /*
-if($user['uid'] == 8) {
+if($trainer['uid'] == 8) {
 
 	$query	= DB::query('SELECT pid, position FROM pre_forum_post WHERE tid = 6431 ORDER BY position ASC');
 	$i		= 0;

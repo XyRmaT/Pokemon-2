@@ -2,7 +2,7 @@
 
 Kit::Library('class', ['pokemon', 'obtain']);
 
-$trainer = $pokemon = $pokedex = $pokedexb = [];
+$topTrainer = $pokemon = $pokedex = $pokedexb = [];
 
 
 // Trainer's rakning
@@ -12,7 +12,7 @@ $query = DB::query('SELECT t.level, t.uid, mb.username FROM pkm_trainerdata t LE
 while($info = DB::fetch($query)) {
 
 	$info['avatar'] = Obtain::TrainerAvatar($info['uid'], 'small');
-	$trainer[]      = $info;
+	$topTrainer[]   = $info;
 
 }
 

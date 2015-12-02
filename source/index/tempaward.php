@@ -1,6 +1,6 @@
 <?php
 
-if(!$user['gm']) exit;
+if(!$trainer['gm']) exit;
 
 Kit::Library('class', ['obtain', 'pokemon']);
 

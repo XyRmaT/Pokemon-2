@@ -14,7 +14,7 @@ $start   = ($page - 1) * 10;
 $limit   = 15;
 $mthsell = DB::result_first('SELECT SUM(mthsell) sum FROM pkm_itemdata');
 $item    = [];
-$query   = DB::query('SELECT iid, name_zh, dscptn, price, store, trnrlv, mthsell FROM pkm_itemdata WHERE sell = 1 AND type = ' . $type . ' AND trnrlv <= ' . $user['level'] . ' AND (timestt = 0 AND timefns = 0 OR timestt < ' . $_SERVER['REQUEST_TIME'] . ' AND timefns > ' . $_SERVER['REQUEST_TIME'] . ') ORDER BY price ASC LIMIT ' . $start . ', ' . $limit);
+$query   = DB::query('SELECT iid, name_zh, dscptn, price, store, trnrlv, mthsell FROM pkm_itemdata WHERE sell = 1 AND type = ' . $type . ' AND trnrlv <= ' . $trainer['level'] . ' AND (timestt = 0 AND timefns = 0 OR timestt < ' . $_SERVER['REQUEST_TIME'] . ' AND timefns > ' . $_SERVER['REQUEST_TIME'] . ') ORDER BY price ASC LIMIT ' . $start . ', ' . $limit);
 
 while($info = DB::fetch($query)) {
 

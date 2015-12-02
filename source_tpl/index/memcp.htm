@@ -8,8 +8,8 @@
 			<table>
 				<tr>
 					<td class="userinfo">
-						<img class="flt-l avatar" src="$user[avatar]"></div>
-						<strong>$user[username]</strong><br>
+						<img class="flt-l avatar" src="$trainer[avatar]"></div>
+						<strong>$trainer[username]</strong><br>
 						成就：0<br>
 						排名：#$rank
 					</td>
@@ -17,14 +17,14 @@
 				<tr>
 					<td class="userstat">
 						<ul>
-							<li><em title="经验：$user[exp]/$reqexp">$user[level]</em><br>等级</li>
+							<li><em title="经验：$trainer[exp]/$reqexp">$trainer[level]</em><br>等级</li>
 							<li><em>$dexclt</em><br>精灵</li>
-							<li><em title="$user[money]"><!--{echo Kit::NumberFormat($user['money'])}--></em><br>$SYS[moneyname]</li>
+							<li><em title="$trainer[money]"><!--{echo Kit::NumberFormat($trainer['money'])}--></em><br>$SYS[moneyname]</li>
 						</ul>
 					</td>
 				</tr>
 				<tr><td class="nav{if $_GET['section'] === ''} current{/if}"><a href="?index=my">队伍</a></td></tr>
-				<tr><td class="nav{if $_GET['section'] === 'inbox'} current{/if}"><a href="?index=my&section=inbox"{if $user['newmsg'] === '1'} class="hl"{/if}>消息</a></td></tr>
+				<tr><td class="nav{if $_GET['section'] === 'inbox'} current{/if}"><a href="?index=my&section=inbox"{if $trainer['newmsg'] === '1'} class="hl"{/if}>消息</a></td></tr>
 				<tr><td class="nav{if $_GET['section'] === 'inventory'} current{/if}"><a href="?index=my&section=inventory">背包</a></td></tr>
 				<tr><td class="nav{if $_GET['section'] === 'pokedex'} current{/if}"><a href="?index=my&section=pokedex">图鉴</a></td></tr>
 				<tr><td class="nav{if $_GET['section'] === 'achievement'} current{/if}"><a href="?index=my&section=achievement">成就</a></td></tr>
@@ -126,7 +126,7 @@
 						<li data-pid="$val[pid]" data-nickname="$val[nickname]" class="egg">
 							<span class="flt-l">$val[nickname] <a href="javascript:void(0);" class="pmabandon">[丢]</a> <a href="javascript:void(0);" class="pmnickname">[改]</a></span>
 							<span class="flt-r"><img src="$val[capitem]"></span><br class="cl">
-							<div class="mid"><img src="$val[pkmimgpath]" class="egg" alt="点我查看数据"><br>$val[eggstatus]<!--{if $user['gm']}--><br>$val[maturity]<!--{/if}--></div>
+							<div class="mid"><img src="$val[pkmimgpath]" class="egg" alt="点我查看数据"><br>$val[eggstatus]<!--{if $trainer['gm']}--><br>$val[maturity]<!--{/if}--></div>
 							<div id="info-$val[pid]" class="h txt-c">
 								<img src="$val[pkmimgpath]"><p>
 								No.$val[id] 蛋<br>

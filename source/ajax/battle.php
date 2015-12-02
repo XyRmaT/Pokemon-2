@@ -1,6 +1,6 @@
 <?php
 
-if($user['uid'] == 8) error_reporting(E_ALL);
+if($trainer['uid'] == 8) error_reporting(E_ALL);
 
 define('BATTLEMODE', 'WILD');
 
@@ -8,12 +8,12 @@ Kit::Library('class', ['obtain', 'battle', 'pokemon']);
 
 $mid = !empty($_GET['mid']) ? intval($_GET['mid']) : 0;
 
-$_GET['process'] = (!empty($_GET['process']) && in_array($_GET['process'], ['usemove', 'useitem', 'swappm']) && $user['inbtl'] === '1') ? $_GET['process'] : '';
+$_GET['process'] = (!empty($_GET['process']) && in_array($_GET['process'], ['usemove', 'useitem', 'swappm']) && $trainer['inbtl'] === '1') ? $_GET['process'] : '';
 
 switch($_GET['process']) {
 	case '':
 
-		$return['msg'] = ($user['inbtl'] === '1') ? '??????' : '战斗已经结束！';
+		$return['msg'] = ($trainer['inbtl'] === '1') ? '??????' : '战斗已经结束！';
 
 		goto BATTLEERROR;
 
@@ -33,7 +33,7 @@ switch($_GET['process']) {
 		break;
 }
 
-Battle::$pokemon = Battle::LoadBattleData($user['uid']);
+Battle::$pokemon = Battle::LoadBattleData($trainer['uid']);
 
 $hptotal = 0;
 
@@ -71,7 +71,7 @@ if(empty(Battle::$pokemon) || $hptotal < 1) {
 
 
 Battle::$swappid = (!empty($_GET['swappid'])) ? intval($_GET['swappid']) : 0;        // If user wants to switch pokemon, this exists
-Battle::$field   = DB::fetch_first('SELECT weather, trkroom, gravity, turn FROM pkm_battlefield WHERE uid = ' . $user['uid']);
+Battle::$field   = DB::fetch_first('SELECT weather, trkroom, gravity, turn FROM pkm_battlefield WHERE uid = ' . $trainer['uid']);
 
 if(empty(Battle::$field)) {
 

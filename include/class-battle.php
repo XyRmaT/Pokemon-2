@@ -1327,7 +1327,7 @@ class Battle {
 
         if($iid === 0) goto ITEMFAILED;
 
-        $item = DB::fetch_first('SELECT mi.iid, mi.num, i.name, i.effect, i.btlefct, i.usable, i.type FROM pkm_myitem mi LEFT JOIN pkm_itemdata i ON mi.iid = i.iid WHERE mi.iid = ' . $iid . ' AND mi.uid = ' . $user['uid']);
+        $item = DB::fetch_first('SELECT mi.iid, mi.num, i.name, i.effect, i.btlefct, i.usable, i.type FROM pkm_myitem mi LEFT JOIN pkm_itemdata i ON mi.iid = i.iid WHERE mi.iid = ' . $iid . ' AND mi.uid = ' . $trainer['uid']);
 
         if(empty($item) || $item['num'] <= 0 || $item['effect'] === '' && $item['btlefct'] === '' && $item['type'] !== '1')
 
@@ -1429,7 +1429,7 @@ class Battle {
 
         if($success === TRUE || $item['type'] === '1') {
 
-            Trainer::Item('DROP', $user['uid'], $iid, 1, $item['num']);
+            Trainer::Item('DROP', $trainer['uid'], $iid, 1, $item['num']);
 
             if($item['type'] === '4')
 
@@ -1590,7 +1590,7 @@ class Battle {
 
         }
 
-        $place = Obtain::DepositBox($user['uid']);
+        $place = Obtain::DepositBox($trainer['uid']);
 
         if($place === FALSE) return FALSE;
 
@@ -1602,7 +1602,7 @@ class Battle {
             'iv'        => '\'' . self::$pokemon[0][0]['iv'] . '\'',
             'ev'        => '\'' . self::$pokemon[0][0]['ev'] . '\'',
             'shiny'     => self::$pokemon[0][0]['shiny'],
-            'originuid' => $user['uid'],
+            'originuid' => $trainer['uid'],
             'nature'    => self::$pokemon[0][0]['nature'],
             'level'     => self::$pokemon[0][0]['level'],
             'exp'       => self::$pokemon[0][0]['exp'],
@@ -1613,7 +1613,7 @@ class Battle {
             'mtdate'    => $_SERVER['REQUEST_TIME'],
             'mtplace'   => self::$pokemon[0][0]['mtplace'],
             'abi'       => self::$pokemon[0][0]['abi'],
-            'uid'       => $user['uid'],
+            'uid'       => $trainer['uid'],
             'capitem'   => $iid,
             'hp'        => self::$pokemon[0][0][($iid == '22' || $place > 6) ? 'maxhp' : 'hp'],
             'place'     => $place,
@@ -1630,7 +1630,7 @@ class Battle {
 
             self::$report .= self::$pokemon[0][0]['name'] . '的信息记录在了图鉴中。<br>';
 
-        ++$user['addexp'];
+        ++$trainer['addexp'];
 
         return TRUE;
 
@@ -2102,7 +2102,7 @@ class Battle {
 
                 define('ITEMDROP', FALSE);
 
-                if(ITEMDROP === TRUE && rand(1, 100) <= 8 && Trainer::Item('OBTAIN', $user['uid'], 213, 1, 'UNKNOWN', 99))
+                if(ITEMDROP === TRUE && rand(1, 100) <= 8 && Trainer::Item('OBTAIN', $trainer['uid'], 213, 1, 'UNKNOWN', 99))
 
                     self::$report .= '<i>好像从' . self::$pokemon[0][0]['name'] . '的身上掉下了什么……</i><br>';
 
@@ -2111,9 +2111,9 @@ class Battle {
                     $iid = range(1, 3) + range(165, 169) + range(179, 184) + [190, 209];
                     $iid = $iid[array_rand($iid)];
 
-                    $item = DB::fetch_first('SELECT mi.num, i.name FROM pkm_myitem mi LEFT JOIN pkm_itemdata i ON i.iid = mi.iid WHERE mi.iid = ' . $iid . ' AND mi.uid = ' . $user['uid']);
+                    $item = DB::fetch_first('SELECT mi.num, i.name FROM pkm_myitem mi LEFT JOIN pkm_itemdata i ON i.iid = mi.iid WHERE mi.iid = ' . $iid . ' AND mi.uid = ' . $trainer['uid']);
 
-                    if(Trainer::Item('OBTAIN', $user['uid'], $iid, 1, $item['num'], 99))
+                    if(Trainer::Item('OBTAIN', $trainer['uid'], $iid, 1, $item['num'], 99))
 
                         self::$report .= '<i>在脚底下发现了一个' . $item['name'] . '！</i><br>';
 
@@ -2121,20 +2121,20 @@ class Battle {
 
             } elseif(self::$isend === FALSE && $hptotal > 0) {
 
-                self::WriteBattleData($user['uid'], self::$pokemon);
+                self::WriteBattleData($trainer['uid'], self::$pokemon);
 
                 if(!self::$faintswap)
 
-                    DB::query('UPDATE pkm_battlefield SET weather = \'' . self::$field['weather'] . '\', trkroom = ' . self::$field['trkroom'] . ', gravity = ' . self::$field['gravity'] . ', turn = ' . ++self::$field['turn'] . ' WHERE uid = ' . $user['uid']);
+                    DB::query('UPDATE pkm_battlefield SET weather = \'' . self::$field['weather'] . '\', trkroom = ' . self::$field['trkroom'] . ', gravity = ' . self::$field['gravity'] . ', turn = ' . ++self::$field['turn'] . ' WHERE uid = ' . $trainer['uid']);
 
                 goto UPDATEPOKEMON;
 
             }
 
-            DB::query('DELETE FROM pkm_battlefield WHERE uid = ' . $user['uid']);
-            DB::query('UPDATE pkm_trainerdata SET inbtl = 0 WHERE uid = ' . $user['uid']);
+            DB::query('DELETE FROM pkm_battlefield WHERE uid = ' . $trainer['uid']);
+            DB::query('UPDATE pkm_trainerdata SET inbtl = 0 WHERE uid = ' . $trainer['uid']);
 
-            self::WriteBattleData($user['uid'], [], 'DEL');
+            self::WriteBattleData($trainer['uid'], [], 'DEL');
 
             self::$isend = TRUE;
 
@@ -2179,7 +2179,7 @@ class Battle {
 
             if($key < 1 || $key > 6 || $val[0]['level'] > 99 || $val[0]['hp'] < 1 || $val[1][4] === 0 && $val[0]['crritem'] != '208') continue;
 
-            $exp = floor(floor(sqrt(self::$pokemon[0][0]['level'] * 2 + 10) * pow(self::$pokemon[0][0]['level'] * 2 + 10, 2)) * floor(floor(floor(floor(floor($baseexp * self::$pokemon[0][0]['level'] / 5) * (($val[0]['uid'] === $user['uid']) ? 1 : 1.5)) * (($val[0]['crritem'] === '214') ? 1.5 : 1)) * ($val[0]['crritem'] == '208' ? 0.5 : 1)) / $participate) / floor(sqrt(self::$pokemon[0][0]['level'] + $val[0]['level'] + 10) * pow(self::$pokemon[0][0]['level'] + $val[0]['level'] + 10, 2))) + 1;
+            $exp = floor(floor(sqrt(self::$pokemon[0][0]['level'] * 2 + 10) * pow(self::$pokemon[0][0]['level'] * 2 + 10, 2)) * floor(floor(floor(floor(floor($baseexp * self::$pokemon[0][0]['level'] / 5) * (($val[0]['uid'] === $trainer['uid']) ? 1 : 1.5)) * (($val[0]['crritem'] === '214') ? 1.5 : 1)) * ($val[0]['crritem'] == '208' ? 0.5 : 1)) / $participate) / floor(sqrt(self::$pokemon[0][0]['level'] + $val[0]['level'] + 10) * pow(self::$pokemon[0][0]['level'] + $val[0]['level'] + 10, 2))) + 1;
 
             self::$pokemon[$key][0]['exp'] += $exp;
 

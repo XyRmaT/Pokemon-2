@@ -27,7 +27,7 @@ Kit::Library('class', ['obtain']);
 	eggcheck records the timestamp of last time being checked if there is an egg or not, only modify when starts to check is it any eggs produced
 */
 
-$query   = DB::query('SELECT m.pid, m.level, m.nickname, m.id, m.dayctime, m.eggcheck, m.egg, m.gender, m.originuid, m.imgname, m.crritem, m.capitem, p.egggrp, p.egggrpb, p.name FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id WHERE place = 7 AND uid = ' . $user['uid'] . ' LIMIT 2');
+$query   = DB::query('SELECT m.pid, m.level, m.nickname, m.id, m.dayctime, m.eggcheck, m.egg, m.gender, m.originuid, m.imgname, m.crritem, m.capitem, p.egggrp, p.egggrpb, p.name FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id WHERE place = 7 AND uid = ' . $trainer['uid'] . ' LIMIT 2');
 $pokemon = [];
 
 while($info = DB::fetch($query)) {
@@ -195,7 +195,7 @@ if($pmcount < 2) {
 
 	$pokemon = array_merge($pokemon, array_fill($pmcount, 2 - $pmcount, []));
 
-	$query = DB::query('SELECT m.id, m.nickname, m.pid, m.imgname, m.level, m.gender, p.egggrp, p.egggrpb, p.name FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id AND m.id != 0 WHERE place IN (1, 2, 3, 4, 5, 6) AND uid = ' . $user['uid'] . ' LIMIT 6');
+	$query = DB::query('SELECT m.id, m.nickname, m.pid, m.imgname, m.level, m.gender, p.egggrp, p.egggrpb, p.name FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id AND m.id != 0 WHERE place IN (1, 2, 3, 4, 5, 6) AND uid = ' . $trainer['uid'] . ' LIMIT 6');
 	$party = [];
 
 	while($info = DB::fetch($query)) {

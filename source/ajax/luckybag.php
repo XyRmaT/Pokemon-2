@@ -17,7 +17,7 @@ switch($_GET['process']) {
 			药X2~10----25%
 		*/
 
-		if($user['lbagnum'] <= 0) {
+		if($trainer['lbagnum'] <= 0) {
 
 			$return['msg'] = '哪来的福袋？';
 
@@ -73,7 +73,7 @@ switch($_GET['process']) {
 								(!empty($ever[$key]) ||
 										($ever[$key] = DB::result_first('SELECT COUNT(*) FROM pkm_luckybaglog WHERE value = \'' . $key . '\'')) >= $available[$key]) ||
 								(!empty($own[$key]) ||
-										($own[$key] = DB::result_first('SELECT COUNT(*) FROM pkm_luckybaglog WHERE value = \'' . $key . '\' AND uid = ' . $user['uid'])) > 0)) && ++$looped
+										($own[$key] = DB::result_first('SELECT COUNT(*) FROM pkm_luckybaglog WHERE value = \'' . $key . '\' AND uid = ' . $trainer['uid'])) > 0)) && ++$looped
 				)
 
 					goto RAND;
@@ -108,39 +108,39 @@ switch($_GET['process']) {
 
 				//if($param[1] !== 'again')
 
-				//	DB::query('UPDATE pkm_trainerdata SET lbagnum = lbagnum - 1 WHERE uid = ' . $user['uid']);
+				//	DB::query('UPDATE pkm_trainerdata SET lbagnum = lbagnum - 1 WHERE uid = ' . $trainer['uid']);
 
 				if($param[1] === 'again') {
 
-					$return['msg'] = '获得了额外1个福袋！' . '！还剩下' . $user['lbagnum'] . '个福袋！';
+					$return['msg'] = '获得了额外1个福袋！' . '！还剩下' . $trainer['lbagnum'] . '个福袋！';
 
 
 				} else {
 
 					$item = DB::result_first('SELECT name FROM pkm_itemdata WHERE iid = ' . $iid);
 
-					$return['msg'] = '获得了' . $num . '个' . (($param[0] === 'public') ? '公测' : '内测') . $item . '！' . (($user['lbagnum'] - 1 > 0) ? '还剩下' . ($user['lbagnum'] - 1) . '个福袋！' : '没有福袋了！');
-					$return['num'] = $user['lbagnum'] - 1;
+					$return['msg'] = '获得了' . $num . '个' . (($param[0] === 'public') ? '公测' : '内测') . $item . '！' . (($trainer['lbagnum'] - 1 > 0) ? '还剩下' . ($trainer['lbagnum'] - 1) . '个福袋！' : '没有福袋了！');
+					$return['num'] = $trainer['lbagnum'] - 1;
 
 					if($param[0] === 'test') {
 
-						$count = DB::result_first('SELECT COUNT(*) FROM pkm_myitem WHERE iid = ' . $iid . ' AND uid = ' . $user['uid']);
+						$count = DB::result_first('SELECT COUNT(*) FROM pkm_myitem WHERE iid = ' . $iid . ' AND uid = ' . $trainer['uid']);
 
 						if($count < 1)
 
-							DB::query('INSERT INTO pkm_myitem (iid, uid, num) VALUES (' . $iid . ', ' . $user['uid'] . ', ' . $num . ')');
+							DB::query('INSERT INTO pkm_myitem (iid, uid, num) VALUES (' . $iid . ', ' . $trainer['uid'] . ', ' . $num . ')');
 
 						else
 
-							DB::query('UPDATE pkm_myitem SET num = num + ' . $num . ' WHERE iid = ' . $iid . ' AND uid = ' . $user['uid']);
+							DB::query('UPDATE pkm_myitem SET num = num + ' . $num . ' WHERE iid = ' . $iid . ' AND uid = ' . $trainer['uid']);
 
 					}
 
-					DB::query('UPDATE pkm_trainerdata SET lbagnum = ' . $return['num'] . ' WHERE uid = ' . $user['uid']);
+					DB::query('UPDATE pkm_trainerdata SET lbagnum = ' . $return['num'] . ' WHERE uid = ' . $trainer['uid']);
 
 				}
 
-				DB::query('INSERT INTO pkm_luckybaglog (uid, value, time, ip) VALUES (' . $user['uid'] . ', \'' . $key . '\', ' . $_SERVER['REQUEST_TIME'] . ', \'' . $trainer['clientip'] . '\')');
+				DB::query('INSERT INTO pkm_luckybaglog (uid, value, time, ip) VALUES (' . $trainer['uid'] . ', \'' . $key . '\', ' . $_SERVER['REQUEST_TIME'] . ', \'' . $user['ip'] . '\')');
 
 				break 2;
 

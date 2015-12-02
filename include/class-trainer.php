@@ -12,16 +12,16 @@ class Trainer {
     public static function Generate($uid) {
 
         // Use prepared statement to find out if the trainer id already exists
-        if(!($stmt = DB::prepare('SELECT trainer_id FROM pkm_trainerdata WHERE trainer_id = ?'))) return FALSE;
+        if(!($stmt = DB::prepare('SELECT trainerId FROM pkm_trainerdata WHERE trainerId = ?'))) return FALSE;
 
-        $stmt->bind_param('s', $trainer_id);
+        $stmt->bind_param('s', $trainerId);
         while(1) {
-            $trainer_id = strtoupper(str_pad(dechex(rand(0, 65535)), 4, '0', STR_PAD_LEFT) . str_pad(dechex(rand(0, 65535)), 4, '0', STR_PAD_LEFT));
+            $trainerId = strtoupper(str_pad(dechex(rand(0, 65535)), 4, '0', STR_PAD_LEFT) . str_pad(dechex(rand(0, 65535)), 4, '0', STR_PAD_LEFT));
             if($stmt->execute() && $stmt->fetch()) break;
         }
 
         // Insert newly genderated trainer data, also add an stat entry for the trainer
-        DB::query('INSERT INTO pkm_trainerdata (uid, trainer_id, time_begin, time_happiness_checked) VALUES (' . $uid . ', \'' . $trainer_id . '\', ' . $_SERVER['REQUEST_TIME'] . ', ' . $_SERVER['REQUEST_TIME'] . ')');
+        DB::query('INSERT INTO pkm_trainerdata (uid, trainerId, time_begin, time_happiness_checked) VALUES (' . $uid . ', \'' . $trainerId . '\', ' . $_SERVER['REQUEST_TIME'] . ', ' . $_SERVER['REQUEST_TIME'] . ')');
         DB::query('INSERT INTO pkm_trainerstat (uid) VALUES (' . $uid . ')');
 
         return TRUE;
@@ -30,17 +30,17 @@ class Trainer {
 
     /**
      * Update trainer's exp
-     * @param     $user array for trainer's info
+     * @param     $trainer array for trainer's info
      * @param int $exp_adding
      * @return bool|mysqli_result
      */
-    public static function AddExp($user, $exp_adding = 0) {
+    public static function AddExp($trainer, $exp_adding = 0) {
 
         // Performing an exp check, if it's non-zero value then the trainer's
         // exp will be updated based on this value
-        if($exp_adding && !empty($user['exp'])) {
-            $exp = max(0, $user['exp'] + $exp_adding);
-            return DB::query('UPDATE pkm_trainerdata SET exp = ' . $exp . ', level = ' . floor(pow(2 * $exp, 1 / 4)) . ' WHERE uid = ' . $user['uid']);
+        if($exp_adding && !empty($trainer['exp'])) {
+            $exp = max(0, $trainer['exp'] + $exp_adding);
+            return DB::query('UPDATE pkm_trainerdata SET exp = ' . $exp . ', level = ' . floor(pow(2 * $exp, 1 / 4)) . ' WHERE uid = ' . $trainer['uid']);
         }
 
         return FALSE;
@@ -56,7 +56,7 @@ class Trainer {
     public static function AddTemporaryStat($stat, $adding = 1) {
 
         global $user;
-        return !empty($user['stat']['new'][$stat]) ? $user['stat']['new'][$stat] += $adding : 0;
+        return !empty($trainer['stat']['new'][$stat]) ? $trainer['stat']['new'][$stat] += $adding : 0;
 
     }
 
@@ -68,7 +68,7 @@ class Trainer {
 
         global $user;
 
-        if(!($diff = array_diff($user['stat']['new'], $user['stat']['old']))) return FALSE;
+        if(!($diff = array_diff($trainer['stat']['new'], $trainer['stat']['old']))) return FALSE;
 
         $keys = array_keys($diff);
         $vals = array_values($diff);
@@ -77,7 +77,7 @@ class Trainer {
         foreach($keys as $val)
             $exts[] = $val . ' = VALUES(' . $val . ')';
 
-        return DB::query('INSERT INTO pkm_trainerstat (uid, ' . implode(',', $keys) . ') VALUES (' . $user['uid'] . ', ' . implode(',', $vals) . ') ON DUPLICATE KEY UPDATE ' . implode(',', $exts));
+        return DB::query('INSERT INTO pkm_trainerstat (uid, ' . implode(',', $keys) . ') VALUES (' . $trainer['uid'] . ', ' . implode(',', $vals) . ') ON DUPLICATE KEY UPDATE ' . implode(',', $exts));
 
     }
 

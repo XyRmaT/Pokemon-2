@@ -9,7 +9,7 @@ switch($_GET['section']) {
 			Fetch pokemon data where in healing mode
 		*/
 
-		$query = DB::query('SELECT m.pid, m.nickname, m.gender, m.ev, m.level, m.nature, m.iv, m.hp, m.id, m.hltime, m.imgname, p.bs FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id WHERE m.place = 8 AND m.uid = ' . $user['uid'] . ' ORDER BY m.hltime DESC');
+		$query = DB::query('SELECT m.pid, m.nickname, m.gender, m.ev, m.level, m.nature, m.iv, m.hp, m.id, m.hltime, m.imgname, p.bs FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id WHERE m.place = 8 AND m.uid = ' . $trainer['uid'] . ' ORDER BY m.hltime DESC');
 		$heal  = [];
 
 		while($info = DB::fetch($query)) {
@@ -39,7 +39,7 @@ switch($_GET['section']) {
 			Fetch pokemon data in party
 		*/
 
-		$query   = DB::query('SELECT m.pid, m.nickname, m.id, m.imgname, m.exp, m.hp, m.gender, m.iv, m.ev, m.level, p.bs, p.exptype FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id WHERE m.id != 0 AND m.place IN (1, 2, 3, 4, 5, 6) AND uid = ' . $user['uid'] . ' ORDER BY m.place');
+		$query   = DB::query('SELECT m.pid, m.nickname, m.id, m.imgname, m.exp, m.hp, m.gender, m.iv, m.ev, m.level, p.bs, p.exptype FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id WHERE m.id != 0 AND m.place IN (1, 2, 3, 4, 5, 6) AND uid = ' . $trainer['uid'] . ' ORDER BY m.place');
 		$pokemon = [];
 
 		while($info = DB::fetch($query)) {
@@ -69,9 +69,9 @@ switch($_GET['section']) {
 			
 		}*/
 
-		$query   = DB::query('SELECT m.pid, m.id, m.place, m.nickname, m.level, m.gender, m.imgname, p.name, p.type, p.typeb, a.name abi FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON p.id = m.id LEFT JOIN pkm_abilitydata a ON a.aid = m.abi WHERE m.uid = ' . $user['uid'] . ' ORDER BY m.place ASC');
+		$query   = DB::query('SELECT m.pid, m.id, m.place, m.nickname, m.level, m.gender, m.imgname, p.name, p.type, p.typeb, a.name abi FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON p.id = m.id LEFT JOIN pkm_abilitydata a ON a.aid = m.abi WHERE m.uid = ' . $trainer['uid'] . ' ORDER BY m.place ASC');
 		$pokemon = [];
-		$boxnum  = $system['initial_box'] + $user['boxnum'];
+		$boxnum  = $system['initial_box'] + $trainer['boxnum'];
 
 		for($i = 1; $i <= $boxnum; $i++)
 			$pokemon[$i + 100] = [];
@@ -100,7 +100,7 @@ switch($_GET['section']) {
 			Fetch pokemon data in party
 		*/
 
-		$query = DB::query('SELECT m.pid, m.nickname, m.level, m.gender, m.pid, m.imgname, p.type, p.typeb FROM pkm_mypkm m, pkm_pkmdata p WHERE m.id = p.id AND place IN (1, 2, 3, 4, 5, 6) AND uid = ' . $user['uid']);
+		$query = DB::query('SELECT m.pid, m.nickname, m.level, m.gender, m.pid, m.imgname, p.type, p.typeb FROM pkm_mypkm m, pkm_pkmdata p WHERE m.id = p.id AND place IN (1, 2, 3, 4, 5, 6) AND uid = ' . $trainer['uid']);
 		$party = [];
 
 		while($info = DB::fetch($query)) {
@@ -127,7 +127,7 @@ switch($_GET['section']) {
 			LEFT JOIN pkm_pkmdata p ON p.id = m.id 
 			LEFT JOIN pkm_pkmdata pb ON pb.id = mb.id 
 			LEFT JOIN pre_common_member mbr ON mbr.uid = mt.uid
-			WHERE mt.uid = ' . $user['uid'] . ' OR mt.ouid = ' . $user['uid']);
+			WHERE mt.uid = ' . $trainer['uid'] . ' OR mt.ouid = ' . $trainer['uid']);
 		$trade = [];
 
 		while($info = DB::fetch($query)) {
@@ -157,7 +157,7 @@ switch($_GET['section']) {
 				LEFT JOIN pkm_pkmdata p ON p.id = m.id 
 				LEFT JOIN pkm_pkmdata po ON po.id = mo.id 
 				LEFT JOIN pre_common_member mb ON mb.uid = t.uid
-				WHERE t.uid = ' . $user['uid'] . ' OR t.ouid = ' . $user['uid']
+				WHERE t.uid = ' . $trainer['uid'] . ' OR t.ouid = ' . $trainer['uid']
 			);
 			$sent  = $received = [];
 
@@ -173,11 +173,11 @@ switch($_GET['section']) {
 				$info['onature']     = Obtain::NatureName($info['onature']);
 				$info['opkmimgpath'] = empty($info['oid']) ? Obtain::Sprite('egg', 'png', 0) : Obtain::Sprite('pokemon', 'png', $info['oimgname']);
 
-				if($info['uid'] == $user['uid'])
+				if($info['uid'] == $trainer['uid'])
 
 					$sent[] = $info;
 
-				elseif($info['ouid'] == $user['uid'])
+				elseif($info['ouid'] == $trainer['uid'])
 
 					$received[] = $info;
 

@@ -21,14 +21,14 @@
 		<!--{if $_GET['index'] === 'admincp'}-->
 			<li><a href="?index=admincp&action=award">奖惩</a>
 		<!--{else}-->
-			<li><a href="?index=my"<!--{if $user['newmsg'] === '1'}--> class="hl"<!--{/if}-->>个人</a>
+			<li><a href="?index=my"<!--{if $trainer['newmsg'] === '1'}--> class="hl"<!--{/if}-->>个人</a>
 			<li><a href="?index=shop">商店</a>
 			<li><a href="?index=pc">PC</a>
 			<li><a href="?index=daycare">饲育屋</a>
 			<li><a href="?index=shelter">孤儿院</a>
 			<li><a href="?index=map">冒险</a>
 			<li><a href="?index=ranking">排行榜</a>
-			<li><a href="{if empty($user['uid'])}member.php?mod=logging&action=login{else}forum.php{/if}" target="_blank">论坛</a>
+			<li><a href="{if empty($trainer['uid'])}member.php?mod=logging&action=login{else}forum.php{/if}" target="_blank">论坛</a>
 		<!--{/if}-->
 	</ul>
 </div>

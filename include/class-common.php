@@ -197,6 +197,14 @@ class App {
 
     }
 
+    public static function CreditsUpdate($uid, $value, $type = 'CURRENCY', $isFixed = FALSE) {
+        $field = $type === 'EXP' ? $GLOBALS['system']['exp_field'] : $GLOBALS['system']['currency_field'];
+        if($isFixed)
+            return DB::query('UPDATE pre_common_member_count SET ' . $field . ' = ' . $value . ' WHERE uid = ' . $uid);
+        else
+            return DB::query('UPDATE pre_common_member_count SET ' . $field . ' = ' . $field . ' + ' . $value . ' WHERE uid = ' . $uid);
+    }
+
     private function GetUserIp() {
         $ip = $_SERVER['REMOTE_ADDR'];
         if(isset($_SERVER['HTTP_CLIENT_IP']) && preg_match('/^([0-9]{1,3}\.){3}[0-9]{1,3}$/', $_SERVER['HTTP_CLIENT_IP'])) {

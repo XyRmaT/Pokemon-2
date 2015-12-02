@@ -5,7 +5,7 @@
 <div class="rank-list" style="margin-left:0">
 	<h4>训练师榜</h4>
 	<ul>
-		<!--{loop $trainer $key $val}-->
+		<!--{loop $topTrainer $key $val}-->
 			<li<!--{if $key === 0}--> class="tbd-cl"<!--{/if}-->><!--{if $key < 3}--><div class="rank-icon" style="background-position:0 {echo $key * -24}px"></div><!--{else}--><div class="rank-icont">{echo $key + 1}</div><!--{/if}--><img class="avt" src="$val[avatar]"><b>$val[username]</b><br>Lv.$val[level]</li>
 		<!--{/loop}-->
 	</ul>

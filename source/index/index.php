@@ -16,13 +16,13 @@ $randpm['gender']     = Obtain::GenderSign($randpm['gender']);
 	Top 5 trainer ranking
 */
 
-$trainer = [];
-$query   = DB::query('SELECT t.uid, t.level, t.exp, mb.username FROM pkm_trainerdata t LEFT JOIN pre_common_member mb ON t.uid = mb.uid ORDER BY exp DESC LIMIT 5');
+$topTrainer = [];
+$query      = DB::query('SELECT t.uid, t.level, t.exp, mb.username FROM pkm_trainerdata t LEFT JOIN pre_common_member mb ON t.uid = mb.uid ORDER BY exp DESC LIMIT 5');
 
 while($info = DB::fetch($query)) {
 
 	$info['avatar'] = Obtain::Avatar($info['uid']);
-	$trainer[]      = $info;
+	$topTrainer[]   = $info;
 
 }
 

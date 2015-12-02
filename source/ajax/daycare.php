@@ -3,7 +3,7 @@
 switch($_GET['process']) {
 	case 'pmsave':
 
-		$dccount = DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE uid = ' . $user['uid'] . ' AND place = 7');
+		$dccount = DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE uid = ' . $trainer['uid'] . ' AND place = 7');
 
 		if($dccount >= 2) {
 
@@ -30,7 +30,7 @@ switch($_GET['process']) {
 		else {
 
 			DB::query('UPDATE pkm_mypkm SET place = 7, dayctime = ' . $_SERVER['REQUEST_TIME'] . ', eggcheck = ' . $_SERVER['REQUEST_TIME'] . ' WHERE pid = ' . $pokemon['pid']);
-			DB::query('UPDATE pkm_mypkm SET egg = 0 WHERE uid = ' . $user['uid'] . ' AND place = 7');
+			DB::query('UPDATE pkm_mypkm SET egg = 0 WHERE uid = ' . $trainer['uid'] . ' AND place = 7');
 
 			ob_start();
 
@@ -62,7 +62,7 @@ switch($_GET['process']) {
 
 			$cost = (floor(($_SERVER['REQUEST_TIME'] - $pokemon['dayctime']) / 2400) + 1) * 5;
 
-			if($user['money'] - $cost < 0) {
+			if($trainer['money'] - $cost < 0) {
 
 				$return['msg'] = '抚养费交足了再来领回去吧！';
 
@@ -70,7 +70,7 @@ switch($_GET['process']) {
 
 			}
 
-			$place = Obtain::DepositBox($user['uid']);
+			$place = Obtain::DepositBox($trainer['uid']);
 
 			if($place === FALSE) {
 
@@ -82,10 +82,10 @@ switch($_GET['process']) {
 
 			$incexp = floor((time() - $pokemon['dayctime']) / 12);
 
-			DB::query('UPDATE pkm_mypkm SET egg = 0 WHERE uid = ' . $user['uid'] . ' AND place = 7');
+			DB::query('UPDATE pkm_mypkm SET egg = 0 WHERE uid = ' . $trainer['uid'] . ' AND place = 7');
 			DB::query('UPDATE pkm_mypkm SET dayctime = 0, place = ' . $place . ', exp = exp + ' . $incexp . ' WHERE pid = ' . $pokemon['pid']);
 
-			DB::query('UPDATE pre_common_member_count SET ' . $system['currency_field'] . ' = ' . $system['currency_field'] . ' - ' . $cost . ' WHERE uid = ' . $user['uid']);
+            App::CreditsUpdate($trainer['uid'], -$cost);
 
 			$return['msg'] = '抚养费共计' . $cost . $system['currency_name'] . '。' . "\n" . $pokemon['nickname'] . '表示很高兴！' . (($place > 100) ? "\n" . '但身上放不了更多的精灵了，只好将他传送到' . ($place - 100) . '号精灵箱。' : '');
 
@@ -101,7 +101,7 @@ switch($_GET['process']) {
 		break;
 	case 'eggtake':
 
-		$query = DB::query('SELECT id, gender FROM pkm_mypkm WHERE uid = ' . $user['uid'] . ' AND place = 7 AND egg = 1 LIMIT 2');
+		$query = DB::query('SELECT id, gender FROM pkm_mypkm WHERE uid = ' . $trainer['uid'] . ' AND place = 7 AND egg = 1 LIMIT 2');
 		$id    = $gender = [];
 
 		while($info = DB::fetch($query)) {
@@ -130,7 +130,7 @@ switch($_GET['process']) {
 
 			}
 
-			$code = Pokemon::Generate($id, $user['uid'], ['mtplace' => 601, 'egg' => 1]);
+			$code = Pokemon::Generate($id, $trainer['uid'], ['mtplace' => 601, 'egg' => 1]);
 
 			if($code === 3) {
 
@@ -140,9 +140,9 @@ switch($_GET['process']) {
 
 			}
 
-			DB::query('UPDATE pkm_mypkm SET egg = 0 WHERE uid = ' . $user['uid'] . ' AND place = 7 AND egg = 1 LIMIT 2');
+			DB::query('UPDATE pkm_mypkm SET egg = 0 WHERE uid = ' . $trainer['uid'] . ' AND place = 7 AND egg = 1 LIMIT 2');
 
-			$user['addexp'] += 6;
+			$trainer['addexp'] += 6;
 
 			ob_start();
 

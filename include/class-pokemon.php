@@ -283,21 +283,21 @@ class Pokemon {
         }
 
         $catch  = ($catch === FALSE) ? 0 : 1;
-        $caught = DB::result_first('SELECT own FROM pkm_mypokedex WHERE id = ' . $id . ' AND uid = ' . $user['uid']);
+        $caught = DB::result_first('SELECT own FROM pkm_mypokedex WHERE id = ' . $id . ' AND uid = ' . $trainer['uid']);
 
         if($caught === FALSE || is_null($caught)) {
 
             $caught = FALSE;
 
-            DB::query('INSERT INTO pkm_mypokedex (id, uid, own) VALUES (' . $id . ', ' . $user['uid'] . ', ' . $catch . ')');
+            DB::query('INSERT INTO pkm_mypokedex (id, uid, own) VALUES (' . $id . ', ' . $trainer['uid'] . ', ' . $catch . ')');
 
-            ++$user['addexp'];
+            ++$trainer['addexp'];
 
         } elseif($caught === '0' && $catch === 1) {
 
-            DB::query('UPDATE pkm_mypokedex SET own = 1 WHERE id = ' . $id . ' AND uid = ' . $user['uid']);
+            DB::query('UPDATE pkm_mypokedex SET own = 1 WHERE id = ' . $id . ' AND uid = ' . $trainer['uid']);
 
-            ++$user['addexp'];
+            ++$trainer['addexp'];
 
         }
 
@@ -571,7 +571,7 @@ class Pokemon {
 
                         $evoinfo = DB::fetch_first('SELECT abi, abib, abic, genderrt, name_zh, female, evldata, bs FROM pkm_pkmdata WHERE id = ' . $val[0]);
                         $pvpart  = str_split($info['pv'], 2);
-                        $tidpart = str_split($user['tid'], 4);
+                        $tidpart = str_split($trainer['tid'], 4);
                         $tidpart = [
                             ('0x' . $tidpart[0]) * 1,
                             ('0x' . $tidpart[1]) * 1

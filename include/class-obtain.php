@@ -36,7 +36,7 @@ class Obtain {
 
         global $system, $user;
 
-        $maxboxnum = $user['boxnum'] + $system['initial_box'] + 100;
+        $maxboxnum = $trainer['boxnum'] + $system['initial_box'] + 100;
 
         if(empty(self::$box)) {
 
@@ -427,7 +427,7 @@ class Obtain {
         $query     = DB::query('SELECT mi.iid, mi.num, i.name, i.dscptn, i.type
                                  FROM pkm_myitem mi
                                  LEFT JOIN pkm_itemdata i ON i.iid = mi.iid
-                                 WHERE mi.uid = ' . $user['uid'] . $condition . $orderby);
+                                 WHERE mi.uid = ' . $trainer['uid'] . $condition . $orderby);
         $item      = [];
 
         while($info = DB::fetch($query)) {

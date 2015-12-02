@@ -4,7 +4,7 @@ switch($_GET['process']) {
     case 'update':
 
         $_GET['mapid'] = 1;
-        $query         = DB::query('SELECT uid, username, x, y, map_id FROM pkm_mapcoordinate WHERE map_id = ' . intval($_GET['mapid']) . ' AND uid != ' . $user['uid']);
+        $query         = DB::query('SELECT uid, username, x, y, map_id FROM pkm_mapcoordinate WHERE map_id = ' . intval($_GET['mapid']) . ' AND uid != ' . $trainer['uid']);
         $data          = [];
 
         while($info = DB::fetch($query))
@@ -18,7 +18,7 @@ switch($_GET['process']) {
 
         $_GET['mapid'] = 1;
 
-        $mapid = DB::result_first('SELECT map_id FROM pkm_mapcoordinate WHERE uid = ' . $user['uid']);
+        $mapid = DB::result_first('SELECT map_id FROM pkm_mapcoordinate WHERE uid = ' . $trainer['uid']);
         $mapid = !$mapid ? intval($_GET['mapid']) : $mapid;
 
         if(!$mapid || $mapid && $mapid != $_GET['mapid'] || !file_exists($filepath = ROOT . '/data/map/map-' . $mapid . '.php')) exit;
@@ -31,19 +31,19 @@ switch($_GET['process']) {
         if($_tiles[$x]{$y} === '1') exit;
 
         DB::query('INSERT INTO pkm_mapcoordinate (uid, username, x, y, map_id, time)
-                   VALUES (' . $user['uid'] . ', \'' . $user['username'] . '\', ' . $x . ', ' . $y . ', ' . $mapid . ', ' . $_SERVER['REQUEST_TIME'] . ')
+                   VALUES (' . $trainer['uid'] . ', \'' . $trainer['username'] . '\', ' . $x . ', ' . $y . ', ' . $mapid . ', ' . $_SERVER['REQUEST_TIME'] . ')
                    ON DUPLICATE KEY UPDATE x = VALUES(x), y = VALUES(y), time = VALUES(time)');
 
         $return['console'] = '';
 
-        if(DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE place IN (1, 2, 3, 4, 5, 6) AND hp > 0 AND id != 0 AND uid = ' . $user['uid']) > 0) {
+        if(DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE place IN (1, 2, 3, 4, 5, 6) AND hp > 0 AND id != 0 AND uid = ' . $trainer['uid']) > 0) {
 
             Kit::Library('class', ['battle', 'pokemon']);
 
 
             //  Obtaining self pokemon's information
 
-            $query = DB::query('SELECT m.pid, m.id, m.abi, m.exp, m.nickname name_zh, m.gender, m.pv, m.iv, m.ev, m.nature, m.level, m.crritem, m.hpns, m.move, m.abi, m.hp, m.status, m.uid, m.imgname, m.newmove, m.hpns, m.beauty, m.form, p.name nickname, m.originuid, p.bs, p.type, p.typeb, p.evldata, p.exptype, p.baseexp, p.abic, p.height, p.weight FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id WHERE m.uid = ' . $user['uid'] . ' AND m.place IN (1, 2, 3, 4, 5, 6) AND m.id != 0 ORDER BY m.place ASC');
+            $query = DB::query('SELECT m.pid, m.id, m.abi, m.exp, m.nickname name_zh, m.gender, m.pv, m.iv, m.ev, m.nature, m.level, m.crritem, m.hpns, m.move, m.abi, m.hp, m.status, m.uid, m.imgname, m.newmove, m.hpns, m.beauty, m.form, p.name nickname, m.originuid, p.bs, p.type, p.typeb, p.evldata, p.exptype, p.baseexp, p.abic, p.height, p.weight FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id WHERE m.uid = ' . $trainer['uid'] . ' AND m.place IN (1, 2, 3, 4, 5, 6) AND m.id != 0 ORDER BY m.place ASC');
 
             $i = 1;
 
@@ -108,11 +108,11 @@ switch($_GET['process']) {
 
             if($i > 50) break;
 
-            DB::query('INSERT INTO pkm_battlefield (uid) VALUES (' . $user['uid'] . ') ON DUPLICATE KEY UPDATE weather = 0, trkroom = 0, gravity = 0');
-            DB::query('UPDATE pkm_trainerdata SET inbtl = 1 WHERE uid = ' . $user['uid']);
+            DB::query('INSERT INTO pkm_battlefield (uid) VALUES (' . $trainer['uid'] . ') ON DUPLICATE KEY UPDATE weather = 0, trkroom = 0, gravity = 0');
+            DB::query('UPDATE pkm_trainerdata SET inbtl = 1 WHERE uid = ' . $trainer['uid']);
 
             Battle::$pokemon[0] = [
-                Pokemon::Generate($appearpkm['id'], $user['uid'], [
+                Pokemon::Generate($appearpkm['id'], $trainer['uid'], [
                     'mtplace' => $mapid,
                     'mtlevel' => $appearpkm['level'],
                     'wild'    => 1
@@ -139,9 +139,9 @@ switch($_GET['process']) {
 
             Battle::ReorderPokemon();
 
-            Battle::WriteBattleData($user['uid'], Battle::$pokemon);
+            Battle::WriteBattleData($trainer['uid'], Battle::$pokemon);
 
-            Battle::$report = '野生的' . Battle::$pokemon[0][0]['name'] . '出现了！<br>' . $user['username'] . '派出了' . Battle::$pokemon[1][0]['name'] . '！<br>';
+            Battle::$report = '野生的' . Battle::$pokemon[0][0]['name'] . '出现了！<br>' . $trainer['username'] . '派出了' . Battle::$pokemon[1][0]['name'] . '！<br>';
 
             if(Pokemon::Register($appearpkm['id']) === FALSE)
 

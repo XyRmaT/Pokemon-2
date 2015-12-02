@@ -18,7 +18,7 @@ if(!$map) {
 
     Kit::ShowMessage('您要到哪里呀？');
 
-} elseif(!$user['inbtl']) {
+} elseif(!$trainer['inbtl']) {
 
     $tmp   = [];
     $query = DB::query('SELECT id, levelmin, levelmax, rate
@@ -55,10 +55,10 @@ if(!$map) {
 
     }
 
-    DB::query('INSERT INTO pkm_battlefield (uid) VALUES (' . $user['uid'] . ') ON DUPLICATE KEY UPDATE weather = 0, trkroom = 0, gravity = 0');
+    DB::query('INSERT INTO pkm_battlefield (uid) VALUES (' . $trainer['uid'] . ') ON DUPLICATE KEY UPDATE weather = 0, trkroom = 0, gravity = 0');
 
     Battle::$pokemon[0] = [
-        Pokemon::Generate($appearpkm['id'], $user['uid'], [
+        Pokemon::Generate($appearpkm['id'], $trainer['uid'], [
             'mtplace' => $map['map_id'],
             'mtlevel' => $appearpkm['level'],
             'wild'    => 1
@@ -66,7 +66,7 @@ if(!$map) {
         Battle::GenerateBattleData()
     ];
 
-    $query = DB::query('SELECT m.pid, m.id, m.nickname, m.gender, m.pv, m.iv, m.ev, m.nature, m.level, m.crritem, m.hpns, m.move, m.abi, m.hp, m.status, m.imgname, p.bs, p.type, p.typeb FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id WHERE m.uid = ' . $user['uid'] . ' AND m.place IN (1, 2, 3, 4, 5, 6) AND m.id != 0 ORDER BY m.place ASC');
+    $query = DB::query('SELECT m.pid, m.id, m.nickname, m.gender, m.pv, m.iv, m.ev, m.nature, m.level, m.crritem, m.hpns, m.move, m.abi, m.hp, m.status, m.imgname, p.bs, p.type, p.typeb FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id WHERE m.uid = ' . $trainer['uid'] . ' AND m.place IN (1, 2, 3, 4, 5, 6) AND m.id != 0 ORDER BY m.place ASC');
 
     $hp = 0;
     $i  = 1;
