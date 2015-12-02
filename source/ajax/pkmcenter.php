@@ -18,7 +18,7 @@ switch($_GET['process']) {
 
 		if(is_array($_GET['heal'])) {
 
-			//$pmcount = DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE uid = ' . $_G['uid'] . ' AND place IN (1, 2, 3, 4, 5, 6)');
+			//$pmcount = DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE uid = ' . $user['uid'] . ' AND place IN (1, 2, 3, 4, 5, 6)');
 
 			foreach($_GET['heal'] as $key => $val) {
 
@@ -78,7 +78,7 @@ switch($_GET['process']) {
 
 				}
 
-				$place = Obtain::DepositBox($_G['uid']);
+				$place = Obtain::DepositBox($user['uid']);
 
 				if($place === FALSE) {
 
@@ -123,7 +123,7 @@ switch($_GET['process']) {
 
 		if($count[0] > 0) {
 
-			$healcount = DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE place = 8 AND uid = ' . $_G['uid']);
+			$healcount = DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE place = 8 AND uid = ' . $user['uid']);
 
 			if($healcount + $count[0] > 6) {
 
@@ -195,7 +195,7 @@ switch($_GET['process']) {
 
 		$place  = $pokemon = $curplace = $unable = $sql = [];
 		$query  = DB::query('SELECT pid, place FROM pkm_mypkm WHERE uid = ' . $user['uid']);
-		$boxnum = $SYS['sttbox'] + $user['boxnum'];
+		$boxnum = $system['initial_box'] + $user['boxnum'];
 
 		for($i = 1; $i <= $boxnum; $i++) {
 
@@ -238,7 +238,7 @@ switch($_GET['process']) {
 
 				continue;
 
-			} elseif($val < 7 && $place[1] > 6 || $place[$val] > $SYS['perbox']) {
+			} elseif($val < 7 && $place[1] > 6 || $place[$val] > $system['pkm_per_box']) {
 
 				$unable[$val] = !isset($unable[$val]) ? 1 : ++$unable[$val];
 
@@ -362,7 +362,7 @@ switch($_GET['process']) {
 
 		if(!empty($pokemon)) {
 
-			$query = DB::query('SELECT m.id, m.nickname, m.pid, m.imgname, m.level, m.gender, p.egggrp, p.egggrpb, p.name FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id WHERE m.place IN (1, 2, 3, 4, 5, 6) AND m.uid = ' . $_G['uid'] . ' AND (m.mtplace = 600 AND m.originuid != m.uid OR m.mtplace != 600) LIMIT 6');
+			$query = DB::query('SELECT m.id, m.nickname, m.pid, m.imgname, m.level, m.gender, p.egggrp, p.egggrpb, p.name FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id WHERE m.place IN (1, 2, 3, 4, 5, 6) AND m.uid = ' . $user['uid'] . ' AND (m.mtplace = 600 AND m.originuid != m.uid OR m.mtplace != 600) LIMIT 6');
 			$party = [];
 
 			while($info = DB::fetch($query)) {
@@ -465,7 +465,7 @@ switch($_GET['process']) {
 		}
 
 
-		Kit::SendMessage('精灵交换申请', $_G['username'] . '向您提出了精灵交换请求，请到<a href="?index=pc&section=trade">PC</a>查看！', $_G['uid'], $oppo['uid']);
+		Kit::SendMessage('精灵交换申请', $user['username'] . '向您提出了精灵交换请求，请到<a href="?index=pc&section=trade">PC</a>查看！', $user['uid'], $oppo['uid']);
 
 		DB::query('UPDATE pkm_mypkm SET place = 10 WHERE pid = ' . $pid);
 		DB::query('INSERT INTO pkm_mytrade (uid, ouid, pid, opid, time) VALUES (' . $user['uid'] . ', ' . $oppo['uid'] . ', ' . $pid . ', ' . $opid . ', ' . $_SERVER['REQUEST_TIME'] . ')');
@@ -552,7 +552,7 @@ switch($_GET['process']) {
 		DB::query('UPDATE pkm_trainerstat SET pmtrade = pmtrade + 1 WHERE uid IN (' . $user['uid'] . ', ' . $tradeinfo['uid'] . ')');
 		DB::query('DELETE FROM pkm_mytrade WHERE tradeid = ' . $tradeid);
 
-		Kit::SendMessage('精灵交换通知', $_G['username'] . '通过了您的精灵交换请求！', $_G['uid'], $tradeinfo['uid']);
+		Kit::SendMessage('精灵交换通知', $user['username'] . '通过了您的精灵交换请求！', $user['uid'], $tradeinfo['uid']);
 
 		$return['msg']     = '通过了交换请求！好好照顾它啊！';
 		$return['succeed'] = !0;
@@ -586,7 +586,7 @@ switch($_GET['process']) {
 		DB::query('DELETE FROM pkm_mytrade WHERE tradeid = ' . $tradeid);
 		DB::query('UPDATE pkm_mypkm SET place = ' . $oplace . ' WHERE pid = ' . $tradeinfo['pid']);
 
-		Kit::SendMessage('精灵交换通知', $_G['username'] . '拒绝了您的精灵交换请求！', $_G['uid'], $tradeinfo['uid']);
+		Kit::SendMessage('精灵交换通知', $user['username'] . '拒绝了您的精灵交换请求！', $user['uid'], $tradeinfo['uid']);
 
 		$return['msg']     = '拒绝了交换请求！';
 		$return['succeed'] = !0;
@@ -620,7 +620,7 @@ switch($_GET['process']) {
 		DB::query('DELETE FROM pkm_mytrade WHERE tradeid = ' . $tradeid);
 		DB::query('UPDATE pkm_mypkm SET place = ' . $place . ' WHERE pid = ' . $tradeinfo['pid']);
 
-		Kit::SendMessage('精灵交换通知', $_G['username'] . '取消了精灵交换请求！', $_G['uid'], $tradeinfo['ouid']);
+		Kit::SendMessage('精灵交换通知', $user['username'] . '取消了精灵交换请求！', $user['uid'], $tradeinfo['ouid']);
 
 		$return['msg']     = '取消了交换请求！';
 		$return['succeed'] = !0;

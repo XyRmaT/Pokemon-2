@@ -746,7 +746,7 @@ class MoveDb extends Battle {
 
 		$exception          = '13,19,76,91,117,119,130,143,214,253,291,382,383,448,467,507,553,554,264';
 		$count              = DB::result_first('SELECT COUNT(*) FROM pkm_movedata WHERE mid NOT IN (' . $exception);
-		$move               = DB::fetch_first('SELECT mid, name, type, class, power, acc, pp, prio, freq, critrt, effect, btlefct FROM pkm_movedata LIMIT ' . rand(0, $count - 1) . ', 1');
+		$move               = DB::fetch_first('SELECT mid, name_zh, type, class, power, acc, pp, prio, freq, critrt, effect, btlefct FROM pkm_movedata LIMIT ' . rand(0, $count - 1) . ', 1');
 		parent::$m['power'] = $move['power'];
 		parent::$report .= parent::$atk[0]['name'] . '使出了' . parent::$atkmove['name'] . '！<br>';
 

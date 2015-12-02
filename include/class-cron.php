@@ -1,6 +1,6 @@
 <?php
 
-if($SYS['switch'] === 0) exit;
+if(empty($system['system_switch'])) exit;
 
 class Cron {
 

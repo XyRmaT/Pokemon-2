@@ -1,25 +1,25 @@
 <?php
 
-$SYS = [
-    'perbox'      => 30,
-    'sttbox'      => 6,
-    'switch'      => 1,
-    'closereason' => '系统更新中，请稍后再试！',
-    'admin'       => '8',//,1144,1333',
-    'version'     => '1.0.0',
-    'bagperlimit' => 100,
-    'daySeparate' => [
+$system = [
+    'pkm_per_box'           => 30,
+    'initial_box'           => 6,
+    'system_switch'         => TRUE,
+    'close_reason'          => '系统更新中，请稍后再试！',
+    'admins'                => '8', // ,1144,1333
+    'version'               => '1.0.0',
+    'per_item_limit'        => 100,
+    'day_division'          => [
         'morning' => range(4, 9),
         'day'     => range(10, 19),
         'evening' => range(20, 3)
     ],
-    'fmPlaceCost' => 10,
-    'moneyname'   => '弹珠',
-    'moneyext'    => 'extcredits7',
-    'c_1wk'       => 0,
-    'c_1mth'      => 0,
-    'hpnschktime' => 1800,
-    'expext'      => 'extcredits1'
+    'fmPlaceCost'           => 10,
+    'currency_name'         => '弹珠',
+    'currency_field'        => 'extcredits7',
+    'c_1wk'                 => 0,
+    'c_1mth'                => 0,
+    'happiness_check_cycle' => 1800,
+    'exp_field'             => 'extcredits1'
 ];
 
 define('UC_CONNECT', 'mysql');

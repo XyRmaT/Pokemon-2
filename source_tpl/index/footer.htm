@@ -5,14 +5,14 @@
 <div id="lyr-alert"></div>
 
 <div id="footer">
-	目前时间：<!--{echo date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']);}--><!--{if $_G['gzipcompress']}-->, Gzip On<!--{/if}-->. MU: <!--{echo Kit::Memory(memory_get_usage(true))}--><br>
-	<!--{if $_G['uid'] == 8 && debuginfo()}-->Processed in $_G[debuginfo][time] second(s), $_G[debuginfo][queries] queries. <br><!--{/if}-->
+	目前时间：<!--{echo date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']);}-->MU: <!--{echo Kit::Memory(memory_get_usage(true))}--><br>
+	<!--{if $user['uid'] == 8 && debuginfo()}-->Processed in 0 second(s), 0 queries. <br><!--{/if}-->
 	请使用现代浏览器（如<a href="http://www.google.com/chrome" target="_blank">谷歌浏览器</a>）访问以取得最佳效果。<br>
 	Copyright &copy; 2013-{YEAR} PokeUniv (Pet). Version $SYS[version].
 </div>
 
 <script>
-	<!--{if empty($_G['uid'])}-->
+	<!--{if empty($user['uid'])}-->
 		$(function() {
 		
 			$('body').append('<div id="lyr-unlogged" class="h">登陆页暂未制作完毕，<a href="member.php?mod=logging&action=login" target="_blank" class="forum"><b>点我进入论坛登陆</b></a>！</div>');

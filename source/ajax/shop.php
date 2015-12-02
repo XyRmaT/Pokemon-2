@@ -12,7 +12,7 @@ switch($_GET['process']) {
 
         } else {
 
-            $item = DB::fetch_first('SELECT price, name, store FROM pkm_itemdata WHERE iid = ' . $iid . ' AND sell = 1 AND trnrlv <= ' . $user['level'] . ' AND (timestt = 0 AND timefns = 0 OR NOW() > timestt AND NOW() < timefns) LIMIT 1');
+            $item = DB::fetch_first('SELECT price, name_zh, store FROM pkm_itemdata WHERE iid = ' . $iid . ' AND sell = 1 AND trnrlv <= ' . $user['level'] . ' AND (timestt = 0 AND timefns = 0 OR NOW() > timestt AND NOW() < timefns) LIMIT 1');
             $cost = $item['price'] * $num;
 
             if(empty($item)) {
@@ -31,7 +31,7 @@ switch($_GET['process']) {
 
                 $bagnum = DB::result_first('SELECT num FROM pkm_myitem WHERE uid = ' . $user['uid'] . ' AND iid = ' . $iid);
 
-                if($bagnum + $num >= $SYS['bagperlimit']) {
+                if($bagnum + $num >= $system['per_item_limit']) {
 
                     $return['msg'] = '唔背包都这么鼓了塞哪里？';
 
@@ -41,7 +41,7 @@ switch($_GET['process']) {
 
                     DB::query('UPDATE pkm_itemdata SET store = store - ' . $num . ', mthsell = mthsell + ' . $num . ' WHERE iid = ' . $iid);
                     DB::query('UPDATE pkm_stat SET shopsell = shopsell + ' . $cost);
-                    DB::query('UPDATE pre_common_member_count SET ' . $SYS['moneyext'] . ' = ' . $SYS['moneyext'] . '- ' . $cost . ' WHERE uid = ' . $user['uid']);
+                    DB::query('UPDATE pre_common_member_count SET ' . $system['currency_field'] . ' = ' . $system['currency_field'] . '- ' . $cost . ' WHERE uid = ' . $user['uid']);
 
                     if(empty($bagnum))
 
@@ -51,7 +51,7 @@ switch($_GET['process']) {
 
                         DB::query('UPDATE pkm_myitem SET num = num + ' . $num . ' WHERE iid = ' . $iid . ' AND uid = ' . $user['uid']);
 
-                    $return['msg'] = '这是您的' . $item['name'] . '*' . $num . '，共耗费' . $cost . $SYS['moneyname'] . '。谢谢光临！';
+                    $return['msg'] = '这是您的' . $item['name'] . '*' . $num . '，共耗费' . $cost . $system['currency_name'] . '。谢谢光临！';
                     $return['js']  = '$(\'#i' . $iid . ' td\').eq(4).html(\'' . ($item['store'] - $num) . '\');$(\'#money\').html(' . ($user['money'] - $cost) . ');';
                 }
             }

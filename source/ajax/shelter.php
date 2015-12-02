@@ -17,7 +17,7 @@ switch($_GET['process']) {
 
 		} elseif($user['money'] - $cost < 0) {
 
-			$return['msg'] = $SYS['moneyname'] . '没带够！要知道我们也是得生存的啊！';
+			$return['msg'] = $system['currency_name'] . '没带够！要知道我们也是得生存的啊！';
 
 			break;
 
@@ -30,7 +30,7 @@ switch($_GET['process']) {
 		}
 
 		DB::query('UPDATE pkm_mypkm SET place = ' . $place . ', uid = ' . $user['uid'] . ' WHERE pid = ' . $info['pid']);
-		DB::query('UPDATE pre_common_member_count SET ' . $SYS['moneyext'] . ' = ' . ($user['money'] - $cost) . ' WHERE uid = ' . $user['uid']);
+		DB::query('UPDATE pre_common_member_count SET ' . $system['currency_field'] . ' = ' . ($user['money'] - $cost) . ' WHERE uid = ' . $user['uid']);
 
 		Pokemon::Register($info['id'], !0);
 

@@ -463,7 +463,7 @@ switch($_GET['process']) {
 
 		unset($pokemon['newmove'][$keyb]);
 
-		$move = DB::fetch_first('SELECT name, pp FROM pkm_movedata WHERE mid = ' . $lid);
+		$move = DB::fetch_first('SELECT name_zh, pp FROM pkm_movedata WHERE mid = ' . $lid);
 
 		if(empty($move)) {
 
@@ -552,7 +552,7 @@ switch($_GET['process']) {
 		break;
 	case 'inboxdel':
 
-		$msgid = DB::result_first('SELECT msgid FROM pkm_myinbox WHERE msgid = ' . (isset($_GET['msgid']) ? intval($_GET['msgid']) : 0) . ' AND receiver = ' . $_G['uid']);
+		$msgid = DB::result_first('SELECT msgid FROM pkm_myinbox WHERE msgid = ' . (isset($_GET['msgid']) ? intval($_GET['msgid']) : 0) . ' AND receiver = ' . $user['uid']);
 
 		if(!$msgid) {
 

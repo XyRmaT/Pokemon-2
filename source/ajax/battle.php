@@ -99,7 +99,7 @@ if($_GET['process'] === 'usemove') {
 
 }
 
-$query = DB::query('SELECT mid, name, type, class, power, acc, pp, prio, freq, ctrate, effect, btlefct FROM pkm_movedata WHERE mid = ' . Battle::$move[0][Battle::$move[0]['key']][0] . (($_GET['process'] === 'usemove') ? ' UNION ALL SELECT mid, name, type, class, power, acc, pp, prio, freq, ctrate, effect, btlefct FROM pkm_movedata WHERE mid = ' . $mid : ''));
+$query = DB::query('SELECT mid, name_zh, type, class, power, acc, pp, prio, freq, ctrate, effect, btlefct FROM pkm_movedata WHERE mid = ' . Battle::$move[0][Battle::$move[0]['key']][0] . (($_GET['process'] === 'usemove') ? ' UNION ALL SELECT mid, name_zh, type, class, power, acc, pp, prio, freq, ctrate, effect, btlefct FROM pkm_movedata WHERE mid = ' . $mid : ''));
 $i     = 0;
 
 while($info = DB::fetch($query)) {

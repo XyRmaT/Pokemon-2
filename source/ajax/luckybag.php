@@ -140,7 +140,7 @@ switch($_GET['process']) {
 
 				}
 
-				DB::query('INSERT INTO pkm_luckybaglog (uid, value, time, ip) VALUES (' . $user['uid'] . ', \'' . $key . '\', ' . $_SERVER['REQUEST_TIME'] . ', \'' . $_G['clientip'] . '\')');
+				DB::query('INSERT INTO pkm_luckybaglog (uid, value, time, ip) VALUES (' . $user['uid'] . ', \'' . $key . '\', ' . $_SERVER['REQUEST_TIME'] . ', \'' . $trainer['clientip'] . '\')');
 
 				break 2;
 

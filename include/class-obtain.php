@@ -7,7 +7,7 @@ class Obtain {
 
     public static function MeetPlace($mtplace) {
 
-        $mapname = DB::result_first('SELECT name FROM pkm_mapdata WHERE mpid = ' . $mtplace);
+        $mapname = DB::result_first('SELECT name FROM pkm_mapdata WHERE map_id = ' . $mtplace);
 
         if(!empty($mapname)) {
 
@@ -15,7 +15,7 @@ class Obtain {
 
         } else {
 
-            require ROOT . '/include/data_birthplace.php';
+            require ROOT . '/include/data-birthplace.php';
 
             return isset($birthplace[$mtplace]) ? $birthplace[$mtplace] : '……从石头里蹦出来的？';
 
@@ -34,9 +34,9 @@ class Obtain {
 
     public static function DepositBox($uid) {
 
-        global $SYS, $user;
+        global $system, $user;
 
-        $maxboxnum = $user['boxnum'] + $SYS['sttbox'] + 100;
+        $maxboxnum = $user['boxnum'] + $system['initial_box'] + 100;
 
         if(empty(self::$box)) {
 
@@ -52,7 +52,7 @@ class Obtain {
 
         for($i = 1; $i <= $maxboxnum; $i++) {
 
-            if(empty(self::$box[$i]) || $i > 100 && self::$box[$i] < $SYS['perbox']) {
+            if(empty(self::$box[$i]) || $i > 100 && self::$box[$i] < $system['pkm_per_box']) {
 
                 self::$box[$i] = isset(self::$box[$i]) ? self::$box[$i] + 1 : 1;
 

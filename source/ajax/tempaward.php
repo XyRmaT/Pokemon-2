@@ -19,9 +19,9 @@ switch($_GET['process']) {
 
 			Kit::Library('class', ['pokemon', 'obtain']);
 
-			Pokemon::Generate($sid, $_G['uid'], ['mtplace' => 600]);
+			Pokemon::Generate($sid, $user['uid'], ['mtplace' => 600]);
 
-			DB::query('UPDATE pkm_trainerdata SET sttchk = 1 WHERE uid = ' . $_G['uid']);
+			DB::query('UPDATE pkm_trainerdata SET sttchk = 1 WHERE uid = ' . $user['uid']);
 
 			$return['js'] = 'window.location.reload();';
 

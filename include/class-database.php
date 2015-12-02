@@ -4,15 +4,13 @@ class Database {
 
     protected static $db;
 
-    public static function connect() {
+    public static function connect($host, $user, $password, $database, $charset = 'utf8') {
 
-        include_once './data-config.php';
+        self::$db = new mysqli($host, $user, $password, $database);
+        self::$db->query('SET NAMES ' . $charset);
 
-        self::$db = new mysqli(UC_DBHOST, UC_DBUSER, UC_DBPW, UC_DBNAME);
-
-        self::$db->query('SET NAMES ' . UC_DBCHARSET);
-
-        if(self::$db->connect_errno) echo 'Failed to connect to MySQL: (' . self::$db->connect_errno . ') ' . self::$db->connect_error;
+        if(self::$db->connect_errno)
+            echo 'Failed to connect to MySQL: (' . self::$db->connect_errno . ') ' . self::$db->connect_error;
 
     }
 

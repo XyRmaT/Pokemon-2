@@ -86,7 +86,7 @@ class Pokemon {
 
         // Fetch basic pokemon information
 
-        $pokemon = DB::fetch_first('SELECT id, name, genderrt, abi, abib, abic, stthpns, height, weight, female, bs, exptype' . (!empty($egg) ? ', eggcycle' : '') . (!empty($param['wild']) ? ', type, typeb' : '') . '
+        $pokemon = DB::fetch_first('SELECT id, name_zh, genderrt, abi, abib, abic, stthpns, height, weight, female, bs, exptype' . (!empty($egg) ? ', eggcycle' : '') . (!empty($param['wild']) ? ', type, typeb' : '') . '
                                     FROM pkm_pkmdata
                                     WHERE form = 0' . (!empty($fakeid) ? ' LIMIT ' . $fakeid . ', 1' : ' AND id = ' . $id));
 
@@ -569,7 +569,7 @@ class Pokemon {
 
                         Trainer::AddExp($user, 2);
 
-                        $evoinfo = DB::fetch_first('SELECT abi, abib, abic, genderrt, name, female, evldata, bs FROM pkm_pkmdata WHERE id = ' . $val[0]);
+                        $evoinfo = DB::fetch_first('SELECT abi, abib, abic, genderrt, name_zh, female, evldata, bs FROM pkm_pkmdata WHERE id = ' . $val[0]);
                         $pvpart  = str_split($info['pv'], 2);
                         $tidpart = str_split($user['tid'], 4);
                         $tidpart = [

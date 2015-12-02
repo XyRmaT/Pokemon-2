@@ -3,7 +3,7 @@
 	<title>口袋大冒险</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<meta name="author" content="Doduo">
-	<meta name="copyright" content="$_G[siteurl]">
+	<meta name="copyright" content="口袋大学城">
 	<meta name="description" content="口袋妖怪在线养成冒险系统">
 	<meta name="keywords" content="口袋妖怪,神奇宝贝,精灵宝可梦,宠物小精灵,口袋大冒险,养成,冒险,新养成,口袋大学城">
 	<link rel="icon" href="favicon.ico" mce_href="favicon.ico" type="image/x-icon">
@@ -28,7 +28,7 @@
 			<li><a href="?index=shelter">孤儿院</a>
 			<li><a href="?index=map">冒险</a>
 			<li><a href="?index=ranking">排行榜</a>
-			<li><a href="{if empty($_G['uid'])}member.php?mod=logging&action=login{else}forum.php{/if}" target="_blank">论坛</a>
+			<li><a href="{if empty($user['uid'])}member.php?mod=logging&action=login{else}forum.php{/if}" target="_blank">论坛</a>
 		<!--{/if}-->
 	</ul>
 </div>

@@ -2,7 +2,7 @@
 
 Kit::Library('class', ['battle', 'pokemon']);
 
-$mapid = isset($_GET['mpid']) ? intval($_GET['mpid']) : 1;
+$mapid = isset($_GET['map_id']) ? intval($_GET['map_id']) : 1;
 
 /**
  * Fetch the available map data which met the criteria of:
@@ -10,8 +10,8 @@ $mapid = isset($_GET['mpid']) ? intval($_GET['mpid']) : 1;
  *      ...
  */
 
-$map = DB::fetch_first('SELECT mpid FROM pkm_mapdata
-                        WHERE mpid = ' . $mapid . ' AND (timestt < ' . $_SERVER['REQUEST_TIME'] . ' AND timefns > ' . $_SERVER['REQUEST_TIME'] . ' OR timefns = 0 AND timestt < ' . $_SERVER['REQUEST_TIME'] . ')');
+$map = DB::fetch_first('SELECT map_id FROM pkm_mapdata
+                        WHERE map_id = ' . $mapid . ' AND (timestt < ' . $_SERVER['REQUEST_TIME'] . ' AND timefns > ' . $_SERVER['REQUEST_TIME'] . ' OR timefns = 0 AND timestt < ' . $_SERVER['REQUEST_TIME'] . ')');
 
 
 if(!$map) {
@@ -23,20 +23,16 @@ if(!$map) {
     $tmp   = [];
     $query = DB::query('SELECT id, levelmin, levelmax, rate
                          FROM pkm_encounterdata
-                         WHERE mpid = ' . $mapid . ' AND timefrom < ' . $_SERVER['REQUEST_TIME'] . ' AND (timeto = 0 OR timeto > ' . $_SERVER['REQUEST_TIME'] . ') AND qty != 0');
+                         WHERE map_id = ' . $mapid . ' AND timefrom < ' . $_SERVER['REQUEST_TIME'] . ' AND (timeto = 0 OR timeto > ' . $_SERVER['REQUEST_TIME'] . ') AND qty != 0');
 
 
     while($info = DB::fetch($query))
-
         $tmp[] = $info;
 
 
     if(!$tmp) {
-
         $return['msg'] = '一只精灵都没看到……';
-
-        break;
-
+        exit;
     }
 
     $i = 0;
@@ -46,37 +42,31 @@ if(!$map) {
         $appearpkm = $tmp[array_rand($tmp)];
 
         if(rand(1, 100) <= $appearpkm['rate']) {
-
             $appearpkm['level'] = rand($appearpkm['levelmin'], $appearpkm['levelmax']);
-
             break;
-
         }
 
         if($i > 50) {
-
             $return['msg'] = '似乎有精灵的黑影闪过！';
-
             break;
-
         }
 
         ++$i;
 
     }
 
-    DB::query('INSERT INTO pkm_battlefield (uid) VALUES (' . $_G['uid'] . ') ON DUPLICATE KEY UPDATE weather = 0, trkroom = 0, gravity = 0');
+    DB::query('INSERT INTO pkm_battlefield (uid) VALUES (' . $user['uid'] . ') ON DUPLICATE KEY UPDATE weather = 0, trkroom = 0, gravity = 0');
 
     Battle::$pokemon[0] = [
-        Pokemon::Generate($appearpkm['id'], $_G['uid'], [
-            'mtplace' => $map['mpid'],
+        Pokemon::Generate($appearpkm['id'], $user['uid'], [
+            'mtplace' => $map['map_id'],
             'mtlevel' => $appearpkm['level'],
             'wild'    => 1
         ]),
         Battle::GenerateBattleData()
     ];
 
-    $query = DB::query('SELECT m.pid, m.id, m.nickname, m.gender, m.pv, m.iv, m.ev, m.nature, m.level, m.crritem, m.hpns, m.move, m.abi, m.hp, m.status, m.imgname, p.bs, p.type, p.typeb FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id WHERE m.uid = ' . $_G['uid'] . ' AND m.place IN (1, 2, 3, 4, 5, 6) AND m.id != 0 ORDER BY m.place ASC');
+    $query = DB::query('SELECT m.pid, m.id, m.nickname, m.gender, m.pv, m.iv, m.ev, m.nature, m.level, m.crritem, m.hpns, m.move, m.abi, m.hp, m.status, m.imgname, p.bs, p.type, p.typeb FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id WHERE m.uid = ' . $user['uid'] . ' AND m.place IN (1, 2, 3, 4, 5, 6) AND m.id != 0 ORDER BY m.place ASC');
 
     $hp = 0;
     $i  = 1;
@@ -91,15 +81,11 @@ if(!$map) {
     }
 
     if(empty(Battle::$pokemon) || $hp <= 0) {
-
         $return['msg'] = '您没有可以参战的精灵！';
-
-        break;
-
+        exit;
     }
 
-    debuginfo();
-    echo '<pre><img src="' . Obtain::Sprite('pokemon', 'png', Battle::$pokemon[0][0]['imgname']) . '"><img src="' . Obtain::Sprite('pokemon', 'png', Battle::$pokemon[1][0]['imgname']) . '"><br>Processed in ' . $_G['debuginfo']['time'] . 'second(s), ' . $_G['debuginfo']['queries'] . ' queries.';
+    echo '<pre><img src="' . Obtain::Sprite('pokemon', 'png', Battle::$pokemon[0][0]['imgname']) . '"><img src="' . Obtain::Sprite('pokemon', 'png', Battle::$pokemon[1][0]['imgname']) . '"><br>Processed in ' . 0 . 'second(s), ' . 0 . ' queries.';
     print_r(Battle::$pokemon[0][0]);
     exit;
 

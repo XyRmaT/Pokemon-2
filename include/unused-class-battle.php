@@ -41,7 +41,7 @@ class battle {
         return $itemEffect;
     }
 
-    function wildPkmMaterialization($uid, $mpid, $capItem) {
+    function wildPkmMaterialization($uid, $map_id, $capItem) {
         global $db, $timestamp;
         list($level, $expType) = $db->fetch_first("SELECT mwp.level, pd.expType FROM pkm_mywildpkm mwp LEFT JOIN pkm_pkmdata pd ON pd.id = mwp.id WHERE mwp.uid = {$uid}");
         if(empty($pokemon)) {
@@ -49,7 +49,7 @@ class battle {
         }
         $exp   = nextLevelUp($expType, $level - 1);
         $place = boxCheck($uid);
-        return $db->query("INSERT INTO pkm_mypkm (id, nickname, gender, pv, iv, ev, shiny, oOUid, daycTime, egghatch, egg, nature, level, exp, crritem, hlTime, hpns, beauty, move, mtLevel, mtDate, mtPlace, abi, uid, capItem, hp, form, place, status, newMove) (SELECT id, name, gender, pv, iv, ev, shiny, uid oOUid, 0, 0, 0, nature, level, {$exp}, crritem, 0, hpns, 0, move, level, {$timestamp}, {$mpid}, abi, uid, {$capItem}, hp, form, {$place}, status, '' FROM pkm_mywildpkm WHERE pid = {$pid})");
+        return $db->query("INSERT INTO pkm_mypkm (id, nickname, gender, pv, iv, ev, shiny, oOUid, daycTime, egghatch, egg, nature, level, exp, crritem, hlTime, hpns, beauty, move, mtLevel, mtDate, mtPlace, abi, uid, capItem, hp, form, place, status, newMove) (SELECT id, name_zh, gender, pv, iv, ev, shiny, uid oOUid, 0, 0, 0, nature, level, {$exp}, crritem, 0, hpns, 0, move, level, {$timestamp}, {$map_id}, abi, uid, {$capItem}, hp, form, {$place}, status, '' FROM pkm_mywildpkm WHERE pid = {$pid})");
     }
 
     function gainExp($baseEXP, $attackerLevel, $oppLevel, $pkmUid, $uid, $crritem, $pkmCount) {
