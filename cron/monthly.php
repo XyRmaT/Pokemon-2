@@ -7,7 +7,7 @@ include dirname(__FILE__) . '/../include/class_cron.php';
 	Generate report for the shop
 */
 
-$query  = DB::query('SELECT item_id, mthsell FROM pkm_itemdata WHERE mthsell > 0 ORDER BY mthsell DESC');
+$query  = DB::query('SELECT item_id, month_sale FROM pkm_itemdata WHERE month_sale > 0 ORDER BY month_sale DESC');
 $report = '';
 
 while($info = DB::fetch($query)) {
@@ -18,7 +18,7 @@ while($info = DB::fetch($query)) {
 
 $report .= DB::result_first('SELECT shopsell FROM pkm_stat');
 
-DB::query('UPDATE pkm_itemdata SET mthsell = 0');
+DB::query('UPDATE pkm_itemdata SET month_sale = 0');
 DB::query('UPDATE pkm_stat SET shopsell = 0');
 
 Cron::ReportWrite('shop', $report, 'Y-m', 'w+', $_SERVER['REQUEST_TIME'] - 3600);

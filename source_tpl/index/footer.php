@@ -2,7 +2,7 @@
 
 <br class="cl">
 
-<div id="lyr-alert"></div>
+<div id="layer-alert"></div>
 
 <div id="footer">
 	目前时间：<!--{echo date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']);}-->MU: <!--{echo Kit::Memory(memory_get_usage(TRUE))}--><br>
@@ -15,9 +15,9 @@
 	<!--{if 1==2 && empty($user['uid'])}-->
 		$(function() {
 		
-			$('body').append('<div id="lyr-unlogged" class="h">登陆页暂未制作完毕，<a href="member.php?mod=logging&action=login" target="_blank" class="forum"><b>点我进入论坛登陆</b></a>！</div>');
+			$('body').append('<div id="layer-unlogged" class="h">登陆页暂未制作完毕，<a href="member.php?mod=logging&action=login" target="_blank" class="forum"><b>点我进入论坛登陆</b></a>！</div>');
 			
-			$('#lyr-unlogged').dialog({
+			$('#layer-unlogged').dialog({
 				modal: true, 
 				title: '欢迎！', 
 				buttons: {
@@ -121,7 +121,7 @@
 						});
 						$('.sub-trade').off().on('click', function() {
 							var opid = $(this).parent().data('pkm_id');
-							$('#lyr-traderequest').dialog({
+							$('#layer-traderequest').dialog({
 								modal: true, 
 								title: '交换请求', 
 								buttons: {
@@ -224,7 +224,7 @@
 				});
 				$('.pmabandon').off().on('click', function() {
 					var pkm_id = $(this).parent().parent().data('pkm_id');
-					$('#lyr-abandon').dialog({
+					$('#layer-abandon').dialog({
 						modal: true, 
 						title: '抛弃精灵', 
 						buttons: {
@@ -243,9 +243,9 @@
 					.off()
 					.on('click', function() {
 						var tmp = $(this).parent().parent();
-						var input = $('#lyr-nickname [name=nickname]');
+						var input = $('#layer-nickname [name=nickname]');
 						input.val(tmp.data('nickname'));
-						$('#lyr-nickname').dialog({
+						$('#layer-nickname').dialog({
 							modal: true, 
 							title: '更改昵称', 
 							buttons: {
@@ -264,7 +264,7 @@
 							resizable: false
 						});
 					});
-				$('#lyr-nickname [name=nickname]').off().on('focus', function() {
+				$('#layer-nickname [name=nickname]').off().on('focus', function() {
 					$(this).removeClass('ui-state-error');
 				}).on('blur', function() {
 					if($(this).val() === '' || $(this).val().length > 6) {
@@ -287,7 +287,7 @@
 						tmp		= $(this), 
 						pkm_id		= parent.data('pkm_id');
 					$('#learnmove').html($('.moves_new', parent).html());
-					$('#lyr-moves').dialog({
+					$('#layer-moves').dialog({
 						modal: true, 
 						title: '学习技能', 
 						buttons: {
@@ -355,8 +355,8 @@
 						}
 					}).on('click', function() {
 						var item_id = $(this).data('item_id');
-						$('#lyr-useitem').find('.name').html(item[item_id].name);
-						$('#lyr-useitem').dialog({
+						$('#layer-useitem').find('.name').html(item[item_id].name);
+						$('#layer-useitem').dialog({
 							modal: true, 
 							title: '使用道具', 
 							buttons: {
@@ -427,8 +427,8 @@
 			$('img').undraggable();
 			$('.st-info img').click(function() {
 				var tmp = $(this);
-				$('#lyr-confirm .name').html(tmp.data('name'));
-				$('#lyr-confirm').dialog({
+				$('#layer-confirm .name').html(tmp.data('name'));
+				$('#layer-confirm').dialog({
 					modal: true, 
 					title: '选择初始精灵', 
 					buttons: {
@@ -447,7 +447,7 @@
 			BindEvents = function() {
 			
 				$('.dc-pm button').off().on('click', function() {
-					$('#lyr-savedaycare').dialog({
+					$('#layer-savedaycare').dialog({
 						modal: true, 
 						title: '寄存精灵', 
 						buttons: {
@@ -477,7 +477,7 @@
 				$('.dc-pm .move_id img').off().on('click', function() {
 					var egg = $(this).hasClass('egg') ? 1 : 0, 
 						tmp = $(this);
-					$(egg === 1 ? '#lyr-getegg' : '#lyr-getback').dialog({
+					$(egg === 1 ? '#layer-getegg' : '#layer-getback').dialog({
 						modal: true, 
 						title: '确认', 
 						buttons: {
@@ -513,31 +513,31 @@
 					$('#obj-moves, #btl-report').empty();
 				});
 				$('#obj-miscbtn #item').off().on('click', function() {
-					$('#lyr-item').dialog({
+					$('#layer-item').dialog({
 						modal: true, 
 						title: '背包', 
 						resizable: false
 					});
 				});
 				$('#obj-miscbtn #pokemon').off().on('click', function() {
-					$('#lyr-pokemon').dialog({
+					$('#layer-pokemon').dialog({
 						modal: true, 
 						title: '更换精灵', 
 						resizable: false
 					});
 				});
-				$('#lyr-item li')
+				$('#layer-item li')
 					.off()
 					.on('click', function() {
-						$('#lyr-item').dialog('close');
+						$('#layer-item').dialog('close');
 						ajax('?index=battle&process=useitem&item_id=' + $(this).data('item_id'), function(i) {
 							if(i.battle) updatebattlefield(i.battle)
 						});
 					});
-				$('#lyr-pokemon li')
+				$('#layer-pokemon li')
 					.off()
 					.on('click', function() {
-						$('#lyr-pokemon').dialog('close');
+						$('#layer-pokemon').dialog('close');
 						ajax('?index=battle&process=swappm&pkm_id=' + $(this).data('pkm_id'), function(i) {
 							updatebattlefield(i.battle)
 						});
@@ -549,7 +549,7 @@
 				.unselectable()
 				.find('img').click(function() {
 					var tmp = $(this);
-					$('#lyr-claim').dialog({
+					$('#layer-claim').dialog({
 						modal: true, 
 						title: '领养' + ['精灵蛋', '精灵'][$(this).parent().hasClass('egg') ? 0 : 1], 
 						buttons: {

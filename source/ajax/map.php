@@ -194,7 +194,7 @@ switch($_GET['process']) {
 
             }
 
-            $return['js'] .= '$(\'#lyr-item\').html(\'' . (!empty($tmp) ? $tmp : '你的背包空空如也！') . '\');';
+            $return['js'] .= '$(\'#layer-item\').html(\'' . (!empty($tmp) ? $tmp : '你的背包空空如也！') . '\');';
 
             /*
                 Generate pokemon info
@@ -210,7 +210,7 @@ switch($_GET['process']) {
 
             }
 
-            $return['js'] .= '$(\'#lyr-pokemon\').html(\'' . (!empty($tmp) ? '<ul>' . $tmp . '</ul>' : '没有可战斗的精灵。') . '\');';
+            $return['js'] .= '$(\'#layer-pokemon\').html(\'' . (!empty($tmp) ? '<ul>' . $tmp . '</ul>' : '没有可战斗的精灵。') . '\');';
 
 
             define('MODE', FALSE);

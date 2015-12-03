@@ -255,7 +255,7 @@ class Pokemon {
             if(!empty($id)) self::Register($id, !0);
 
             DB::query('INSERT INTO pkm_mypkm (id, nickname, gender, psn_value, ind_value, eft_value, is_shiny, uid_initial, time_daycare_sent, time_hatched, time_hatched, nature, level, exp, item_carrying,
-                    hltime, happiness, beauty, moves, met_level, met_time, met_location, ability, uid, item_captured, hp, form, location, status, moves_new, sprite_name)
+                    time_pc_sent, happiness, beauty, moves, met_level, met_time, met_location, ability, uid, item_captured, hp, form, location, status, moves_new, sprite_name)
                 VALUES (' . $id . ', \'' . (!empty($eggset['name']) ? $eggset['name'] : $pokemon['name'] . (!empty($egg) ? '的蛋' : '')) . '\', ' . $gender . ', \'' . $pv . '\', \'' . $iv . '\', \'0,0,0,0,0,0\', ' . $shiny . ', ' . $uid . ', 0, ' . $egghatch . ', ' . $egg . ', ' . $nature . ', ' . $param['met_level'] . ', ' . $exp . ', ' . $crritem . ', 0, ' . $pokemon['stthpns'] . ', 0, \'' . $move . '\', ' . $param['met_level'] . ', ' . $_SERVER['REQUEST_TIME'] . ', ' . $param['met_location'] . ', ' . $abi . ', ' . $uid . ', 1, ' . $hp . ', 0, ' . $place . ', 0, \'\', \'' . $spriteName . '\')');
 
         }
@@ -626,9 +626,9 @@ class Pokemon {
 
                             DB::query('INSERT INTO pkm_mypkm
                                 (id, nickname, gender, psn_value, ind_value, eft_value, is_shiny, uid_initial, time_daycare_sent, time_hatched, time_hatched, nature, level, exp,
-                                    hltime, happiness, beauty, moves, met_level, met_time, met_location, ability, uid, item_captured, hp, form, location, status, moves_new, sprite_name)
+                                    time_pc_sent, happiness, beauty, moves, met_level, met_time, met_location, ability, uid, item_captured, hp, form, location, status, moves_new, sprite_name)
                                 SELECT 292, \'脱壳忍者\', 0, psn_value, ind_value, eft_value, is_shiny, uid_initial, time_daycare_sent, time_hatched, time_hatched, nature, level, exp,
-                                    hltime, happiness, beauty, moves, met_level, met_time, met_location, (SELECT ability FROM pkm_pkmdata WHERE id = 292), uid, item_captured, hp, form, ' . Obtain::DepositBox($param['uid']) . ', status, moves_new, \'' . str_replace('291', '292', $spriteName) . '\'
+                                    time_pc_sent, happiness, beauty, moves, met_level, met_time, met_location, (SELECT ability FROM pkm_pkmdata WHERE id = 292), uid, item_captured, hp, form, ' . Obtain::DepositBox($param['uid']) . ', status, moves_new, \'' . str_replace('291', '292', $spriteName) . '\'
                                 FROM pkm_mypkm WHERE pkm_id = ' . $info['pkm_id']);
 
                             self::Register(292, !0, $param['uid']);

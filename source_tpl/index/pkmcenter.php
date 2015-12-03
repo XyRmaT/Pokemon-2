@@ -105,27 +105,28 @@
 			<ul class="pc-info">
 
 				<!--{loop $pokemon $key $val}-->
-					<li class="heal{if $key === 0} lmg-clr{/if}"{if empty($val['pkm_id'])} style="visibility: hidden;"{/if}>
-					
-						<img src="$val[pkmimgpath]"><br>
-						$val[nickname]{$val[gender]} Lv.$val[level]<br>
-						<div class="bar"><div class="hp" style="width:$val[hpper]%"></div><div class="value">$val[hp]/$val[maxhp]</div></div>
-						<div class="bar"><div class="exp" style="width:$val[expper]%"></div><div class="value">$val[exp]/$val[maxexp]</div></div>
-						<input type="checkbox" name="heal[]" value="$val[pkm_id]">
-
-					</li>
+                    <!--{if !empty($val['pkm_id'])}-->
+                        <li class="heal{if $key === 0} lmg-clr{/if}">
+                            <div class="txt-c">
+                                <img src="$val[pkmimgpath]"><br>
+                                $val[nickname]{$val[gender]} Lv.$val[level]<br>
+                            </div>
+                            <div class="bar" title="$val[hp]/$val[maxhp]">HP<div class="ctn"><div class="hp" style="width:$val[hpper]%"></div></div></div>
+                            <div class="bar" title="$val[exp]/$val[maxexp]">EXP<div class="ctn"><div class="exp" style="width:$val[expper]%"></div></div></div>
+                            <input type="checkbox" name="heal[]" value="$val[pkm_id]">
+                        </li>
+                    <!--{/if}-->
 				<!--{/loop}-->
-				
+				<br clear="both">
 				<!--{loop $heal $key $val}-->
-					<li class="take{if $key === 0} lmg-clr{/if}"{if empty($val['pkm_id'])} style="visibility: hidden;"{/if}>
-					
-						<img src="$val[pkmimgpath]"><br>
-						$val[nickname]{$val[gender]} Lv.$val[level]<br>
-						<!--{if $val['fullheal'] === TRUE}-->已恢复<!--{else}-->恢复需要{$val[hltime][0]}时{$val[hltime][1]}分<!--{/if}-->
-						
-						<input type="checkbox" name="take[]" value="$val[pkm_id]">
-
-					</li>
+                    <!--{if !empty($val['pkm_id'])}-->
+                        <li class="txt-c take{if $key === 0} lmg-clr{/if}">
+                            <img src="$val[pkmimgpath]"><br>
+                            $val[nickname]{$val[gender]} Lv.$val[level]<br>
+                            <!--{if $val['fullheal'] === TRUE}-->已恢复<!--{else}-->恢复需要{$val[hltime][0]}时{$val[hltime][1]}分<!--{/if}-->
+                            <input type="checkbox" name="take[]" value="$val[pkm_id]">
+                        </li>
+                    <!--{/if}-->
 				<!--{/loop}-->
 				
 			</ul>
@@ -137,7 +138,7 @@
 	
 <!--{else}-->
 	<!--{if $_GET['section'] === 'trade' && $_GET['part'] === 'search'}-->
-		<em class="flt-l">目标共有<span class="hl">{$count}</span>只精灵</em> $multi[display]
+		<em class="float-left">目标共有<span class="hl">{$count}</span>只精灵</em> $multi[display]
 		<br clear="both">
 		<!--{if !empty($pokemon)}-->
 			<ul class="pmlist">
@@ -149,7 +150,7 @@
 				<!--{/loop}-->
 			</ul>
 			<!--{if !empty($party)}-->
-				<div id="lyr-traderequest" class="h">
+				<div id="layer-traderequest" class="h">
 					与你身上的哪一只交换？<br>
 					<table class="pmchoose">
 						<tr>

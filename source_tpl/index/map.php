@@ -23,9 +23,9 @@
 			<button id="run">逃跑</button>
 		</div>
 	</div>
-	<div id="lyr-await"></div>
-	<div id="lyr-item"></div>
-	<div id="lyr-pokemon"></div>
+	<div id="layer-await"></div>
+	<div id="layer-item"></div>
+	<div id="layer-pokemon"></div>
 </div>
 
 <script>
@@ -153,9 +153,9 @@
 				reacttime = (new Date()).getTime();
 				if(stepcount >= 10) {
 					DISABLE.AJAXLOAD = true;
-					$('#lyr-await').queue(function() {
+					$('#layer-await').queue(function() {
 						ajax('?index=map&process=walk&x=' + Math.floor(parseInt(me.css('left')) / 16) + '&y=' + Math.floor(parseInt(me.css('top')) / 16), function() {
-							$('#lyr-await').clearQueue();
+							$('#layer-await').clearQueue();
 							stepcount = 0;
 							DISABLE.AJAXLOAD = false;
 						});
@@ -204,18 +204,6 @@
 		$.hotkey('right', function() { $('#me').moves('right'); });
 		
 		
-		/*store = {};
-		
-		$('.map-tile').click(function(e) {
-			var offset = $(this).offset(), 
-				coord = Map.coord(e.pageX, e.pageY);
-			if(typeof store[coord.x] === 'undefined')
-				store[coord.x] = [];
-			store[coord.x].push(coord.y);
-			$('.map-tile').append('<div class="box" style="left:' + (coord.x * 16) + 'px;bottom:' + (coord.y * 16 + 16) + 'px"></div>');
-		});*/
-		
-		
 		setInterval(function() {
 			if(processing === true || (new Date()).getTime() - reacttime >= 60000 || DISABLE.MAPMOVE === true) return;
 			processing = true;
@@ -225,13 +213,13 @@
 		}, interval);
 		
 		/*var txt = '';
-		for(i in store) {
+		for(i in stock) {
 			txt += i + ': [';
-			store[i] = store[i].sort(function(a, b){
+			stock[i] = stock[i].sort(function(a, b){
 				return a - b;
 			});
-			for(j in store[i]) {
-				txt += store[i][j] + ', ';
+			for(j in stock[i]) {
+				txt += stock[i][j] + ', ';
 			}
 			txt += '], \n';
 		}

@@ -1,11 +1,11 @@
 {template index/header}
 
-<div class="idx-l flt-l">
+<div class="idx-l float-left">
 	<div class="idx-login cl">
 		<span>LOGIN</span>
 		<input>
 		<input style="margin-bottom: 20px; ">
-		<button class="idx-btn login flt-l">登入</button>
+		<button class="idx-btn login float-left">登入</button>
 		<button class="idx-btn signup flt-r">注册</button>
 		<br clear="all">
 	</div>
@@ -15,10 +15,10 @@
 	<img class="index-banner t1" src="{ROOT_IMAGE}/other/new/bnr-idx-4.jpg">
 </div>
 
-<div class="index-right flt-l">
+<div class="index-right float-left">
 	<img class="index-banner t0" src="{ROOT_IMAGE}/other/new/bnr-idx-0.jpg">
 
-	<div class="index-inner-left flt-l">
+	<div class="index-inner-left float-left">
 		<div>
 			<div class="index-title">最新动态<a href="#" target="_blank">社区讨论</a></div>
 			<ul class="idx-thread">

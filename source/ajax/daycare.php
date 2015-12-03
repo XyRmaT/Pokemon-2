@@ -3,33 +3,24 @@
 switch($_GET['process']) {
 	case 'pmsave':
 
-		$dccount = DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE uid = ' . $trainer['uid'] . ' AND location = 7');
+		$daycareCount = DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE uid = ' . $trainer['uid'] . ' AND location = 7');
 
-		if($dccount >= 2) {
-
+		if($daycareCount >= 2) {
 			$return['msg'] = '不行哟，我们只能帮你照看最多两只精灵哟~';
-
 			break;
-
 		}
 
 		$pokemon = DB::fetch_first('SELECT id, pkm_id, nickname, location FROM pkm_mypkm WHERE pkm_id = ' . intval($_GET['pkm_id']));
 
 		if(empty($pokemon))
-
 			$return['msg'] = '……';
-
 		elseif(empty($pokemon['nat_id']))
-
 			$return['msg'] = '我们不负责孵化鸡蛋！';
-
 		elseif($pokemon['location'] > 6)
-
 			$return['msg'] = '咦？' . $pokemon['nickname'] . '不在身上！';
-
 		else {
 
-			DB::query('UPDATE pkm_mypkm SET location = 7, time_daycare_sent = ' . $_SERVER['REQUEST_TIME'] . ', eggcheck = ' . $_SERVER['REQUEST_TIME'] . ' WHERE pkm_id = ' . $pokemon['pkm_id']);
+			DB::query('UPDATE pkm_mypkm SET location = 7, time_daycare_sent = ' . $_SERVER['REQUEST_TIME'] . ', time_egg_checked = ' . $_SERVER['REQUEST_TIME'] . ' WHERE pkm_id = ' . $pokemon['pkm_id']);
 			DB::query('UPDATE pkm_mypkm SET time_hatched = 0 WHERE uid = ' . $trainer['uid'] . ' AND location = 7');
 
 			ob_start();

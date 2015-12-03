@@ -8,7 +8,7 @@
             <table>
                 <tr>
                     <td class="userinfo">
-                        <img class="flt-l avatar" src="$trainer[avatar]"></div>
+                        <img class="float-left avatar" src="$trainer[avatar]"></div>
                         <strong>$trainer[username]</strong><br>
                         成就：0<br>
                         排名：#$rank
@@ -44,7 +44,7 @@
         <!--{loop $pokemon $val}-->
             <li data-pkm_id="$val[pkm_id]" data-nickname="$val[nickname]">
                 <input type="hidden" name="order[]" value="$val[pkm_id]">
-                <span class="flt-l">
+                <span class="float-left">
                     $val[nickname]{$val[gender]}
                     <a href="javascript:void(0);" class="pmabandon">[丢]</a>
                     <a href="javascript:void(0);" class="pmnickname">[改]</a>
@@ -89,7 +89,7 @@
                                 获得时间：$val[met_time]<br>
                                 亲密状态：$val[hpnsstatus]<br>
                                 <!--{loop $val['moves'] $valb}-->
-                                    <div class="move t{$move[$valb[0]][0]}" title="{if $move[$valb[0]][1]}威力：{if $move[$valb[0]][1] == 1}不定{else}$move[$valb[0]][1]{/if}<br>{/if}属性：$move[$valb[0]][3]<br>类型：$move[$valb[0]][2]">$valb[2]<br>PP $valb[1]/$valb[3]</div>
+                                    <div class="move t{$moves[$valb['move_id']]['type']}" title="{if $moves[$valb['move_id']]['power']}威力：{if $moves[$valb['move_id']]['power'] == 1}不定{else}$moves[$valb['move_id']]['power']{/if}<br>{/if}属性：$moves[$valb['move_id']]['type_name']<br>类型：$moves[$valb['move_id']]['class_name']">$moves[$valb['move_id']]['name']<br>PP $valb['pp']/$valb['pp_total']</div>
                                 <!--{/loop}--><br>
                             </td>
                         </tr>
@@ -123,7 +123,7 @@
                         </li>
                     <!--{else}-->
                         <li data-pkm_id="$val[pkm_id]" data-nickname="$val[nickname]" class="egg">
-                            <span class="flt-l">$val[nickname] <a href="javascript:void(0);" class="pmabandon">[丢]</a> <a href="javascript:void(0);" class="pmnickname">[改]</a></span>
+                            <span class="float-left">$val[nickname] <a href="javascript:void(0);" class="pmabandon">[丢]</a> <a href="javascript:void(0);" class="pmnickname">[改]</a></span>
                             <span class="flt-r"><img src="$val[item_captured]"></span><br class="cl">
                             <div class="move_id"><img src="$val[pkmimgpath]" class="egg" alt="点我查看数据"><br>$val[eggstatus]<!--{if $trainer['gm']}--><br>$val[maturity]<!--{/if}--></div>
                             <div id="info-$val[pkm_id]" class="h txt-c">
@@ -141,12 +141,12 @@
     </form>
 
 
-    <div id="lyr-abandon" class="h">确定要狠下心抛弃它么……？</div>
-    <div id="lyr-nickname" class="h">
+    <div id="layer-abandon" class="h">确定要狠下心抛弃它么……？</div>
+    <div id="layer-nickname" class="h">
         叫它什么好呢？（最多6个字）<br>
         <input name="nickname" class="text ui-widget-content ui-corner-all">
     </div>
-    <div id="lyr-move" class="h"><form id="learnmove" onsubmit="return false;"></form></div>
+    <div id="layer-move" class="h"><form id="learnmove" onsubmit="return false;"></form></div>
 <!--{elseif $_GET['section'] === 'pokedex'}-->
     <div class="title">图鉴</div>
     <div class="infobar">
@@ -220,7 +220,7 @@
         </ul>
     </div>
     <!--Put here for ajax operation return data replacement-->
-    <div id="lyr-useitem" class="h">
+    <div id="layer-useitem" class="h">
         对谁使用<span class="name"></span>呢？<br>
         <table class="pmchoose">
             <tr>

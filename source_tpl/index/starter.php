@@ -10,7 +10,7 @@
 	<!--{/loop}-->
 </ul>
 
-<div id="lyr-confirm" class="h">
+<div id="layer-confirm" class="h">
 	确定带走<span class="name"></span>么？
 </div>
 

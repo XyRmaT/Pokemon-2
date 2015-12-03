@@ -62,7 +62,7 @@ td { vertical-align: top; }
 .border-top-none { border-top: 0 !important; }
 .margin-left-none { margin-left: 0 !important; }
 .margin-top-none { margin-top: 0 !important; }
-.flt-l { float: left; }
+.float-left { float : left; }
 .flt-r { float: right; }
 .cl { clear: both; }
 .gd-m { color: #6597cc; }
@@ -154,11 +154,11 @@ td { vertical-align: top; }
 .pc-nav .ico { background-image: url(%%root-image%%/other/icon-pc.png); width: 43px; height: 43px; float: left; margin: 10px 20px 10px 10px; }
 #pc-heal, .pc-info { float: right; width: 780px; }
 .pc-info input { display: none; }
-.pc-info li { margin: 0 0 15px 15px; float: left; text-align: center; width: 223px; border-radius: 5px; cursor: pointer; }
+.pc-info li, .pc-nav td { border: 1px solid %%border-color%%; padding: 10px; }
+.pc-info li { margin: 0 0 15px 15px; float: left; width: 183px; border-radius: 5px; cursor: pointer; padding: 20px 30px 20px 30px; }
 .pc-info li.heal { background: %%bg-color-dark%%; }
 .pc-info li.take { background: #e3e3ef; }
 .pc-info li:hover, .pc-info li.cur { background: #fff; }
-.pc-info li, .pc-nav td { border: 1px solid %%border-color%%; padding: 10px; }
 .pc-sec { line-height: 45px; margin-bottom: 15px; }
 .pc-sec button { padding: 10px 52px 10px 52px; }
 #pc-boxctnr { float: right; width: 770px; }
@@ -208,7 +208,7 @@ td { vertical-align: top; }
 /* Member Control Panel > Party */
 #pm-grid { margin-left: 20px; }
 	#pm-grid li { border: 1px solid %%border-color%%; border-radius: 5px; padding: 10px 15px 10px 15px; width: 185px; height: 180px; margin: 0 20px 20px 0; float: left; background: #fff; position: relative; }
-		#pm-grid  li > .flt-l { line-height: 24px; }
+		#pm-grid  li > .float-left { line-height : 24px; }
 		#pm-grid  li > .flt-r { right: 5px; position: absolute }
 	#pm-grid  > .txt-c { height: 120px; }
 		#pm-grid  .txt-c img { cursor: pointer; }
@@ -291,7 +291,7 @@ td { vertical-align: top; }
 .m-20 { color: #eb5f5f; }
 .m-50 { color: #e68e30; }
 .m-70 { color: #cca94a; }
-.dc-info .flt-l { line-height: 24px; }
+.dc-info .float-left { line-height : 24px; }
 .dc-info .move_id { text-align: center; width: 100%; }
 .dc-info .move_id img { cursor: pointer; height: 96px; width: 96px; }
 .dc-info .flt-r { width: 24px; right: 10px; top: 10px; position: absolute; }
@@ -320,12 +320,12 @@ td { vertical-align: top; }
 #obj-miscbtn { position: absolute; bottom: 45px; right: 45px; }
 #obj-miscbtn :disabled { color: %%text-color-light%%; }
 #obj-miscbtn :disabled:hover { background: %%button-bg-color-normal%%; }
-#lyr-item strong { line-height: 25px; }
-#lyr-item ul { margin-bottom: 10px; }
-#lyr-item li { cursor: pointer; float: left; display: inline; padding: 5px; height: 24px; width: 24px; border-radius: 50px; background: %%bg-color-light%%; border: 1px solid %%border-color%%; margin: 0 0 5px 8px; }
-#lyr-item li:hover { background: %%bg-color-dark%%; }
-#lyr-pokemon li { line-height: 32px; }
-#lyr-pokemon img { cursor: pointer; height: 32px; width: 32px; }
+#layer-item strong { line-height: 25px; }
+#layer-item ul { margin-bottom: 10px; }
+#layer-item li { cursor: pointer; float: left; display: inline; padding: 5px; height: 24px; width: 24px; border-radius: 50px; background: %%bg-color-light%%; border: 1px solid %%border-color%%; margin: 0 0 5px 8px; }
+#layer-item li:hover { background: %%bg-color-dark%%; }
+#layer-pokemon li { line-height: 32px; }
+#layer-pokemon img { cursor: pointer; height: 32px; width: 32px; }
 
 .rank-list { display: inline; float: left; margin-left: 12px; width: 236px; height: auto; }
 .rank-list h4 { font-size: 18px; margin: 0 0 15px 0; font-family: Microsoft Yahei; }

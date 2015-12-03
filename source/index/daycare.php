@@ -24,10 +24,10 @@ Kit::Library('class', ['obtain']);
 
 /*
 	First extract data from the database, time_daycare_sent which records the time the pokemon had sent into daycare, modifies when take the pokemon out
-	eggcheck records the timestamp of last time being checked if there is an time_hatched or not, only modify when starts to check is it any eggs produced
+	time_egg_checked records the timestamp of last time being checked if there is an time_hatched or not, only modify when starts to check is it any eggs produced
 */
 
-$query   = DB::query('SELECT m.pkm_id, m.level, m.nickname, m.nat_id, m.time_daycare_sent, m.eggcheck, m.time_hatched, m.gender, m.uid_initial, m.sprite_name, m.item_carrying, m.item_captured, p.egggrp, p.egggrpb, p.name FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE location = 7 AND uid = ' . $trainer['uid'] . ' LIMIT 2');
+$query   = DB::query('SELECT m.pkm_id, m.level, m.nickname, m.nat_id, m.time_daycare_sent, m.time_egg_checked, m.time_hatched, m.gender, m.uid_initial, m.sprite_name, m.item_carrying, m.item_captured, p.egggrp, p.egggrpb, p.name FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE location = 7 AND uid = ' . $trainer['uid'] . ' LIMIT 2');
 $pokemon = [];
 
 while($info = DB::fetch($query)) {
@@ -124,7 +124,7 @@ if($pmcount === 2) {
 
 			/*
 				If two pokemon haven't got an time_hatched, add a record for the time_hatched which is produced
-				It is enough of using one of theirs eggcheck and time_daycare_sent
+				It is enough of using one of theirs time_egg_checked and time_daycare_sent
 				$chktime is a variable which define as the loop times for using $randmax to check if any time_hatched is coming
 				$chktimen is the leftover time for time used in loops, then subtracted with the timestamp for next time checking
 				$hour is how many hours do a check
@@ -138,13 +138,13 @@ if($pmcount === 2) {
 
 				$hour    = 2;                // two hours
 				$stamp   = $hour * 60 * 60;    // change hours into seconds
-				$chktime = !empty($pokemon[0]['eggcheck']) ? floor(($_SERVER['REQUEST_TIME'] - $pokemon[0]['eggcheck']) / $stamp) : floor(($_SERVER['REQUEST_TIME'] - $pokemon[0]['time_daycare_sent']) / $stamp); //每两小时加一次循环，计算循环次数，一次性计算是否生出了蛋，计算完毕后马上更新检查时间
+				$chktime = !empty($pokemon[0]['time_egg_checked']) ? floor(($_SERVER['REQUEST_TIME'] - $pokemon[0]['time_egg_checked']) / $stamp) : floor(($_SERVER['REQUEST_TIME'] - $pokemon[0]['time_daycare_sent']) / $stamp); //每两小时加一次循环，计算循环次数，一次性计算是否生出了蛋，计算完毕后马上更新检查时间
 
 				if($chktime > 0) {
 
-					$chktimen = $_SERVER['REQUEST_TIME']; // Wait for further consideration. $chktimen = $_SERVER['REQUEST_TIME'] - fmod(($_SERVER['REQUEST_TIME'] - $pokemon[0]['eggcheck']), $stamp);
+					$chktimen = $_SERVER['REQUEST_TIME']; // Wait for further consideration. $chktimen = $_SERVER['REQUEST_TIME'] - fmod(($_SERVER['REQUEST_TIME'] - $pokemon[0]['time_egg_checked']), $stamp);
 
-					DB::query('UPDATE pkm_mypkm SET eggcheck = ' . $chktimen . ' WHERE pkm_id IN (' . $pokemon[0]['pkm_id'] . ', ' . $pokemon[1]['pkm_id'] . ')');
+					DB::query('UPDATE pkm_mypkm SET time_egg_checked = ' . $chktimen . ' WHERE pkm_id IN (' . $pokemon[0]['pkm_id'] . ', ' . $pokemon[1]['pkm_id'] . ')');
 
 				}
 

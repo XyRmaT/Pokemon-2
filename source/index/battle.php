@@ -11,7 +11,7 @@ $mapid = isset($_GET['map_id']) ? intval($_GET['map_id']) : 1;
  */
 
 $map = DB::fetch_first('SELECT map_id FROM pkm_mapdata
-                        WHERE map_id = ' . $mapid . ' AND (timestt < ' . $_SERVER['REQUEST_TIME'] . ' AND timefns > ' . $_SERVER['REQUEST_TIME'] . ' OR timefns = 0 AND timestt < ' . $_SERVER['REQUEST_TIME'] . ')');
+                        WHERE map_id = ' . $mapid . ' AND (time_start < ' . $_SERVER['REQUEST_TIME'] . ' AND time_end > ' . $_SERVER['REQUEST_TIME'] . ' OR time_end = 0 AND time_start < ' . $_SERVER['REQUEST_TIME'] . ')');
 
 
 if(!$map) {

@@ -9,7 +9,7 @@ switch($_GET['section']) {
 			Fetch pokemon data where in healing mode
 		*/
 
-		$query = DB::query('SELECT m.pkm_id, m.nickname, m.gender, m.eft_value, m.level, m.nature, m.ind_value, m.hp, m.nat_id, m.hltime, m.sprite_name, p.base_stat FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE m.location = 8 AND m.uid = ' . $trainer['uid'] . ' ORDER BY m.hltime DESC');
+		$query = DB::query('SELECT m.pkm_id, m.nickname, m.gender, m.eft_value, m.level, m.nature, m.ind_value, m.hp, m.nat_id, m.time_pc_sent, m.sprite_name, p.base_stat FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE m.location = 8 AND m.uid = ' . $trainer['uid'] . ' ORDER BY m.time_pc_sent DESC');
 		$heal  = [];
 
 		while($info = DB::fetch($query)) {
@@ -17,7 +17,7 @@ switch($_GET['section']) {
 			$info               = array_merge($info, Obtain::Stat($info['level'], $info['base_stat'], $info['ind_value'], $info['eft_value'], $info['nature']));
 			$info['pkmimgpath'] = Obtain::Sprite('pokemon', 'png', $info['sprite_name']);
 			$info['needtime']   = ceil(($info['maxhp'] - $info['hp']) * 6.6);
-			$info['rmtime']     = max(0, $info['hltime'] + $info['needtime'] - $_SERVER['REQUEST_TIME']);
+			$info['rmtime']     = max(0, $info['time_pc_sent'] + $info['needtime'] - $_SERVER['REQUEST_TIME']);
 			$info['hltime']     = [floor($info['rmtime'] / 60 / 24), round($info['rmtime'] / 60)];
 			$info['gender']     = Obtain::GenderSign($info['gender']);
 
@@ -49,7 +49,7 @@ switch($_GET['section']) {
 			$info['minexp']     = Obtain::Exp($info['exp_type'], $info['level']);
 			$info['maxexp']     = Obtain::Exp($info['exp_type'], $info['level'] + 1) - $info['minexp'];
 			$info['exp']        = $info['exp'] - $info['minexp'];
-			$info['expper']     = round($info['exp'] / $info['maxexp'] * 100);
+			$info['expper']     = min(round($info['exp'] / $info['maxexp'] * 100), 100);
 			$info['pkmimgpath'] = Obtain::Sprite('pokemon', 'png', $info['sprite_name']);
 			$pokemon[]          = $info;
 

@@ -159,7 +159,7 @@ if($_GET['process'] === 'useitem' && !empty($_GET['item_id'])) {
 
 	}
 
-	$return['js'] .= '$(\'#lyr-item\').html(\'' . (!empty($tmp) ? $tmp : '你的背包空空如也！') . '\');';
+	$return['js'] .= '$(\'#layer-item\').html(\'' . (!empty($tmp) ? $tmp : '你的背包空空如也！') . '\');';
 
 } elseif($_GET['process'] === 'swappm' && Battle::$swapped) {
 
@@ -179,11 +179,11 @@ if($_GET['process'] === 'useitem' && !empty($_GET['item_id'])) {
 
 	}
 
-	$return['js'] .= '$(\'#lyr-pokemon\').html(\'' . (!empty($tmp) ? '<ul>' . $tmp . '</ul>' : '没有可战斗的精灵。') . '\');';
+	$return['js'] .= '$(\'#layer-pokemon\').html(\'' . (!empty($tmp) ? '<ul>' . $tmp . '</ul>' : '没有可战斗的精灵。') . '\');';
 
 } else {
 
-	$return['js'] .= '$(\'#lyr-item\').html($(\'#lyr-item\').html());';
+	$return['js'] .= '$(\'#layer-item\').html($(\'#layer-item\').html());';
 
 }
 

@@ -22,7 +22,7 @@
 					</div>
 					<button>寄放</button>
 				<!--{else}-->
-					<span class="flt-l">$val[nickname]{$val[gendersign]} Lv.$val[level]</span>
+					<span class="float-left">$val[nickname]{$val[gendersign]} Lv.$val[level]</span>
 					<span class="flt-r"><img src="$val[item_captured]"><!--{if !empty($val['itemimgpath'])}--><img src="$val[itemimgpath]"><!--{/if}--></span><br class="cl">
 					<div class="move_id"><img src="$val[pkmimgpath]" data-pkm_id="$val[pkm_id]"><br>已获得 $val[incexp] Exp.<br>取出需花费 $val[cost] $system[currency_name]</div>
 				<!--{/if}-->
@@ -30,14 +30,14 @@
 		<!--{/loop}-->
 		<!--{if $egg === 1}-->
 			<li>
-				<span class="flt-l">蛋</span><br class="cl">
+				<span class="float-left">蛋</span><br class="cl">
 				<div class="move_id"><img src="$eggsprite" class="egg"><br>{$pokemon[0][nickname]}{$pokemon[0][gendersign]}与{$pokemon[1][nickname]}{$pokemon[1][gendersign]}幸福的结晶！</div>
 			</li>
 		<!--{/if}-->
 	</ul>
 	
 	<!--Put here for ajax operation return data replacement-->
-	<div id="lyr-savedaycare" class="h">
+	<div id="layer-savedaycare" class="h">
 		将谁放到饲育屋寄养呢？<br>
 		<table class="pmchoose">
 			<tr>
@@ -65,8 +65,8 @@
 <!--{if !INAJAX}-->
 </div>
 
-<div id="lyr-getback" class="h">你要带回他么？我们可是很舍不得的……</div>
-<div id="lyr-getegg" class="h">你要领走这个蛋么？</div>
+<div id="layer-getback" class="h">你要带回他么？我们可是很舍不得的……</div>
+<div id="layer-getegg" class="h">你要领走这个蛋么？</div>
 
 {template index/footer}
 <!--{/if}-->

@@ -56,9 +56,9 @@ switch($_GET['process']) {
 			foreach($_GET['take'] as $key => $val) {
 
 				$_GET['take'][$key] *= 1;
-				$pokemon = DB::fetch_first('SELECT m.nickname, m.hltime, m.level, m.hp, m.ind_value, m.eft_value, m.moves, p.base_stat FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE m.pkm_id = ' . $_GET['take'][$key] . ' AND m.location = 8');
+				$pokemon = DB::fetch_first('SELECT m.nickname, m.time_pc_sent, m.level, m.hp, m.ind_value, m.eft_value, m.moves, p.base_stat FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE m.pkm_id = ' . $_GET['take'][$key] . ' AND m.location = 8');
 
-				if($_GET['take'][$key] <= 0 || empty($pokemon) || empty($pokemon['hltime'])) {
+				if($_GET['take'][$key] <= 0 || empty($pokemon) || empty($pokemon['time_pc_sent'])) {
 
 					unset($_GET['take'][$key]);
 
@@ -68,7 +68,7 @@ switch($_GET['process']) {
 
 				$pokemon = array_merge($pokemon, Obtain::Stat($pokemon['level'], $pokemon['base_stat'], $pokemon['ind_value'], $pokemon['eft_value']));
 
-				if(max(0, $pokemon['hltime'] + ceil(($pokemon['maxhp'] - $pokemon['hp']) * 6.6) - $_SERVER['REQUEST_TIME']) / 60 > 0) {
+				if(max(0, $pokemon['time_pc_sent'] + ceil(($pokemon['maxhp'] - $pokemon['hp']) * 6.6) - $_SERVER['REQUEST_TIME']) / 60 > 0) {
 
 					$unhealed[] = $pokemon['nickname'];
 
@@ -136,7 +136,7 @@ switch($_GET['process']) {
 
 			}
 
-			DB::query('UPDATE pkm_mypkm SET hltime = ' . $_SERVER['REQUEST_TIME'] . ', location = 8 WHERE pkm_id IN (' . implode(',', $_GET['heal']) . ')');
+			DB::query('UPDATE pkm_mypkm SET time_pc_sent = ' . $_SERVER['REQUEST_TIME'] . ', location = 8 WHERE pkm_id IN (' . implode(',', $_GET['heal']) . ')');
 
 			$return['msg'] .= '您的精灵就寄放在中心了，我们会照看好您的精灵的！' . "\n";
 

@@ -27,7 +27,7 @@
 	<!--{/if}-->
 </div>
 
-<div id="lyr-claim" class="h">您确定要带走它么？</div>
+<div id="layer-claim" class="h">您确定要带走它么？</div>
 
 
 {template index/footer}

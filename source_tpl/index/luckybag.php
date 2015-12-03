@@ -87,7 +87,7 @@
 		</div>
 	</div>
 	
-	<div id="lyr-alert"></div>
+	<div id="layer-alert"></div>
 	
 </body>
 </html>

@@ -158,7 +158,7 @@ var ajax = $.noop,
 
 $(function() {
 	window.alert = function(msg) {
-		$('#lyr-alert')
+		$('#layer-alert')
 			.html(msg)
 			.dialog({
 				modal: true, 
