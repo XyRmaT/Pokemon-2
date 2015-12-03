@@ -4,17 +4,17 @@ if(!$trainer['gm']) exit;
 
 Kit::Library('class', ['obtain', 'pokemon']);
 
-$query   = DB::query('SELECT m.pid, m.id, m.iv, m.gender, m.nature, m.move, m.level, m.exp, m.place, m.uid, p.name, a.name abi, mb.username FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON p.id = m.id AND m.id != 0 LEFT JOIN pkm_abilitydata a ON a.aid = m.abi LEFT JOIN pre_common_member mb ON mb.uid = m.uid ORDER BY m.pid ASC');
+$query   = DB::query('SELECT m.pkm_id, m.nat_id, m.ind_value, m.gender, m.nature, m.moves, m.level, m.exp, m.location, m.uid, p.name, a.name ability, mb.username FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON p.nat_id = m.nat_id AND m.nat_id != 0 LEFT JOIN pkm_abilitydata a ON a.abi_id = m.ability LEFT JOIN pre_common_member mb ON mb.uid = m.uid ORDER BY m.pkm_id ASC');
 $pokemon = [];
 while($info = DB::fetch($query)) {
 	$info['gender'] = Obtain::GenderSign($info['gender']);
 	$info['nature'] = Obtain::NatureName($info['nature']);
-	$info['move']   = unserialize($info['move']);
-	foreach($info['move'] as $val) {
-		$info['move'][] = $val[2];
-		array_shift($info['move']);
+	$info['moves']   = unserialize($info['moves']);
+	foreach($info['moves'] as $val) {
+		$info['moves'][] = $val[2];
+		array_shift($info['moves']);
 	}
-	$info['move'] = implode(', ', $info['move']);
+	$info['moves'] = implode(', ', $info['moves']);
 	$pokemon[]    = $info;
 }
 $count = count($pokemon);

@@ -18,7 +18,8 @@ $system = [
     'currency_field'        => 'extcredits7',
     'c_1wk'                 => 0,
     'c_1mth'                => 0,
-    'happiness_check_cycle' => 1800,
+    'happiness_check_cycle' => 30 * 60,
+    'happiness_add'         => ['min' => 10, 'max' => 20],
     'exp_field'             => 'extcredits1'
 ];
 

@@ -10,15 +10,15 @@
 //pkmGenerate(rand(1,649), 8, 600, rand(1, 100), 0, 1);
 //$db->query("DELETE FROM pkm_mypkm");
 //pkmGenerate(rand(1,649), 8, 600);
-//$db->query("UPDATE pkm_mypkm set ev = '255,0,255,0,0,0'");
+//$db->query("UPDATE pkm_mypkm set eft_value = '255,0,255,0,0,0'");
 //$db->query("UPDATE pkm_trnrdata set hpnsChk=0");
 //$db->query("ALTER TABLE pkm_trnrdata ADD hpnsChk INT UNSIGNED NOT NULL DEFAULT 0");
 //$db->query('delete from pkm_ranking_pkmscore');
-//$db->query('UPDATE pkm_mypkm SET egg = 1 WHERE place = 7');
+//$db->query('UPDATE pkm_mypkm SET egg = 1 WHERE location = 7');
 
 function hatchEgg($pid) {
 	global $db;
-	$db->query('UPDATE pkm_mypkm SET id = egg, egghatch = 0 WHERE pid = ' . $pid);
+	$db->query('UPDATE pkm_mypkm SET nat_id = time_hatched, time_hatched = 0 WHERE pkm_id = ' . $pid);
 }
 
 

@@ -7,7 +7,7 @@ class Obtain {
 
     public static function MeetPlace($mtplace) {
 
-        $mapname = DB::result_first('SELECT name FROM pkm_mapdata WHERE map_id = ' . $mtplace);
+        $mapname = DB::result_first('SELECT name_zh name FROM pkm_mapdata WHERE map_id = ' . $mtplace);
 
         if(!empty($mapname)) {
 
@@ -25,7 +25,7 @@ class Obtain {
 
     /*
         ObtainDepositBox
-            Global variable: $SYS, $user
+            Global variable: $system, $user
             First get the maximum box possible by using the formula: 
                 user's boxes + initial boxes + 100
             Which get a number greater than or equal to 100
@@ -34,17 +34,17 @@ class Obtain {
 
     public static function DepositBox($uid) {
 
-        global $system, $user;
+        global $system, $trainer;
 
         $maxboxnum = $trainer['boxnum'] + $system['initial_box'] + 100;
 
         if(empty(self::$box)) {
 
-            $query = DB::query('SELECT place, COUNT(*) total FROM pkm_mypkm WHERE uid = ' . $uid . ' AND (place IN (1, 2, 3, 4, 5, 6) OR place > 100) GROUP BY place');
+            $query = DB::query('SELECT location, COUNT(*) total FROM pkm_mypkm WHERE uid = ' . $uid . ' AND (location IN (1, 2, 3, 4, 5, 6) OR location > 100) GROUP BY location');
 
             while($pokemon = DB::fetch($query)) {
 
-                self::$box[$pokemon['place']] = $pokemon['total'];
+                self::$box[$pokemon['location']] = $pokemon['total'];
 
             }
 
@@ -148,7 +148,7 @@ class Obtain {
     public static function Sprite($class, $type, $filename, $refresh = FALSE, $side = 0) {
 
         $filenameh = base_convert(hash('joaat', $filename . ($side === 1 ? '_b' : '')), 16, 32);
-        $path      = ROOTCACHE . '/image/' . $filenameh . '.' . $type;
+        $path      = ROOT_CACHE . '/image/' . $filenameh . '.' . $type;
 
         if(file_exists($path) && $refresh === FALSE) return $path;
 
@@ -164,7 +164,7 @@ class Obtain {
                      *  Shown as the Bug pokemon in games
                      */
 
-                    return ROOTCACHE . '/image/_unknownpokemon.png';
+                    return ROOT_CACHE . '/image/_unknownpokemon.png';
 
                 } elseif($data[1] == 327 && $side === 0) {
 
@@ -185,14 +185,14 @@ class Obtain {
                         [$pv[3] + 3, $pv[2] + 16],
                         [$pv[1] + 15, $pv[0] + 18]];
 
-                    $extrapath = ($data[4] == 1) ? 'shiny' : 'normal';
+                    $extrapath = ($data[4] == 1) ? 'is_shiny' : 'normal';
 
-                    $img  = imagecreatefrompng(ROOTIMG . '/pokemon/' . $extrapath . '/front/common/327.' . $type);
-                    $imgb = imagecreatefrompng(ROOTIMG . '/merge/spinda_' . $extrapath . '_spot_1.png');
-                    $imgc = imagecreatefrompng(ROOTIMG . '/merge/spinda_' . $extrapath . '_spot_2.png');
-                    $imgd = imagecreatefrompng(ROOTIMG . '/merge/spinda_' . $extrapath . '_spot_3.png');
-                    $imge = imagecreatefrompng(ROOTIMG . '/merge/spinda_' . $extrapath . '_spot_4.png');
-                    $imgf = imagecreatefromgif(ROOTIMG . '/merge/spinda_' . $extrapath . '_overlap.gif');
+                    $img  = imagecreatefrompng(ROOT_IMAGE . '/pokemon/' . $extrapath . '/front/common/327.' . $type);
+                    $imgb = imagecreatefrompng(ROOT_IMAGE . '/merge/spinda_' . $extrapath . '_spot_1.png');
+                    $imgc = imagecreatefrompng(ROOT_IMAGE . '/merge/spinda_' . $extrapath . '_spot_2.png');
+                    $imgd = imagecreatefrompng(ROOT_IMAGE . '/merge/spinda_' . $extrapath . '_spot_3.png');
+                    $imge = imagecreatefrompng(ROOT_IMAGE . '/merge/spinda_' . $extrapath . '_spot_4.png');
+                    $imgf = imagecreatefromgif(ROOT_IMAGE . '/merge/spinda_' . $extrapath . '_overlap.gif');
 
                     imagecopymerge($img, $imgb, $spot[0][0] + 23, $spot[0][1] + 15, 0, 0, 8, 8, 80);
                     imagecopymerge($img, $imgc, $spot[1][0] + 23, $spot[1][1] + 15, 0, 0, 8, 8, 80);
@@ -212,12 +212,12 @@ class Obtain {
 
                 } else {
 
-                    $extrapath  = (($data[4] == 1) ? '/shiny' : '/normal') .
+                    $extrapath  = (($data[4] == 1) ? '/is_shiny' : '/normal') .
                         (($side === 1) ? '/back' : '/front') .
                         (($data[2] == 1) ? '/female' : '/common') .
                         (($data[3] > 0) ? '/' . $data[1] . '_' . $data[3] : '/' . $data[1] . '.') .
                         (($type === 'jpeg') ? 'jpg' : $type);
-                    $img        = imagecreatefrompng(ROOTIMG . '/pokemon' . $extrapath);
+                    $img        = imagecreatefrompng(ROOT_IMAGE . '/pokemon' . $extrapath);
                     $translayer = imagecreate(96, 96);
                     $trans      = imagecolorallocate($translayer, 255, 255, 255);
 
@@ -242,18 +242,18 @@ class Obtain {
                 break;
             case 'item':
 
-                if(!file_exists(ROOTIMG . '/item/' . $data[1] . '.' . $type)) {
+                if(!file_exists(ROOT_IMAGE . '/item/' . $data[1] . '.' . $type)) {
 
                     /*
                         Same as pokemon above
                         If can't find item's sprite, locate it to the unknown item' sprite
                     */
 
-                    return ROOTCACHE . '/image/_unknownitem.png';
+                    return ROOT_CACHE . '/image/_unknownitem.png';
 
                 }
 
-                $img        = imagecreatefrompng(ROOTIMG . '/item/' . $data[1] . '.' . $type);
+                $img        = imagecreatefrompng(ROOT_IMAGE . '/item/' . $data[1] . '.' . $type);
                 $translayer = imagecreate(24, 24);
                 $trans      = imagecolorallocate($translayer, 255, 255, 255);
 
@@ -274,15 +274,15 @@ class Obtain {
 
                 if(in_array($data[0], ['hp', 'exp'])) {
 
-                    $img  = imagecreatefromgif(ROOTIMG . '/other/' . $data[0] . '_border.' . $type);
-                    $imgb = imagecreatefromgif(ROOTIMG . '/other/' . $data[0] . '_fill.' . $type);
+                    $img  = imagecreatefromgif(ROOT_IMAGE . '/other/' . $data[0] . '_border.' . $type);
+                    $imgb = imagecreatefromgif(ROOT_IMAGE . '/other/' . $data[0] . '_fill.' . $type);
 
                     imagecopy($img, $imgb, 1, 1, 0, 0, $data[2], 4);
 
                 } else {
 
                     $head = 'imagecreatefrom' . $type;
-                    $img  = $head(ROOTIMG . '/other/' . $data[0] . '.' . $type);
+                    $img  = $head(ROOT_IMAGE . '/other/' . $data[0] . '.' . $type);
 
                 }
 
@@ -294,12 +294,12 @@ class Obtain {
                     It may be more appearance in the future
                 */
 
-                $img = imagecreatefrompng(ROOTIMG . '/pokemon/0.' . $type);
+                $img = imagecreatefrompng(ROOT_IMAGE . '/pokemon/0.' . $type);
 
                 break;
             case 'pokemon-icon':
 
-                $img        = imagecreatefrompng(ROOTIMG . '/pokemon-icon/' . $data[1] . '.' . $type);
+                $img        = imagecreatefrompng(ROOT_IMAGE . '/pokemon-icon/' . $data[1] . '.' . $type);
                 $translayer = imagecreate(32, 32);
                 $trans      = imagecolorallocate($translayer, 255, 255, 255);
 
@@ -419,14 +419,14 @@ class Obtain {
 
     public static function BagItem($condition = '', $orderby = '', $mode = '') {
 
-        global $user;
+        global $trainer;
 
         $condition = ($condition !== '') ? ' AND ' . $condition : '';
         $orderby   = ($orderby !== '') ? ' ORDER BY ' . $orderby : '';
         $mode      = ($mode !== '') ? explode(':', $mode) : '';
-        $query     = DB::query('SELECT mi.iid, mi.num, i.name, i.dscptn, i.type
+        $query     = DB::query('SELECT mi.item_id, mi.quantity, i.name_zh name, i.description, i.type
                                  FROM pkm_myitem mi
-                                 LEFT JOIN pkm_itemdata i ON i.iid = mi.iid
+                                 LEFT JOIN pkm_itemdata i ON i.item_id = mi.item_id
                                  WHERE mi.uid = ' . $trainer['uid'] . $condition . $orderby);
         $item      = [];
 
@@ -450,12 +450,12 @@ class Obtain {
     public static function TrainerAvatar($uid, $size = 'middle') {
 
         $uid  = sprintf("%09d", abs(intval($uid)));
-        $path = 'uc_server/data/avatar/' . substr($uid, 0, 3) . '/' .
+        $path = '../bbs/uc_server/data/avatar/' . substr($uid, 0, 3) . '/' .
             substr($uid, 3, 2) . '/' .
             substr($uid, 5, 2) . '/' .
             substr($uid, -2) . '_avatar_' . (in_array($size, ['big', 'middle', 'small']) ? $size : 'middle') . '.jpg';
 
-        return (file_exists($path) ? $path : 'uc_server/images/noavatar_' . $size . '.gif');
+        return (file_exists($path) ? $path : '../bbs/uc_server/images/noavatar_' . $size . '.gif');
 
     }
 
@@ -463,17 +463,17 @@ class Obtain {
 
 
         $filenameh = base_convert(hash('joaat', $uid), 16, 32);
-        $path      = ROOTCACHE . '/avatar/' . $filenameh . '.png';
+        $path      = ROOT_CACHE . '/avatar/' . $filenameh . '.png';
 
         if(file_exists($path) && $refresh === FALSE) return $path;
 
-        $file  = glob(ROOTIMG . '/avatar-part/skin*');
-        $fileb = glob(ROOTIMG . '/avatar-part/eye*');
-        $filec = glob(ROOTIMG . '/avatar-part/cos*');
-        $filed = glob(ROOTIMG . '/avatar-part/hair*');
-        $filee = glob(ROOTIMG . '/avatar-part/bangs*');
-        $filef = glob(ROOTIMG . '/avatar-part/hat*');
-        $fileg = glob(ROOTIMG . '/avatar-part/dec*');
+        $file  = glob(ROOT_IMAGE . '/avatar-part/skin*');
+        $fileb = glob(ROOT_IMAGE . '/avatar-part/eye*');
+        $filec = glob(ROOT_IMAGE . '/avatar-part/cos*');
+        $filed = glob(ROOT_IMAGE . '/avatar-part/hair*');
+        $filee = glob(ROOT_IMAGE . '/avatar-part/bangs*');
+        $filef = glob(ROOT_IMAGE . '/avatar-part/hat*');
+        $fileg = glob(ROOT_IMAGE . '/avatar-part/dec*');
 
         $img  = imagecreatefrompng($file[array_rand($file)]);
         $imgb = imagecreatefrompng($fileb[array_rand($fileb)]);

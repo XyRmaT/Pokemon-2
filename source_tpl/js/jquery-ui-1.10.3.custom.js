@@ -2769,7 +2769,7 @@ $.ui.ddmanager = {
 })(jQuery);
 (function( $, undefined ) {
 
-function num(v) {
+function quantity(v) {
 	return parseInt(v, 10) || 0;
 }
 
@@ -3036,8 +3036,8 @@ $.widget("ui.resizable", $.ui.mouse, {
 
 		this._renderProxy();
 
-		curleft = num(this.helper.css("left"));
-		curtop = num(this.helper.css("top"));
+		curleft = quantity(this.helper.css("left"));
+		curtop = quantity(this.helper.css("top"));
 
 		if (o.containment) {
 			curleft += $(o.containment).scrollLeft() || 0;
@@ -3473,7 +3473,7 @@ $.ui.plugin.add("resizable", "containment", {
 		else {
 			element = $(ce);
 			p = [];
-			$([ "Top", "Right", "Left", "Bottom" ]).each(function(i, name) { p[i] = num(element.css("padding" + name)); });
+			$([ "Top", "Right", "Left", "Bottom" ]).each(function(i, name) { p[i] = quantity(element.css("padding" + name)); });
 
 			that.containerOffset = element.offset();
 			that.containerPosition = element.position();
@@ -5531,7 +5531,7 @@ $.widget( "ui.dialog", {
 		}
 
 		next = originalPosition.parent.children().eq( originalPosition.index );
-		// Don't try to place the dialog next to itself (#8613)
+		// Don't try to location the dialog next to itself (#8613)
 		if ( next.length && next[0] !== this.element[0] ) {
 			next.before( this.element );
 		} else {

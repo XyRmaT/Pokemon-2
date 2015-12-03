@@ -2,10 +2,10 @@
 
 	{template index/header}
 
-	<div class="banner"><img src="{ROOTIMG}/other/banner-pc.png"></div>
+	<div class="banner"><img src="{ROOT_IMAGE}/other/banner-pc.png"></div>
 
 	<div class="pc-nav">
-		<div class="sec tbd-cl"><div class="ico"></div><a href="?index=pc">精灵治疗</a></div>
+		<div class="sec border-top-none"><div class="ico"></div><a href="?index=pc">精灵治疗</a></div>
 		<div class="sec"><div class="ico" style="background-position: 0 -43px"></div><a href="?index=pc&section=box">精灵存取</a></div>
 		<div class="sec"><div class="ico" style="background-position: 0 -86px"></div><a href="?index=pc&section=trade">精灵交换</a></div>
 	</div>
@@ -15,11 +15,11 @@
 		<div id="pc-boxctnr">
 			<!--{loop $pokemon $key $val}-->
 				<!--{eval if($key === 'party') continue;}-->
-				<div class="pc-box" data-bid="$key" data-limit="$SYS[perbox]">
+				<div class="pc-box" data-bid="$key" data-limit="$system[perbox]">
 					<div class="hd">BOX {echo $key - 100}</div>
 					<ul>
 						<!--{loop $val $valb}-->
-							<li data-pid="$valb[pid]" title="{if empty($valb['id'])}{$valb[nickname]}{else}编号：No.{$valb[id]}<br>精灵：{$valb[name]} {$valb[gender]}<br>昵称：{$valb[nickname]}<br>等级：{$valb[level]}<br>属性：{$valb[type]}<br>特性：{$valb[abi]}{/if}"><img src="./source/plugin/pokemon_n/source_img/pokemon-icon/{$valb[id]}.png"></li>
+							<li data-pkm_id="$valb[pkm_id]" title="{if empty($valb['nat_id'])}{$valb[nickname]}{else}编号：No.{$valb[nat_id]}<br>精灵：{$valb[name]} {$valb[gender]}<br>昵称：{$valb[nickname]}<br>等级：{$valb[level]}<br>属性：{$valb[type]}<br>特性：{$valb[ability]}{/if}"><img src="./source/plugin/pokemon_n/source_img/pokemon-icon/{$valb[nat_id]}.png"></li>
 						<!--{/loop}-->
 					</ul>
 				</div>
@@ -29,7 +29,7 @@
 			<div class="hd">身上</div>
 			<ul>
 				<!--{loop $pokemon['party'] $val}-->
-					<li data-pid="$val[pid]" title="{if empty($val['id'])}{$val[nickname]}{else}编号：No.{$val[id]}<br>精灵：{$val[name]} {$val[gender]}<br>昵称：{$val[nickname]}<br>等级：{$val[level]}<br>属性：{$val[type]}<br>特性：{$val[abi]}{/if}"><img src="./source/plugin/pokemon_n/source_img/pokemon-icon/{$val[id]}.png"></li>
+					<li data-pkm_id="$val[pkm_id]" title="{if empty($val['nat_id'])}{$val[nickname]}{else}编号：No.{$val[nat_id]}<br>精灵：{$val[name]} {$val[gender]}<br>昵称：{$val[nickname]}<br>等级：{$val[level]}<br>属性：{$val[type]}<br>特性：{$val[ability]}{/if}"><img src="./source/plugin/pokemon_n/source_img/pokemon-icon/{$val[nat_id]}.png"></li>
 				<!--{/loop}-->
 			</ul>
 		</div>
@@ -61,7 +61,7 @@
 							<li data-tradeid="$val[tradeid]">
 								<div>本方精灵</div>
 								<div class="lbd">请求精灵</div>
-								<div><img src="$val[pkmimgpath]" title="<!--{if $val['id']}-->No.$val[id] $val[name] $val[gender]<br>等级：$val[level]<br>昵称：$val[nickname]<br>属性：$val[type]<br>性格：$val[nature]<!--{else}-->$val[nickname]<!--{/if}-->"></div>
+								<div><img src="$val[pkmimgpath]" title="<!--{if $val['nat_id']}-->No.$val[nat_id] $val[name] $val[gender]<br>等级：$val[level]<br>昵称：$val[nickname]<br>属性：$val[type]<br>性格：$val[nature]<!--{else}-->$val[nickname]<!--{/if}-->"></div>
 								<div class="lbd"><img src="$val[opkmimgpath]" title="<!--{if $val['oid']}-->No.$val[oid] $val[oname] $val[ogender]<br>等级：$val[olevel]<br>昵称：$val[onickname]<br>属性：$val[otype]<br>性格：$val[onature]<!--{else}-->$val[onickname]<!--{/if}-->"></div>
 								<br clear="both"><br>
 								请求日期：$val[time]<br>
@@ -82,7 +82,7 @@
 							<li data-tradeid="$val[tradeid]">
 								<div>对方精灵</div>
 								<div class="lbd">请求精灵</div>
-								<div><img src="$val[pkmimgpath]" title="<!--{if $val['id']}-->No.$val[id] $val[name] $val[gender]<br>等级：$val[level]<br>昵称：$val[nickname]<br>属性：$val[type]<br>性格：$val[nature]<!--{else}-->$val[nickname]<!--{/if}-->"></div>
+								<div><img src="$val[pkmimgpath]" title="<!--{if $val['nat_id']}-->No.$val[nat_id] $val[name] $val[gender]<br>等级：$val[level]<br>昵称：$val[nickname]<br>属性：$val[type]<br>性格：$val[nature]<!--{else}-->$val[nickname]<!--{/if}-->"></div>
 								<div class="lbd"><img src="$val[opkmimgpath]" title="<!--{if $val['oid']}-->No.$val[oid] $val[oname] $val[ogender]<br>等级：$val[olevel]<br>昵称：$val[onickname]<br>属性：$val[otype]<br>性格：$val[onature]<!--{else}-->$val[onickname]<!--{/if}-->"></div>
 								<br clear="both"><br>
 								请求日期：$val[time]<br>
@@ -91,7 +91,7 @@
 						<!--{/loop}-->
 					</ul>
 				<!--{/if}-->
-				<div class="no<!--{if !empty($received)}--> h<!--{/if}-->">暂时没有交换请求。</di>
+				<div class="no<!--{if !empty($received)}--> h<!--{/if}-->">暂时没有交换请求。</div>
 			<!--{/if}-->
 			
 		</form>
@@ -105,25 +105,25 @@
 			<ul class="pc-info">
 
 				<!--{loop $pokemon $key $val}-->
-					<li class="heal{if $key === 0} lmg-clr{/if}"{if empty($val['pid'])} style="visibility: hidden;"{/if}>
+					<li class="heal{if $key === 0} lmg-clr{/if}"{if empty($val['pkm_id'])} style="visibility: hidden;"{/if}>
 					
 						<img src="$val[pkmimgpath]"><br>
 						$val[nickname]{$val[gender]} Lv.$val[level]<br>
 						<div class="bar"><div class="hp" style="width:$val[hpper]%"></div><div class="value">$val[hp]/$val[maxhp]</div></div>
 						<div class="bar"><div class="exp" style="width:$val[expper]%"></div><div class="value">$val[exp]/$val[maxexp]</div></div>
-						<input type="checkbox" name="heal[]" value="$val[pid]">
+						<input type="checkbox" name="heal[]" value="$val[pkm_id]">
 
 					</li>
 				<!--{/loop}-->
 				
 				<!--{loop $heal $key $val}-->
-					<li class="take{if $key === 0} lmg-clr{/if}"{if empty($val['pid'])} style="visibility: hidden;"{/if}>
+					<li class="take{if $key === 0} lmg-clr{/if}"{if empty($val['pkm_id'])} style="visibility: hidden;"{/if}>
 					
 						<img src="$val[pkmimgpath]"><br>
 						$val[nickname]{$val[gender]} Lv.$val[level]<br>
 						<!--{if $val['fullheal'] === TRUE}-->已恢复<!--{else}-->恢复需要{$val[hltime][0]}时{$val[hltime][1]}分<!--{/if}-->
 						
-						<input type="checkbox" name="take[]" value="$val[pid]">
+						<input type="checkbox" name="take[]" value="$val[pkm_id]">
 
 					</li>
 				<!--{/loop}-->
@@ -142,8 +142,8 @@
 		<!--{if !empty($pokemon)}-->
 			<ul class="pmlist">
 				<!--{loop $pokemon $val}-->
-					<li data-pid="$val[pid]">
-						<img src="$val[pkmimgpath]" title="<!--{if $val['id']}-->No.$val[id] $val[name] $val[gender]<br>等级：$val[level]<br>昵称：$val[nickname]<br>属性：$val[type]<br>性格：$val[nature]<br>主人：$val[username]<!--{else}-->$val[nickname]<!--{/if}-->"><br>
+					<li data-pkm_id="$val[pkm_id]">
+						<img src="$val[pkmimgpath]" title="<!--{if $val['nat_id']}-->No.$val[nat_id] $val[name] $val[gender]<br>等级：$val[level]<br>昵称：$val[nickname]<br>属性：$val[type]<br>性格：$val[nature]<br>主人：$val[username]<!--{else}-->$val[nickname]<!--{/if}-->"><br>
 						<button class="sub-trade"<!--{if empty($party)}--> disabled="true">无法<!--{else}-->><!--{/if}-->交换</button>
 					</li>
 				<!--{/loop}-->
@@ -158,9 +158,9 @@
 								<ul class="pmtarget">
 									<!--{eval $i = 0;}-->
 									<!--{loop $party $key $val}-->
-										<li{if $i !== 0} class="h"{/if} data-index="$i" data-pid="$val[pid]">
+										<li{if $i !== 0} class="h"{/if} data-index="$i" data-pkm_id="$val[pkm_id]">
 											<img src="$val[pkmimgpath]"><br>
-											$val[nickname]<!--{if !empty($val['id'])}-->$val[gender] Lv.$val[level]<!--{/if}-->
+											$val[nickname]<!--{if !empty($val['nat_id'])}-->$val[gender] Lv.$val[level]<!--{/if}-->
 										</li>
 										<!--{eval ++$i;}-->
 									<!--{/loop}-->

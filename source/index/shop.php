@@ -14,11 +14,11 @@ $start   = ($page - 1) * 10;
 $limit   = 15;
 $mthsell = DB::result_first('SELECT SUM(mthsell) sum FROM pkm_itemdata');
 $item    = [];
-$query   = DB::query('SELECT iid, name_zh, dscptn, price, store, trnrlv, mthsell FROM pkm_itemdata WHERE sell = 1 AND type = ' . $type . ' AND trnrlv <= ' . $trainer['level'] . ' AND (timestt = 0 AND timefns = 0 OR timestt < ' . $_SERVER['REQUEST_TIME'] . ' AND timefns > ' . $_SERVER['REQUEST_TIME'] . ') ORDER BY price ASC LIMIT ' . $start . ', ' . $limit);
+$query   = DB::query('SELECT item_id, name_zh name, description, price, store, trnrlv, mthsell FROM pkm_itemdata WHERE sell = 1 AND type = ' . $type . ' AND trnrlv <= ' . $trainer['level'] . ' AND (timestt = 0 AND timefns = 0 OR timestt < ' . $_SERVER['REQUEST_TIME'] . ' AND timefns > ' . $_SERVER['REQUEST_TIME'] . ') ORDER BY price ASC LIMIT ' . $start . ', ' . $limit);
 
 while($info = DB::fetch($query)) {
 
-	$info['itemimgpath'] = Obtain::Sprite('item', 'png', 'item_' . $info['iid']);
+	$info['itemimgpath'] = Obtain::Sprite('item', 'png', 'item_' . $info['item_id']);
 	$info['mthsellper']  = !empty($mthsell) ? round($info['mthsell'] / $mthsell * 100, 2) : '?';
 	$item[]              = $info;
 
@@ -30,14 +30,14 @@ if(INAJAX) {
 
 	if(!empty($item)) {
 		foreach($item as $val) {
-			$return['js'] .= '<tr id="i' . $val['iid'] . '" class="item">\' + 
+			$return['js'] .= '<tr id="i' . $val['item_id'] . '" class="item">\' +
 				\'<td><div style="background-image:url(' . $val['itemimgpath'] . ')"></div></td>\' + 
 				\'<td>' . $val['name'] . '</td>\' + 
-				\'<td>' . $val['dscptn'] . '</td>\' + 
+				\'<td>' . $val['description'] . '</td>\' +
 				\'<td>' . $val['price'] . '</td>\' + 
 				\'<td>' . $val['store'] . '</td>\' + 
 				\'<td>' . $val['mthsell'] . '(' . $val['mthsellper'] . '%)</td>\' + 
-				\'<td><button data-itemid="' . $val['iid'] . '" data-name="' . $val['name'] . '">购买</button></td>\' + 
+				\'<td><button data-itemid="' . $val['item_id'] . '" data-name="' . $val['name'] . '">购买</button></td>\' +
 				\'</tr>';
 		}
 	} else {

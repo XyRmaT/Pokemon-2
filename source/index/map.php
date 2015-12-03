@@ -25,12 +25,12 @@ while($info = DB::fetch($query)) {
 
 	$info['x'] *= 16;
 	$info['y'] *= 16;
-	$info['id']      = ($info['uid'] == $trainer['uid']) ? 'me' : 't' . $info['uid'];
+	$info['nat_id']      = ($info['uid'] == $trainer['uid']) ? 'me' : 't' . $info['uid'];
 	$onlineTrainer[] = $info;
 
 }
 
-//var_dump(unserialize(gzinflate(file_get_contents(ROOTCACHE . '/battle/user-8'))));
+//var_dump(unserialize(gzinflate(file_get_contents(ROOT_CACHE . '/battle/user-8'))));
 
 
 ?>

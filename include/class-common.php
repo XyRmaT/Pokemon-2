@@ -9,7 +9,7 @@ class Kit {
         $by: the associative array name that is one level deep
         example: name
         $order: ASC or DESC
-        $type: num or str
+        $type: quantity or str
     */
 
     public static function ColumnSort($array, $by, $order, $type) {
@@ -37,7 +37,7 @@ class Kit {
 
         }
 
-        array_multisort($$sortby, ($order === 'DESC') ? SORT_DESC : SORT_ASC, ($type === 'num') ? SORT_NUMERIC : SORT_STRING, $array);
+        array_multisort($$sortby, ($order === 'DESC') ? SORT_DESC : SORT_ASC, ($type === 'quantity') ? SORT_NUMERIC : SORT_STRING, $array);
 
         return $array;
     }
@@ -98,59 +98,66 @@ class Kit {
 
 
     public static function ColumnSearch($array, $column, $value) {
-
         if(is_array($array)) {
             foreach($array as $key => $val) {
-
-                if($val[$column] == $value) {
-
-                    return $key;
-
-                }
-
+                if($val[$column] == $value) return $key;
             }
         }
-
         return FALSE;
-
     }
 
     public static function Library($type, $file) {
-
         foreach($file as $val) {
-
-            if($type === 'class' || $type === 'db') {
-
+            if($type === 'class' || $type === 'db')
                 require_once ROOT . '/include/' . $type . '-' . $val . '.php';
-
-            }
-
         }
-
         return TRUE;
-
     }
 
     public static function Memory($size) {
-
         $i    = 0;
         $unit = ['b', 'kb', 'mb', 'gb', 'tb', 'pb'];
-
         return ($size <= 0 || round($size / pow(1024, ($i = (int)floor(log($size, 1024)))), 2)) . ' ' . $unit[$i];
-
     }
 
     public static function SendMessage($title, $content, $from, $to) {
-
         DB::query('INSERT INTO pkm_myinbox (title, content, uid_sender, uid_receiver, time_sent) VALUES (\'' . $title . '\', \'' . $content . '\', ' . $from . ', ' . $to . ', ' . $_SERVER['REQUEST_TIME'] . ')');
         DB::query('UPDATE pkm_trainerdata SET has_new_message = 1 WHERE uid = ' . $to);
-
     }
 
     public static function NumberFormat($num) {
-
         return ($num > 999999) ? round($num / 1000000) . 'm' : (($num > 999) ? round($num / 1000) . 'k' : $num);
+    }
 
+    public static function cutstr($string, $length, $dot = ' ...') {
+
+        if(strlen($string) <= $length) return $string;
+
+        $string = str_replace(['&amp;', '&quot;', '&lt;', '&gt;'], ['&', '"', '<', '>'], $string);
+        $strcut = '';
+
+        if(strtolower(UC_CHARSET) == 'utf-8') {
+            $n = $tn = $noc = 0;
+            while($n < strlen($string)) {
+                $t = ord($string[$n]);
+                if($t == 9 || $t == 10 || (32 <= $t && $t <= 126)) $tn = 1 && ++$n && ++$noc;
+                elseif(194 <= $t && $t <= 223) $tn = 2 && $n += 2 && $noc += 2;
+                elseif(224 <= $t && $t < 239) $tn = 3 && $n += 3 && $noc += 2;
+                elseif(240 <= $t && $t <= 247) $tn = 4 && $n += 4 && $noc += 2;
+                elseif(248 <= $t && $t <= 251) $tn = 5 && $n += 5 && $noc += 2;
+                elseif($t == 252 || $t == 253) $tn = 6 && $n += 6 && $noc += 2;
+                else $n++;
+                if($noc >= $length) break;
+            }
+            if($noc > $length) $n -= $tn;
+            $strcut = substr($string, 0, $n);
+        } else {
+            for($i = 0; $i < $length; $i++)
+                $strcut .= ord($string[$i]) > 127 ? $string[$i] . $string[++$i] : $string[$i];
+        }
+        $strcut = str_replace(['&', '"', '<', '>'], ['&amp;', '&quot;', '&lt;', '&gt;'], $strcut);
+
+        return $strcut . $dot;
     }
 
 }
@@ -159,7 +166,7 @@ class App {
 
     public static function Initialize() {
 
-        global $user, $system, $user_id;
+        global $user, $system;
 
         $user = $system = [];
 
@@ -168,33 +175,37 @@ class App {
         include_once ROOT . '/../bbs/uc_client/client.php';
         include_once ROOT . '/include/class-database.php';
         include_once ROOT . '/include/class-cache.php';
+        include_once ROOT . '/include/function-template.php';
 
         // Connect to the database
         DB::connect(UC_DBHOST, UC_DBUSER, UC_DBPW, UC_DBNAME, UC_DBCHARSET);
 
         // Check login status & set data
-        $user = self::IsLoggedIn($_COOKIE['authcode']) ? $user : [];
+        if(!self::IsLoggedIn($_COOKIE['authcode'])) $user = ['uid' => 0];
 
     }
 
     private static function IsLoggedIn($authcode) {
 
         global $user;
-
-        list($username, $password, $questionId, $answer) = uc_authcode($authcode, 'DECODE');
+        list($username, $password, $questionId, $answer) = explode(',,', uc_authcode($authcode, 'DECODE'));
 
         if(!$username || !$password) return FALSE;
 
-        if($questionId && $answer) $user = uc_user_login($username, $password, 0, 1, $questionId, $answer);
-        else                        $user = uc_user_login($username, $password);
+        list($user['uid'], $user['username'], , $user['email']) = uc_user_login($username, $password, 0, $questionId && $answer, $questionId, $answer);
 
         // Just a side note that -1 = not existed, -2 = wrong password
-        return $user[0] > 1;
+        return $user['uid'] > 0;
 
     }
 
     public static function Login($username, $password, $questionId = 0, $answer = '') {
-
+        global $user, $synclogin;
+        list($user['uid'], $user['username'], , $user['email']) = uc_user_login($username, $password, 0, $questionId && $answer, $questionId, $answer);
+        if($user['uid'] <= 0) return FALSE;
+        $synclogin = uc_user_synlogin($user['uid']);
+        setcookie('authcode', uc_authcode($username . ',,' . $password . ',,' . $questionId . ',,' . $answer, 'ENCODE'), $_SERVER['REQUEST_TIME'] + 99999999);
+        return TRUE;
     }
 
     public static function CreditsUpdate($uid, $value, $type = 'CURRENCY', $isFixed = FALSE) {

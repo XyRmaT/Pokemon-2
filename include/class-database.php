@@ -15,7 +15,10 @@ class Database {
     }
 
     public static function query($sql, $values = []) {
-        return mysqli_query(self::$db, vsprintf($sql, $values));
+        $query = mysqli_query(self::$db, vsprintf($sql, $values));
+        if(mysqli_errno(self::$db))
+            echo 'Failed to connect to MySQL: (' . mysqli_errno(self::$db) . ') ' . mysqli_error(self::$db);
+        return $query;
     }
 
     public static function fetch_first($sql, $values = []) {

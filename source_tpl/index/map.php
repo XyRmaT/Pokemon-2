@@ -8,7 +8,7 @@
 	<div class="map-corrector"></div>
 	<div class="map-tile">
 		<!--{loop $onlineTrainer $val}-->
-			<div class="char" id="$val[id]" style="left:{$val[x]}px;top:{$val[y]}px;" title="$val[username]"></div>
+			<div class="char" id="$val[nat_id]" style="left:{$val[x]}px;top:{$val[y]}px;" title="$val[username]"></div>
 		<!--{/loop}-->
 	</div>
 	<div class="map-overlay"></div>
@@ -16,7 +16,7 @@
 		<div id="btl-report"></div>
 		<div id="sbj-oppo"></div>
 		<div id="sbj-self"></div>
-		<div id="obj-move"></div>
+		<div id="obj-moves"></div>
 		<div id="obj-miscbtn">
 			<button id="pokemon">精灵</button><br>
 			<button id="item">道具</button><br>
@@ -147,7 +147,7 @@
 					}
 				}
 			}, 
-			move: function(direction) {
+			moves: function(direction) {
 				if(DISABLE.MAPMOVE === true) return;
 				var me = this;
 				reacttime = (new Date()).getTime();
@@ -198,10 +198,10 @@
 		};
 			
 		/* Set the hotkey */
-		$.hotkey('up', function() { $('#me').move('up'); });
-		$.hotkey('down', function() { $('#me').move('down'); });
-		$.hotkey('left', function() { $('#me').move('left'); });
-		$.hotkey('right', function() { $('#me').move('right'); });
+		$.hotkey('up', function() { $('#me').moves('up'); });
+		$.hotkey('down', function() { $('#me').moves('down'); });
+		$.hotkey('left', function() { $('#me').moves('left'); });
+		$.hotkey('right', function() { $('#me').moves('right'); });
 		
 		
 		/*store = {};
@@ -242,7 +242,7 @@
 			DISABLE.MAPMOVE = true;
 			STATE.BATTLE = true;
 			var img = new Image();
-			img.src = '{ROOTIMG}/battle-bg/bg-1.jpg';
+			img.src = '{ROOT_IMAGE}/battle-bg/bg-1.jpg';
 			
 			initbattlelayer();
 			$('.map-battle, .map-overlay').show();
@@ -255,7 +255,7 @@
 				.animate({ backgroundColor: '#000' }, 255)
 				.queue(function() {
 					$('.map-battle')
-						.css({'background-image': 'url({ROOTIMG}/battle-bg/bg-1.jpg)', opacity: 0})
+						.css({'background-image': 'url({ROOT_IMAGE}/battle-bg/bg-1.jpg)', opacity: 0})
 						.animate({'opacity': 1 }, 255);
 					$(this).dequeue();
 				});
@@ -305,8 +305,8 @@
 			if(i.selfmove) {
 				var tmp = '';
 				for(m in i.selfmove)
-					tmp += '<div data-mid="' + i.selfmove[m][0] + '"' + ((i.selfmove[m][1] <= 0) ? ' class="disabled"' : '') + '>' + i.selfmove[m][2] + ' <em>' + i.selfmove[m][1] + '/' + i.selfmove[m][3] + '</em></div>';
-				$('#obj-move').html(tmp);
+					tmp += '<div data-move_id="' + i.selfmove[m][0] + '"' + ((i.selfmove[m][1] <= 0) ? ' class="disabled"' : '') + '>' + i.selfmove[m][2] + ' <em>' + i.selfmove[m][1] + '/' + i.selfmove[m][3] + '</em></div>';
+				$('#obj-moves').html(tmp);
 			}
 			if(i.end) {
 				DISABLE.BATTLEEND = true;

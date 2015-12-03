@@ -5,14 +5,14 @@
 <div id="lyr-alert"></div>
 
 <div id="footer">
-	目前时间：<!--{echo date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']);}-->MU: <!--{echo Kit::Memory(memory_get_usage(true))}--><br>
-	<!--{if $trainer['uid'] == 8 && debuginfo()}-->Processed in 0 second(s), 0 queries. <br><!--{/if}-->
+	目前时间：<!--{echo date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']);}-->MU: <!--{echo Kit::Memory(memory_get_usage(TRUE))}--><br>
+	<!--{if $user['uid'] == 8}-->Processed in 0 second(s), 0 queries. <br><!--{/if}-->
 	请使用现代浏览器（如<a href="http://www.google.com/chrome" target="_blank">谷歌浏览器</a>）访问以取得最佳效果。<br>
-	Copyright &copy; 2013-{YEAR} PokeUniv (Pet). Version $SYS[version].
+	Copyright &copy; 2013-{YEAR} PokeUniv (Pet). Version $system[version].
 </div>
 
 <script>
-	<!--{if empty($trainer['uid'])}-->
+	<!--{if 1==2 && empty($user['uid'])}-->
 		$(function() {
 		
 			$('body').append('<div id="lyr-unlogged" class="h">登陆页暂未制作完毕，<a href="member.php?mod=logging&action=login" target="_blank" class="forum"><b>点我进入论坛登陆</b></a>！</div>');
@@ -44,7 +44,7 @@
 			}
 		}, 
 		Url			= {
-			cache: '{ROOTCACHE}/image/'
+			cache: '{ROOT_CACHE}/image/'
 		};
 	
 	$(function() {
@@ -67,13 +67,13 @@
 				ajax('?index=shop&type=' + $(this).find('a').attr('href'));
 			});
 			$('.shop-list button').live('click', function() {
-				var num = prompt('您要购买多少个' + $(this).data('name') + '呢？');
-				if(num === null) return false;
-				else if(isNaN(num) || num <= 0) {
+				var quantity = prompt('您要购买多少个' + $(this).data('name') + '呢？');
+				if(quantity === null) return false;
+				else if(isNaN(quantity) || quantity <= 0) {
 					alert('数量有误噢～');
 					return false;
 				}
-				ajax('?index=shop&process=itembuy&num=' + num + '&iid=' + $(this).data('itemid'));
+				ajax('?index=shop&process=itembuy&quantity=' + quantity + '&item_id=' + $(this).data('itemid'));
 			});
 		<!--{elseif $index === 'pkmcenter'}-->
 			$('#pc-boxctnr').unselectable();
@@ -88,8 +88,8 @@
 						if(from.parent().parent().data('bid') === tmp.data('bid') || $('li', this).length >= $(this).data('limit')) return false;
 						$('ul', this).append(from.removeAttr('style'));
 
-						var pid = from.data('pid');
-						boxlist.l[pid] = tmp.data('bid');
+						var pkm_id = from.data('pkm_id');
+						boxlist.l[pkm_id] = tmp.data('bid');
 					}
 				});
 				$('.pc-box li')
@@ -120,13 +120,13 @@
 							ajax('?index=pc&process=traderequest');
 						});
 						$('.sub-trade').off().on('click', function() {
-							var opid = $(this).parent().data('pid');
+							var opid = $(this).parent().data('pkm_id');
 							$('#lyr-traderequest').dialog({
 								modal: true, 
 								title: '交换请求', 
 								buttons: {
 									'就你了': function() {
-										ajax('?index=pc&process=traderequest&pid=' + $('.pmchoose li:not(.h)', this).data('pid') + '&opid=' + opid);
+										ajax('?index=pc&process=traderequest&pkm_id=' + $('.pmchoose li:not(.h)', this).data('pkm_id') + '&opid=' + opid);
 										$(this).dialog('destroy');
 									}, 
 									'不对': function() {
@@ -215,7 +215,7 @@
 				});
 				$('#pm-grid .txt-c').off().on('click', function() {
 					var tmp = $(this).parent();
-					$('#info-' + tmp.data('pid')).dialog({
+					$('#info-' + tmp.data('pkm_id')).dialog({
 						modal: true, 
 						title: tmp.data('nickname') + '的详细数据', 
 						resizable: false, 
@@ -223,13 +223,13 @@
 					});
 				});
 				$('.pmabandon').off().on('click', function() {
-					var pid = $(this).parent().parent().data('pid');
+					var pkm_id = $(this).parent().parent().data('pkm_id');
 					$('#lyr-abandon').dialog({
 						modal: true, 
 						title: '抛弃精灵', 
 						buttons: {
 							'永别了！': function() {
-								ajax('?index=my&process=pmabandon&pid=' + pid);
+								ajax('?index=my&process=pmabandon&pkm_id=' + pkm_id);
 								$(this).dialog('close');
 							}, 
 							'我反悔了！': function() {
@@ -253,7 +253,7 @@
 									if(input.val() === '' || input.val().length > 6) {
 										input.addClass('ui-state-error');
 									} else {
-										ajax('?index=my&process=pmnickname&pid=' + tmp.data('pid') + '&nickname=' + encodeURI(input.val()));
+										ajax('?index=my&process=pmnickname&pkm_id=' + tmp.data('pkm_id') + '&nickname=' + encodeURI(input.val()));
 										$(this).dialog('close');
 									}
 								}, 
@@ -285,19 +285,19 @@
 				$('.pmmove').click(function() {
 					var parent	= $(this).parent().parent(), 
 						tmp		= $(this), 
-						pid		= parent.data('pid');
-					$('#learnmove').html($('.newmove', parent).html());
-					$('#lyr-move').dialog({
+						pkm_id		= parent.data('pkm_id');
+					$('#learnmove').html($('.moves_new', parent).html());
+					$('#lyr-moves').dialog({
 						modal: true, 
 						title: '学习技能', 
 						buttons: {
 							'学习这个技能！': function() {
-								ajax('?index=my&process=pmmove&pid=' + pid + '&' + $('#learnmove').serialize(), function(i) {
+								ajax('?index=my&process=pmmove&pkm_id=' + pkm_id + '&' + $('#learnmove').serialize(), function(i) {
 									if(!i.learnmove) return;
 									if(i.learnmove !== '') {
-										$('.newmove', parent).html(i.learnmove);
+										$('.moves_new', parent).html(i.learnmove);
 									} else {
-										$('.newmove', parent).remove();
+										$('.moves_new', parent).remove();
 										tmp.remove();
 									}
 								});
@@ -314,7 +314,7 @@
 				$('#my-achv li').off().on('click', function() {
 					var tmp = $(this);
 					if(tmp.hasClass('done')) return;
-					ajax('?index=my&process=achvcheck&achvid=' + tmp.data('achvid'), function(i) {
+					ajax('?index=my&process=achvcheck&achv_id=' + tmp.data('achv_id'), function(i) {
 						if(i.succeed) {
 							tmp.addClass('done');
 							tmp.find('.achieved').html('完成');
@@ -328,17 +328,17 @@
 				$('#my-inbox .del').off().on('click', function() {
 					var confirmed = confirm('确定？');
 					if(!confirmed) return;
-					ajax('?index=my&process=inboxdel&msgid=' + $(this).data('msgid'));
+					ajax('?index=my&process=inboxdel&msg_id=' + $(this).data('msg_id'));
 				});
 				/* inventory */
 				var f = function() {
-					$('#my-invtp .item [data-iid]').off().on('click', function() {
+					$('#my-invtp .item [data-item_id]').off().on('click', function() {
 						if(!confirm('确定要卸掉携带道具？')) return;
-						var upd = item[$(this).data('iid')];
-						if(upd.num < 1) $('#my-invt').append($('<li>' + $(this)[0].outerHTML + '</li>').fadeIn());
-						upd.num++;
+						var upd = item[$(this).data('item_id')];
+						if(upd.quantity < 1) $('#my-invt').append($('<li>' + $(this)[0].outerHTML + '</li>').fadeIn());
+						upd.quantity++;
 						f();
-						ajax('?index=my&process=pmitem&iid=0&pid=' + $(this).parent().parent().data('pid'));
+						ajax('?index=my&process=pmitem&item_id=0&pkm_id=' + $(this).parent().parent().data('pkm_id'));
 						$(this).fadeOut(function() {
 							$(this).remove();
 						});
@@ -354,14 +354,14 @@
 							$('#my-invt li').tooltip('enable');
 						}
 					}).on('click', function() {
-						var iid = $(this).data('iid');
-						$('#lyr-useitem').find('.name').html(item[iid].name);
+						var item_id = $(this).data('item_id');
+						$('#lyr-useitem').find('.name').html(item[item_id].name);
 						$('#lyr-useitem').dialog({
 							modal: true, 
 							title: '使用道具', 
 							buttons: {
 								'就决定是你了！': function() {
-									ajax('?index=my&process=itemuse&iid=' + iid + '&pid=' + $('.pmtarget li:not(.h)', this).data('pid'));
+									ajax('?index=my&process=itemuse&item_id=' + item_id + '&pkm_id=' + $('.pmtarget li:not(.h)', this).data('pkm_id'));
 									$(this).dialog('destroy');
 								}, 
 								'手滑=。=': function() {
@@ -379,8 +379,8 @@
 						show: false, 
 						hide: false, 
 						content: function() {
-							var i = item[$(this).find('img').data('iid')];
-							return '名字：' + i.name + '<br>数量：' + i.num + '<br>描述：' + i.dscptn;
+							var i = item[$(this).find('img').data('item_id')];
+							return '名字：' + i.name + '<br>数量：' + i.quantity + '<br>描述：' + i.description;
 						}
 					});
 				};
@@ -388,18 +388,18 @@
 					drop: function(e, u) {
 						var obj = u.draggable, 
 							dest = $(this).find('span.item'), 
-							iid = obj.data('iid');
-						if(dest.find('img[data-iid]').length > 0) {
-							var upd = item[dest.find('img').data('iid')];
-							if(upd.num < 1) $('#my-invt').append($('<li>' + dest.find('img')[0].outerHTML + '</li>').fadeIn());
-							upd.num++;
+							item_id = obj.data('item_id');
+						if(dest.find('img[data-item_id]').length > 0) {
+							var upd = item[dest.find('img').data('item_id')];
+							if(upd.quantity < 1) $('#my-invt').append($('<li>' + dest.find('img')[0].outerHTML + '</li>').fadeIn());
+							upd.quantity++;
 						}
 						dest.hide().html(obj[0].outerHTML).fadeIn();
-						if(item[iid].num - 1 <= 0) obj.parent().fadeOut(function() { $(this).remove(); });
-						item[iid].num--;
+						if(item[item_id].quantity - 1 <= 0) obj.parent().fadeOut(function() { $(this).remove(); });
+						item[item_id].quantity--;
 						u.helper.remove();
 						f();
-						ajax('?index=my&process=pmitem&iid=' + iid + '&pid=' + dest.parent().data('pid'));
+						ajax('?index=my&process=pmitem&item_id=' + item_id + '&pkm_id=' + dest.parent().data('pkm_id'));
 					}
 				});
 				initiateItemList = function(type) {
@@ -408,7 +408,7 @@
 					for(i in item) {
 						var obj = item[i];
 						if(!type || type > 0 && obj.type == type)
-							appendTxt += '<li><img src="' + obj.itemimgpath + '" data-iid="' + obj.iid + '"></li>';
+							appendTxt += '<li><img src="' + obj.itemimgpath + '" data-item_id="' + obj.item_id + '"></li>';
 					}
 					$('#my-invt').fadeOut(function() {
 						$(this).empty().append(appendTxt).fadeIn(f);
@@ -452,7 +452,7 @@
 						title: '寄存精灵', 
 						buttons: {
 							'过一点时间再来看你': function() {
-								ajax('?index=daycare&process=pmsave&pid=' + $('.pmchoose li:not(.h)', this).data('pid'));
+								ajax('?index=daycare&process=pmsave&pkm_id=' + $('.pmchoose li:not(.h)', this).data('pkm_id'));
 								$(this).dialog('destroy');
 							}, 
 							'不对': function() {
@@ -474,7 +474,7 @@
 						.filter('[data-index=' + (targetIndex - 1) + ']').removeClass('h');
 				});
 				
-				$('.dc-pm .mid img').off().on('click', function() {
+				$('.dc-pm .move_id img').off().on('click', function() {
 					var egg = $(this).hasClass('egg') ? 1 : 0, 
 						tmp = $(this);
 					$(egg === 1 ? '#lyr-getegg' : '#lyr-getback').dialog({
@@ -482,7 +482,7 @@
 						title: '确认', 
 						buttons: {
 							'是的': function() {
-								ajax('?index=daycare&process=' + (egg === 1 ? 'egg' : 'pm') + 'take' + (egg === 1 ? '' : '&pid=' + tmp.data('pid')));
+								ajax('?index=daycare&process=' + (egg === 1 ? 'egg' : 'pm') + 'take' + (egg === 1 ? '' : '&pkm_id=' + tmp.data('pkm_id')));
 								$(this).dialog('destroy');
 							}, 
 							'再说吧': function() {
@@ -497,10 +497,10 @@
 		<!--{elseif $index === 'map'}-->
 			BindEvents = function() {
 				$('.map-battle :not(#btl-report)').undraggable().unselectable();
-				$('#obj-move > div:not(.disabled)').off().on('click', function() {
+				$('#obj-moves > div:not(.disabled)').off().on('click', function() {
 					if(DISABLE.BATTLEEND === true || DISABLE.AJAXLOAD === true) return;
 					DISABLE.AJAXLOAD = true;
-					ajax('?index=battle&process=usemove&mid=' + $(this).data('mid'), function(i) {
+					ajax('?index=battle&process=usemove&move_id=' + $(this).data('move_id'), function(i) {
 						if(i.battle) updatebattlefield(i.battle);
 					});
 				});
@@ -510,7 +510,7 @@
 					DISABLE.AJAXLOAD	= false;
 					initbattlelayer('END');
 					$('#sbj-oppo, #sbj-self').removeAttr('style').empty();
-					$('#obj-move, #btl-report').empty();
+					$('#obj-moves, #btl-report').empty();
 				});
 				$('#obj-miscbtn #item').off().on('click', function() {
 					$('#lyr-item').dialog({
@@ -530,7 +530,7 @@
 					.off()
 					.on('click', function() {
 						$('#lyr-item').dialog('close');
-						ajax('?index=battle&process=useitem&iid=' + $(this).data('iid'), function(i) {
+						ajax('?index=battle&process=useitem&item_id=' + $(this).data('item_id'), function(i) {
 							if(i.battle) updatebattlefield(i.battle)
 						});
 					});
@@ -538,14 +538,14 @@
 					.off()
 					.on('click', function() {
 						$('#lyr-pokemon').dialog('close');
-						ajax('?index=battle&process=swappm&pid=' + $(this).data('pid'), function(i) {
+						ajax('?index=battle&process=swappm&pkm_id=' + $(this).data('pkm_id'), function(i) {
 							updatebattlefield(i.battle)
 						});
 					});
 			};
 		<!--{elseif $index === 'ranking'}-->
 		<!--{elseif $index === 'shelter'}-->
-			$('.sht-dscptn, .sht-main')
+			$('.sht-description, .sht-main')
 				.unselectable()
 				.find('img').click(function() {
 					var tmp = $(this);
@@ -554,7 +554,7 @@
 						title: '领养' + ['精灵蛋', '精灵'][$(this).parent().hasClass('egg') ? 0 : 1], 
 						buttons: {
 							'我会好好照顾它的！': function() {
-								ajax('?index=shelter&process=claim&pid=' + tmp.data('pid'), function(i) {
+								ajax('?index=shelter&process=claim&pkm_id=' + tmp.data('pkm_id'), function(i) {
 									if(i.succeed) tmp.remove();
 								});
 								$(this).dialog('close');
@@ -578,4 +578,5 @@
 	ga('send', 'pageview');
 
 </script>
+{$synclogin}
 </html>

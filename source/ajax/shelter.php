@@ -7,7 +7,7 @@ switch($_GET['process']) {
 
 		Kit::Library('class', ['obtain', 'pokemon']);
 
-		$info = DB::fetch_first('SELECT pid, id, originuid FROM pkm_mypkm WHERE pid = ' . intval($_GET['pid']) . ' AND uid = 0 AND place = 9');
+		$info = DB::fetch_first('SELECT pkm_id, id, uid_initial FROM pkm_mypkm WHERE pkm_id = ' . intval($_GET['pkm_id']) . ' AND uid = 0 AND location = 9');
 
 		if(empty($info)) {
 
@@ -15,7 +15,7 @@ switch($_GET['process']) {
 
 			break;
 
-		} elseif($trainer['money'] - $cost < 0) {
+		} elseif($trainer['currency'] - $cost < 0) {
 
 			$return['msg'] = $system['currency_name'] . '没带够！要知道我们也是得生存的啊！';
 
@@ -29,12 +29,12 @@ switch($_GET['process']) {
 
 		}
 
-		DB::query('UPDATE pkm_mypkm SET place = ' . $place . ', uid = ' . $trainer['uid'] . ' WHERE pid = ' . $info['pid']);
+		DB::query('UPDATE pkm_mypkm SET location = ' . $place . ', uid = ' . $trainer['uid'] . ' WHERE pkm_id = ' . $info['pkm_id']);
 
         App::CreditsUpdate($trainer['uid'], -$cost);
-		Pokemon::Register($info['id'], !0);
+		Pokemon::Register($info['nat_id'], !0);
 
-		if($info['originuid'] != $trainer['uid'])
+		if($info['uid_initial'] != $trainer['uid'])
 
 			$trainer['addexp'] += 4;
 

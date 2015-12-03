@@ -18,12 +18,12 @@ switch($_GET['process']) {
 
 		if(is_array($_GET['heal'])) {
 
-			//$pmcount = DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE uid = ' . $trainer['uid'] . ' AND place IN (1, 2, 3, 4, 5, 6)');
+			//$pmcount = DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE uid = ' . $trainer['uid'] . ' AND location IN (1, 2, 3, 4, 5, 6)');
 
 			foreach($_GET['heal'] as $key => $val) {
 
 				$_GET['heal'][$key] *= 1;
-				$tmp = DB::fetch_first('SELECT pid FROM pkm_mypkm WHERE pid = ' . $_GET['heal'][$key] . ' AND place IN (1, 2, 3, 4, 5, 6)');
+				$tmp = DB::fetch_first('SELECT pkm_id FROM pkm_mypkm WHERE pkm_id = ' . $_GET['heal'][$key] . ' AND location IN (1, 2, 3, 4, 5, 6)');
 
 				if($_GET['heal'][$key] <= 0 || empty($tmp)) {
 
@@ -56,7 +56,7 @@ switch($_GET['process']) {
 			foreach($_GET['take'] as $key => $val) {
 
 				$_GET['take'][$key] *= 1;
-				$pokemon = DB::fetch_first('SELECT m.nickname, m.hltime, m.level, m.hp, m.iv, m.ev, m.move, p.bs FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id WHERE m.pid = ' . $_GET['take'][$key] . ' AND m.place = 8');
+				$pokemon = DB::fetch_first('SELECT m.nickname, m.hltime, m.level, m.hp, m.ind_value, m.eft_value, m.moves, p.base_stat FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE m.pkm_id = ' . $_GET['take'][$key] . ' AND m.location = 8');
 
 				if($_GET['take'][$key] <= 0 || empty($pokemon) || empty($pokemon['hltime'])) {
 
@@ -66,7 +66,7 @@ switch($_GET['process']) {
 
 				}
 
-				$pokemon = array_merge($pokemon, Obtain::Stat($pokemon['level'], $pokemon['bs'], $pokemon['iv'], $pokemon['ev']));
+				$pokemon = array_merge($pokemon, Obtain::Stat($pokemon['level'], $pokemon['base_stat'], $pokemon['ind_value'], $pokemon['eft_value']));
 
 				if(max(0, $pokemon['hltime'] + ceil(($pokemon['maxhp'] - $pokemon['hp']) * 6.6) - $_SERVER['REQUEST_TIME']) / 60 > 0) {
 
@@ -88,7 +88,7 @@ switch($_GET['process']) {
 
 				}
 
-				$move = unserialize($pokemon['move']);
+				$move = unserialize($pokemon['moves']);
 
 				foreach($move as $keyb => $valb) {
 
@@ -123,7 +123,7 @@ switch($_GET['process']) {
 
 		if($count[0] > 0) {
 
-			$healcount = DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE place = 8 AND uid = ' . $trainer['uid']);
+			$healcount = DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE location = 8 AND uid = ' . $trainer['uid']);
 
 			if($healcount + $count[0] > 6) {
 
@@ -136,7 +136,7 @@ switch($_GET['process']) {
 
 			}
 
-			DB::query('UPDATE pkm_mypkm SET hltime = ' . $_SERVER['REQUEST_TIME'] . ', place = 8 WHERE pid IN (' . implode(',', $_GET['heal']) . ')');
+			DB::query('UPDATE pkm_mypkm SET hltime = ' . $_SERVER['REQUEST_TIME'] . ', location = 8 WHERE pkm_id IN (' . implode(',', $_GET['heal']) . ')');
 
 			$return['msg'] .= '您的精灵就寄放在中心了，我们会照看好您的精灵的！' . "\n";
 
@@ -144,7 +144,7 @@ switch($_GET['process']) {
 
 		if($count[1] > 0) {
 
-			DB::query('INSERT INTO pkm_mypkm (pid, place, hp, move) VALUES ' . implode(',', $takesql) . ' ON DUPLICATE KEY UPDATE place = VALUES(place), hp = VALUES(hp), move = VALUES(move), STATUS = 0');
+			DB::query('INSERT INTO pkm_mypkm (pkm_id, location, hp, moves) VALUES ' . implode(',', $takesql) . ' ON DUPLICATE KEY UPDATE location = VALUES(location), hp = VALUES(hp), moves = VALUES(moves), STATUS = 0');
 
 			$return['msg'] .= '您的精灵们都恢复健康了～' . "\n";
 
@@ -158,12 +158,12 @@ switch($_GET['process']) {
 
 
 		foreach($pokemon as $key => $val) {
-			$return['js'] .= '\'<li class="heal ' . (($key === 0) ? 'lmg-clr' : '') . '"' . (empty($val['pid']) ? ' style="visibility: hidden;"' : '') . '>\' + 
+			$return['js'] .= '\'<li class="heal ' . (($key === 0) ? 'lmg-clr' : '') . '"' . (empty($val['pkm_id']) ? ' style="visibility: hidden;"' : '') . '>\' +
 				\'<img src="' . $val['pkmimgpath'] . '"><br>\' + ' .
 					'\'' . $val['nickname'] . $val['gender'] . ' Lv.' . $val['level'] . '<br>\' + ' .
 					'\'<div class="bar"><div class="hp" style="width:' . $val['hpper'] . '%"></div><div class="value">' . $val['hp'] . '/' . $val['maxhp'] . '</div></div>\' + ' .
 					'\'<div class="bar"><div class="exp" style="width:' . $val['expper'] . '%"></div><div class="value">' . $val['exp'] . '/' . $val['maxexp'] . '</div></div>\' + ' .
-					'\'<input type="checkbox" name="heal[]" value="' . $val['pid'] . '">\' +
+					'\'<input type="checkbox" name="heal[]" value="' . $val['pkm_id'] . '">\' +
 				\'</li>\' + ';
 		}
 		if($_GET['asd'] == 1) {
@@ -171,11 +171,11 @@ switch($_GET['process']) {
 			print_r($pokemon);
 		}
 		foreach($heal as $key => $val) {
-			$return['js'] .= '\'<li class="take ' . (($key === 0) ? 'lmg-clr' : '') . '"' . (empty($val['pid']) ? ' style="visibility: hidden;"' : '') . '>\' + 
+			$return['js'] .= '\'<li class="take ' . (($key === 0) ? 'lmg-clr' : '') . '"' . (empty($val['pkm_id']) ? ' style="visibility: hidden;"' : '') . '>\' +
 				\'<img src="' . $val['pkmimgpath'] . '"><br>\' + ' .
 					'\'' . $val['nickname'] . $val['gender'] . ' Lv.' . $val['level'] . '<br>\' + ' .
 					'\'' . (($val['fullheal'] === TRUE) ? '已恢复' : '恢复需要' . $val['hltime'][0] . '时' . $val['hltime'][1] . '分') . '\' + ' .
-					'\'<input type="checkbox" name="take[]" value="' . $val['pid'] . '">\' +
+					'\'<input type="checkbox" name="take[]" value="' . $val['pkm_id'] . '">\' +
 				\'</li>\' + ';
 		}
 
@@ -194,7 +194,7 @@ switch($_GET['process']) {
 		}
 
 		$place  = $pokemon = $curplace = $unable = $sql = [];
-		$query  = DB::query('SELECT pid, place FROM pkm_mypkm WHERE uid = ' . $trainer['uid']);
+		$query  = DB::query('SELECT pkm_id, location FROM pkm_mypkm WHERE uid = ' . $trainer['uid']);
 		$boxnum = $system['initial_box'] + $trainer['boxnum'];
 
 		for($i = 1; $i <= $boxnum; $i++) {
@@ -207,17 +207,17 @@ switch($_GET['process']) {
 
 		while($info = DB::fetch($query)) {
 
-			if($info['place'] > 6 && $info['place'] < 101)
+			if($info['location'] > 6 && $info['location'] < 101)
 
 				continue;
 
-			if($info['place'] < 7)
+			if($info['location'] < 7)
 
-				$info['place'] = 1;
+				$info['location'] = 1;
 
-			$place[$info['place']]  = empty($place[$info['place']]) ? 1 : ++$place[$info['place']];
-			$pokemon[]              = $info['pid'];
-			$curplace[$info['pid']] = $info['place'];
+			$place[$info['location']]  = empty($place[$info['location']]) ? 1 : ++$place[$info['location']];
+			$pokemon[]              = $info['pkm_id'];
+			$curplace[$info['pkm_id']] = $info['location'];
 
 		}
 
@@ -267,7 +267,7 @@ switch($_GET['process']) {
 
 		if(!empty($sql)) {
 
-			DB::query('INSERT INTO pkm_mypkm (pid, place) VALUES ' . implode(',', $sql) . ' ON DUPLICATE KEY UPDATE place = VALUES(place)');
+			DB::query('INSERT INTO pkm_mypkm (pkm_id, location) VALUES ' . implode(',', $sql) . ' ON DUPLICATE KEY UPDATE location = VALUES(location)');
 
 			$return['msg'] .= '移动精灵成功！';
 
@@ -314,16 +314,16 @@ switch($_GET['process']) {
 		}
 
 		(!empty($_GET['cdtn-pokemon'])) && $extracol .= ' AND p.name = \'' . addslashes($cpokemon) . '\'';
-		/*($_GET['heal'] >= 1)							&& $extracol .= ' AND m.id = ' . intval($_GET['heal']);
+		/*($_GET['heal'] >= 1)							&& $extracol .= ' AND m.nat_id = ' . intval($_GET['heal']);
 		($_GET['gender'] >= 0 && $_GET['gender'] < 3)	&& $extracol .= ' AND m.gender = ' . intval($_GET['gender']);
-		($_GET['shiny'] >= 0 && $_GET['shiny'] < 2)		&& $extracol .= ' AND m.shiny = ' . intval($_GET['shiny']);
+		($_GET['is_shiny'] >= 0 && $_GET['is_shiny'] < 2)		&& $extracol .= ' AND m.is_shiny = ' . intval($_GET['is_shiny']);
 		($_GET['level'] >= 1 && $_GET['level'] < 101)	&& $extracol .= ' AND m.level = ' . intval($_GET['level']);*/
 
 		/*
 			Making the multipage
 		*/
 
-		$count = DB::result_first('SELECT COUNT(*) FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON p.id = m.id WHERE m.uid = ' . $userinfo['uid'] . ' AND (m.place IN (1, 2, 3, 4, 5, 6) OR m.place > 100)' . $extracol);
+		$count = DB::result_first('SELECT COUNT(*) FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON p.nat_id = m.nat_id WHERE m.uid = ' . $userinfo['uid'] . ' AND (m.location IN (1, 2, 3, 4, 5, 6) OR m.location > 100)' . $extracol);
 		$multi = Kit::MultiPage(10, $count, 'data-urlpart="cdtn-username=' . urlencode($_GET['cdtn-username']) . '&cdtn-pokemon=' . urlencode($_GET['cdtn-pokemon']) . '"');
 
 
@@ -333,15 +333,20 @@ switch($_GET['process']) {
 
 		Kit::Library('class', ['obtain']);
 
-		$query   = DB::query('SELECT m.id, m.pid, m.nickname, m.gender, m.level, m.nature, m.imgname, p.name, p.type, p.typeb, mb.username FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON p.id = m.id LEFT JOIN pre_common_member mb ON mb.uid = m.uid WHERE m.uid = ' . $userinfo['uid'] . ' AND (m.place IN (1, 2, 3, 4, 5, 6) OR m.place > 100)' . $extracol . ' ORDER BY m.place ASC, m.id ASC LIMIT ' . $multi['start'] . ', ' . $multi['limit']);
+		$query   = DB::query('SELECT m.nat_id, m.pkm_id, m.nickname, m.gender, m.level, m.nature, m.sprite_name, p.name, p.type, p.type_b, mb.username
+                              FROM pkm_mypkm m
+                              LEFT JOIN pkm_pkmdata p ON p.nat_id = m.nat_id
+                              LEFT JOIN pre_common_member mb ON mb.uid = m.uid
+                              WHERE m.uid = ' . $userinfo['uid'] . ' AND (m.location IN (1, 2, 3, 4, 5, 6) OR m.location > 100) ' . ($extracol .= ' ') .
+                              'ORDER BY m.location ASC, m.nat_id ASC LIMIT ' . $multi['start'] . ', ' . $multi['limit']);
 		$pokemon = [];
 
 		while($info = DB::fetch($query)) {
 
-			if($info['id'] > 0) {
+			if($info['nat_id'] > 0) {
 
-				$info['type']       = Obtain::TypeName($info['type'], $info['typeb']);
-				$info['pkmimgpath'] = Obtain::Sprite('pokemon', 'png', $info['imgname']);
+				$info['type']       = Obtain::TypeName($info['type'], $info['type_b']);
+				$info['pkmimgpath'] = Obtain::Sprite('pokemon', 'png', $info['sprite_name']);
 				$info['gender']     = Obtain::GenderSign($info['gender']);
 				$info['nature']     = Obtain::NatureName($info['nature']);
 
@@ -362,13 +367,13 @@ switch($_GET['process']) {
 
 		if(!empty($pokemon)) {
 
-			$query = DB::query('SELECT m.id, m.nickname, m.pid, m.imgname, m.level, m.gender, p.egggrp, p.egggrpb, p.name FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id WHERE m.place IN (1, 2, 3, 4, 5, 6) AND m.uid = ' . $trainer['uid'] . ' AND (m.mtplace = 600 AND m.originuid != m.uid OR m.mtplace != 600) LIMIT 6');
+			$query = DB::query('SELECT m.nat_id, m.nickname, m.pkm_id, m.sprite_name, m.level, m.gender, p.egggrp, p.egggrpb, p.name FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE m.location IN (1, 2, 3, 4, 5, 6) AND m.uid = ' . $trainer['uid'] . ' AND (m.met_location = 600 AND m.uid_initial != m.uid OR m.met_location != 600) LIMIT 6');
 			$party = [];
 
 			while($info = DB::fetch($query)) {
 
 				$info['egggrp']     = Obtain::EggGroupName($info['egggrp'], $info['egggrpb']);
-				$info['pkmimgpath'] = empty($info['id']) ? Obtain::Sprite('egg', 'png', 0) : Obtain::Sprite('pokemon', 'png', $info['imgname']);
+				$info['pkmimgpath'] = empty($info['nat_id']) ? Obtain::Sprite('egg', 'png', 0) : Obtain::Sprite('pokemon', 'png', $info['sprite_name']);
 				$info['gender']     = Obtain::GenderSign($info['gender']);
 
 				$party[] = $info;
@@ -399,7 +404,7 @@ switch($_GET['process']) {
 		}
 
 		$opid = !empty($_GET['opid']) ? intval($_GET['opid']) : 0;
-		$pid  = !empty($_GET['pid']) ? intval($_GET['pid']) : 0;
+		$pid  = !empty($_GET['pkm_id']) ? intval($_GET['pkm_id']) : 0;
 
 		if($opid === 0 || $pid === 0) {
 
@@ -409,7 +414,7 @@ switch($_GET['process']) {
 
 		}
 
-		$count = DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE (pid = ' . $pid . ' AND place IN (1, 2, 3, 4, 5, 6) AND uid = ' . $trainer['uid'] . ' OR pid = ' . $opid . ' AND (place IN (1, 2, 3, 4, 5, 6) OR place > 100)) AND (mtplace = 600 AND originuid != uid OR mtplace != 600)');
+		$count = DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE (pkm_id = ' . $pid . ' AND location IN (1, 2, 3, 4, 5, 6) AND uid = ' . $trainer['uid'] . ' OR pkm_id = ' . $opid . ' AND (location IN (1, 2, 3, 4, 5, 6) OR location > 100)) AND (met_location = 600 AND uid_initial != uid OR met_location != 600)');
 
 		if($count < 2) {
 
@@ -419,7 +424,7 @@ switch($_GET['process']) {
 
 		}
 
-		$oppo = DB::fetch_first('SELECT uid, originuid, mtplace, (SELECT level FROM pkm_trainerdata WHERE uid = m.uid) tlevel FROM pkm_mypkm m WHERE pid = ' . $opid);
+		$oppo = DB::fetch_first('SELECT uid, uid_initial, met_location, (SELECT level FROM pkm_trainerdata WHERE uid = m.uid) tlevel FROM pkm_mypkm m WHERE pkm_id = ' . $opid);
 
 		if($oppo['tlevel'] < 3) {
 
@@ -433,7 +438,7 @@ switch($_GET['process']) {
 
 			break;
 
-		} elseif($oppo['mtplace'] === '600' && $oppo['originuid'] === $oppo['uid']) {
+		} elseif($oppo['met_location'] === '600' && $oppo['uid_initial'] === $oppo['uid']) {
 
 			$return['msg'] = '这是对方的初始精灵，你忍心拆散他们么？';
 
@@ -441,7 +446,7 @@ switch($_GET['process']) {
 
 		}
 
-		$query = DB::query('SELECT ouid, pid FROM pkm_mytrade WHERE uid = ' . $trainer['uid']);
+		$query = DB::query('SELECT ouid, pkm_id FROM pkm_mytrade WHERE uid = ' . $trainer['uid']);
 		$i     = 1;
 
 		while($info = DB::fetch($query)) {
@@ -467,8 +472,8 @@ switch($_GET['process']) {
 
 		Kit::SendMessage('精灵交换申请', $trainer['username'] . '向您提出了精灵交换请求，请到<a href="?index=pc&section=trade">PC</a>查看！', $trainer['uid'], $oppo['uid']);
 
-		DB::query('UPDATE pkm_mypkm SET place = 10 WHERE pid = ' . $pid);
-		DB::query('INSERT INTO pkm_mytrade (uid, ouid, pid, opid, time) VALUES (' . $trainer['uid'] . ', ' . $oppo['uid'] . ', ' . $pid . ', ' . $opid . ', ' . $_SERVER['REQUEST_TIME'] . ')');
+		DB::query('UPDATE pkm_mypkm SET location = 10 WHERE pkm_id = ' . $pid);
+		DB::query('INSERT INTO pkm_mytrade (uid, ouid, pkm_id, opid, time) VALUES (' . $trainer['uid'] . ', ' . $oppo['uid'] . ', ' . $pid . ', ' . $opid . ', ' . $_SERVER['REQUEST_TIME'] . ')');
 
 		$return['msg'] = '请求发送成功！';
 
@@ -478,7 +483,7 @@ switch($_GET['process']) {
 
 		$tradeid = !empty($_GET['tradeid']) ? intval($_GET['tradeid']) : 0;
 
-		if($tradeid === 0 || !($tradeinfo = DB::fetch_first('SELECT uid, ouid, pid, opid, time FROM pkm_mytrade WHERE tradeid = ' . $tradeid . ' AND ouid = ' . $trainer['uid']))) {
+		if($tradeid === 0 || !($tradeinfo = DB::fetch_first('SELECT uid, ouid, pkm_id, opid, time FROM pkm_mytrade WHERE tradeid = ' . $tradeid . ' AND ouid = ' . $trainer['uid']))) {
 
 			$return['msg'] = '不好意思，我们没有在系统里找到这个交换请求！';
 
@@ -487,21 +492,21 @@ switch($_GET['process']) {
 		}
 
 		/*
-			@ &$info require: evldata, crritem, level, hpns, beauty, unserialized move, gender, atk, def, pv, [name, nickname]{reversed in battle}, abi, abic, form, pid, id, 
+			@ &$info require: evolution_data, item_carrying, level, happiness, beauty, unserialized moves, gender, atk, def, psn_value, [name, nickname]{reversed in battle}, ability, ability_dream, form, pkm_id, id,
 		*/
 
 
 		Kit::Library('class', ['obtain', 'pokemon']);
 
-		$query   = DB::query('SELECT m.pid, m.place, m.crritem, m.level, m.hpns, m.beauty, m.move, m.gender, m.pv, m.iv, m.ev, m.nickname, m.abi, m.form, m.originuid, m.uid, m.id, p.evldata, p.name, p.abic, p.bs FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON p.id = m.id WHERE m.pid = ' . $tradeinfo['opid'] . ' AND m.uid = ' . $trainer['uid'] . ' OR m.pid = ' . $tradeinfo['pid'] . ' AND m.uid = ' . $tradeinfo['uid']);
+		$query   = DB::query('SELECT m.pkm_id, m.location, m.item_carrying, m.level, m.happiness, m.beauty, m.moves, m.gender, m.psn_value, m.ind_value, m.eft_value, m.nickname, m.ability, m.form, m.uid_initial, m.uid, m.nat_id, p.evolution_data, p.name, p.ability_dream, p.base_stat FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON p.nat_id = m.nat_id WHERE m.pkm_id = ' . $tradeinfo['opid'] . ' AND m.uid = ' . $trainer['uid'] . ' OR m.pkm_id = ' . $tradeinfo['pkm_id'] . ' AND m.uid = ' . $tradeinfo['uid']);
 		$pokemon = [];
 
 		while($info = DB::fetch($query)) {
 
-			$info         = array_merge($info, Obtain::Stat($info['level'], $info['bs'], $info['iv'], $info['ev']));
-			$info['move'] = !empty($info['move']) ? unserialize($info['move']) : [];
+			$info         = array_merge($info, Obtain::Stat($info['level'], $info['base_stat'], $info['ind_value'], $info['eft_value']));
+			$info['moves'] = !empty($info['moves']) ? unserialize($info['moves']) : [];
 
-			$pokemon[$info['pid']] = $info;
+			$pokemon[$info['pkm_id']] = $info;
 
 		}
 
@@ -516,7 +521,7 @@ switch($_GET['process']) {
 
 		$reqpokemon = &$pokemon[$tradeinfo['opid']];
 
-		if($reqpokemon['place'] < 1 || $reqpokemon['place'] > 6 && $reqpokemon['place'] < 101) {
+		if($reqpokemon['location'] < 1 || $reqpokemon['location'] > 6 && $reqpokemon['location'] < 101) {
 
 			$return['msg'] = '被请求的精灵必须在身上或者箱子内！';
 
@@ -534,21 +539,19 @@ switch($_GET['process']) {
 
 		}
 
-		Pokemon::Register($pokemon[$tradeinfo['pid']]['id'], !0);
-		Pokemon::Register($pokemon[$tradeinfo['opid']]['id'], !0, $tradeinfo['uid']);
-
-		//print_r($pokemon[$tradeinfo['opid']]['id'] . '.' . $tradeinfo['uid']);exit;
+		Pokemon::Register($pokemon[$tradeinfo['pkm_id']]['nat_id'], !0);
+		Pokemon::Register($pokemon[$tradeinfo['opid']]['nat_id'], !0, $tradeinfo['uid']);
 
 		sort($pokemon);
 
 		foreach($pokemon as $key => $val) {
 
-			Pokemon::Evolve($pokemon[$key], ['other' => !0, 'otherobj' => $pokemon[$key ^ 1]['id'], 'uid' => $pokemon[$key ^ 1]['uid']]);
+			Pokemon::Evolve($pokemon[$key], ['other' => !0, 'otherobj' => $pokemon[$key ^ 1]['nat_id'], 'uid' => $pokemon[$key ^ 1]['uid']]);
 
 		}
 
-		DB::query('UPDATE pkm_mypkm SET place = ' . $reqpokemon['place'] . ', uid = ' . $trainer['uid'] . ' WHERE pid = ' . $tradeinfo['pid']);
-		DB::query('UPDATE pkm_mypkm SET place = ' . $oplace . ', uid = ' . $tradeinfo['uid'] . ' WHERE pid = ' . $reqpokemon['pid']);
+		DB::query('UPDATE pkm_mypkm SET location = ' . $reqpokemon['location'] . ', uid = ' . $trainer['uid'] . ' WHERE pkm_id = ' . $tradeinfo['pkm_id']);
+		DB::query('UPDATE pkm_mypkm SET location = ' . $oplace . ', uid = ' . $tradeinfo['uid'] . ' WHERE pkm_id = ' . $reqpokemon['pkm_id']);
 		DB::query('UPDATE pkm_trainerstat SET pmtrade = pmtrade + 1 WHERE uid IN (' . $trainer['uid'] . ', ' . $tradeinfo['uid'] . ')');
 		DB::query('DELETE FROM pkm_mytrade WHERE tradeid = ' . $tradeid);
 
@@ -563,7 +566,7 @@ switch($_GET['process']) {
 
 		$tradeid = !empty($_GET['tradeid']) ? intval($_GET['tradeid']) : 0;
 
-		if($tradeid === 0 || !($tradeinfo = DB::fetch_first('SELECT uid, pid FROM pkm_mytrade WHERE tradeid = ' . $tradeid . ' AND ouid = ' . $trainer['uid']))) {
+		if($tradeid === 0 || !($tradeinfo = DB::fetch_first('SELECT uid, pkm_id FROM pkm_mytrade WHERE tradeid = ' . $tradeid . ' AND ouid = ' . $trainer['uid']))) {
 
 			$return['msg'] = '不好意思，我们没有在系统里找到这个交换请求！';
 
@@ -584,7 +587,7 @@ switch($_GET['process']) {
 		}
 
 		DB::query('DELETE FROM pkm_mytrade WHERE tradeid = ' . $tradeid);
-		DB::query('UPDATE pkm_mypkm SET place = ' . $oplace . ' WHERE pid = ' . $tradeinfo['pid']);
+		DB::query('UPDATE pkm_mypkm SET location = ' . $oplace . ' WHERE pkm_id = ' . $tradeinfo['pkm_id']);
 
 		Kit::SendMessage('精灵交换通知', $trainer['username'] . '拒绝了您的精灵交换请求！', $trainer['uid'], $tradeinfo['uid']);
 
@@ -597,7 +600,7 @@ switch($_GET['process']) {
 
 		$tradeid = !empty($_GET['tradeid']) ? intval($_GET['tradeid']) : 0;
 
-		if($tradeid === 0 || !($tradeinfo = DB::fetch_first('SELECT ouid, pid FROM pkm_mytrade WHERE tradeid = ' . $tradeid . ' AND uid = ' . $trainer['uid']))) {
+		if($tradeid === 0 || !($tradeinfo = DB::fetch_first('SELECT ouid, pkm_id FROM pkm_mytrade WHERE tradeid = ' . $tradeid . ' AND uid = ' . $trainer['uid']))) {
 
 			$return['msg'] = '不好意思，我们没有在系统里找到这个交换请求！';
 
@@ -618,7 +621,7 @@ switch($_GET['process']) {
 		}
 
 		DB::query('DELETE FROM pkm_mytrade WHERE tradeid = ' . $tradeid);
-		DB::query('UPDATE pkm_mypkm SET place = ' . $place . ' WHERE pid = ' . $tradeinfo['pid']);
+		DB::query('UPDATE pkm_mypkm SET location = ' . $place . ' WHERE pkm_id = ' . $tradeinfo['pkm_id']);
 
 		Kit::SendMessage('精灵交换通知', $trainer['username'] . '取消了精灵交换请求！', $trainer['uid'], $tradeinfo['ouid']);
 

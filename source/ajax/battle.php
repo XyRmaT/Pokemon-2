@@ -6,21 +6,21 @@ define('BATTLEMODE', 'WILD');
 
 Kit::Library('class', ['obtain', 'battle', 'pokemon']);
 
-$mid = !empty($_GET['mid']) ? intval($_GET['mid']) : 0;
+$mid = !empty($_GET['move_id']) ? intval($_GET['move_id']) : 0;
 
-$_GET['process'] = (!empty($_GET['process']) && in_array($_GET['process'], ['usemove', 'useitem', 'swappm']) && $trainer['inbtl'] === '1') ? $_GET['process'] : '';
+$_GET['process'] = (!empty($_GET['process']) && in_array($_GET['process'], ['usemove', 'useitem', 'swappm']) && $trainer['is_battling'] === '1') ? $_GET['process'] : '';
 
 switch($_GET['process']) {
 	case '':
 
-		$return['msg'] = ($trainer['inbtl'] === '1') ? '??????' : '战斗已经结束！';
+		$return['msg'] = ($trainer['is_battling'] === '1') ? '??????' : '战斗已经结束！';
 
 		goto BATTLEERROR;
 
 		break;
 	case 'usemove':
 
-		$mid = !empty($_GET['mid']) ? intval($_GET['mid']) : 0;
+		$mid = !empty($_GET['move_id']) ? intval($_GET['move_id']) : 0;
 
 		if($mid === 0) {
 
@@ -59,7 +59,7 @@ if(empty(Battle::$pokemon) || $hptotal < 1) {
 
 } elseif(Battle::$pokemon[1][0]['hp'] < 1 && $_GET['process'] === 'swappm') {
 
-	Battle::$swapped = Battle::ReorderPokemon(intval($_GET['pid']));
+	Battle::$swapped = Battle::ReorderPokemon(intval($_GET['pkm_id']));
 
 	Battle::$faintswap = !0;
 
@@ -82,24 +82,24 @@ if(empty(Battle::$field)) {
 }
 
 
-// Obtaining move data for both opposite and self, also check if any moves is charging
+// Obtaining moves data for both opposite and self, also check if any moves is charging
 
 MARKMOVECHARGE:
 
-Battle::$move[0]        = Battle::$pokemon[0][0]['move'];
+Battle::$move[0]        = Battle::$pokemon[0][0]['moves'];
 Battle::$move[0]['key'] = Battle::$pokemon[0][1][6] ? Kit::ColumnSearch(Battle::$move[0], 0, Battle::$pokemon[0][1][6]) : array_rand(Battle::$move[0]);
 
 if($_GET['process'] === 'usemove') {
 
-	// If this is a consecutive attack, set the move id to that one
+	// If this is a consecutive attack, set the moves id to that one
 	(Battle::$pokemon[1][1][2][43] !== FALSE) && ($mid = Battle::$pokemon[1][1][7]);
 
-	Battle::$move[1]        = Battle::$pokemon[1][0]['move'];
+	Battle::$move[1]        = Battle::$pokemon[1][0]['moves'];
 	Battle::$move[1]['key'] = Kit::ColumnSearch(Battle::$move[1], 0, Battle::$pokemon[1][1][6] ? Battle::$pokemon[1][1][6] : $mid);
 
 }
 
-$query = DB::query('SELECT mid, name_zh, type, class, power, acc, pp, prio, freq, ctrate, effect, btlefct FROM pkm_movedata WHERE mid = ' . Battle::$move[0][Battle::$move[0]['key']][0] . (($_GET['process'] === 'usemove') ? ' UNION ALL SELECT mid, name_zh, type, class, power, acc, pp, prio, freq, ctrate, effect, btlefct FROM pkm_movedata WHERE mid = ' . $mid : ''));
+$query = DB::query('SELECT move_id, name_zh name, type, class, power, acc, pp, prio, freq, ctrate, effect, battle_effect FROM pkm_movedata WHERE move_id = ' . Battle::$move[0][Battle::$move[0]['key']][0] . (($_GET['process'] === 'usemove') ? ' UNION ALL SELECT move_id, name_zh name, type, class, power, acc, pp, prio, freq, ctrate, effect, battle_effect FROM pkm_movedata WHERE move_id = ' . $mid : ''));
 $i     = 0;
 
 while($info = DB::fetch($query)) {
@@ -129,7 +129,7 @@ $return['battle'] = [
 		'oppostatus' => Obtain::StatusIcon(Battle::$pokemon[0][0]['status']),
 		'selfhp'     => Battle::$pokemon[1][0]['hp'],
 		'selfmaxhp'  => Battle::$pokemon[1][0]['maxhp'],
-		'selfmove'   => Battle::$pokemon[1][0]['move'],
+		'selfmove'   => Battle::$pokemon[1][0]['moves'],
 		'selfstatus' => Obtain::StatusIcon(Battle::$pokemon[1][0]['status']),
 		'end'        => Battle::$isend,
 		'report'     => Battle::$report . '<br>'
@@ -137,7 +137,7 @@ $return['battle'] = [
 
 $return['js'] = '';
 
-if($_GET['process'] === 'useitem' && !empty($_GET['iid'])) {
+if($_GET['process'] === 'useitem' && !empty($_GET['item_id'])) {
 
 	/*
 		Generate item info
@@ -145,13 +145,13 @@ if($_GET['process'] === 'useitem' && !empty($_GET['iid'])) {
 
 	$tmp = '';
 
-	foreach(Obtain::BagItem('(i.type = 1 AND i.usable = 0 OR i.type = 4 AND i.btlefct != \'\' OR i.effect != \'\')', 'i.type ASC', 'GROUPED:type') as $val) {
+	foreach(Obtain::BagItem('(i.type = 1 AND i.is_usable = 0 OR i.type = 4 AND i.battle_effect != \'\' OR i.effect != \'\')', 'i.type ASC', 'GROUPED:type') as $val) {
 
 		$tmp .= '<strong>' . Obtain::ItemClassName($val[0]['type']) . '</strong><ul>';
 
 		foreach($val as $valb) {
 
-			$tmp .= '<li data-iid="' . $valb['iid'] . '" title="' . $valb['name'] . '（余' . $valb['num'] . '个）：' . $valb['dscptn'] . '"><img src="' . Obtain::Sprite('item', 'png', 'item_' . $valb['iid']) . '"></li>';
+			$tmp .= '<li data-item_id="' . $valb['item_id'] . '" title="' . $valb['name'] . '（余' . $valb['quantity'] . '个）：' . $valb['description'] . '"><img src="' . Obtain::Sprite('item', 'png', 'item_' . $valb['item_id']) . '"></li>';
 
 		}
 
@@ -163,7 +163,7 @@ if($_GET['process'] === 'useitem' && !empty($_GET['iid'])) {
 
 } elseif($_GET['process'] === 'swappm' && Battle::$swapped) {
 
-	$return['js'] = '$(\'#sbj-self\').html(\'' . Battle::$pokemon[1][0]['name'] . Battle::$pokemon[1][0]['gendersign'] . ' Lv. ' . Battle::$pokemon[1][0]['level'] . '<div class="bar"><div class="hp" style="width:' . ceil(Battle::$pokemon[1][0]['hp'] / Battle::$pokemon[1][0]['maxhp'] * 100) . '%"></div><div class="value">' . Battle::$pokemon[1][0]['hp'] . '/' . Battle::$pokemon[1][0]['maxhp'] . '</div></div><div class="sprite"><img src="' . Obtain::Sprite('pokemon', 'png', Battle::$pokemon[1][0]['imgname'], 0, 1) . '"></div>\');';
+	$return['js'] = '$(\'#sbj-self\').html(\'' . Battle::$pokemon[1][0]['name'] . Battle::$pokemon[1][0]['gendersign'] . ' Lv. ' . Battle::$pokemon[1][0]['level'] . '<div class="bar"><div class="hp" style="width:' . ceil(Battle::$pokemon[1][0]['hp'] / Battle::$pokemon[1][0]['maxhp'] * 100) . '%"></div><div class="value">' . Battle::$pokemon[1][0]['hp'] . '/' . Battle::$pokemon[1][0]['maxhp'] . '</div></div><div class="sprite"><img src="' . Obtain::Sprite('pokemon', 'png', Battle::$pokemon[1][0]['sprite_name'], 0, 1) . '"></div>\');';
 
 	/*
 		Generate pokemon info
@@ -175,7 +175,7 @@ if($_GET['process'] === 'useitem' && !empty($_GET['iid'])) {
 
 		if($key < 2 || $key > 6 || $val[0]['hp'] < 1) continue;
 
-		$tmp .= '<li data-pid="' . $val[0]['pid'] . '"><img src="' . ROOTIMG . '/pokemon-icon/' . $val[0]['id'] . '.png"> ' . $val[0]['name'] . ' Lv.' . $val[0]['level'] . '</li>';
+		$tmp .= '<li data-pkm_id="' . $val[0]['pkm_id'] . '"><img src="' . ROOT_IMAGE . '/pokemon-icon/' . $val[0]['nat_id'] . '.png"> ' . $val[0]['name'] . ' Lv.' . $val[0]['level'] . '</li>';
 
 	}
 
@@ -189,9 +189,9 @@ if($_GET['process'] === 'useitem' && !empty($_GET['iid'])) {
 
 
 /*
-$query = DB::query('SELECT btlefct, mid FROM pkm_movedata');
+$query = DB::query('SELECT battle_effect, move_id FROM pkm_movedata');
 while($pkm = DB::fetch($query)) {
-	DB::query('UPDATE pkm_movedata SET btlefct = \'' . $pkm['btlefct'] . '000\' WHERE mid = ' . $pkm['mid']);
+	DB::query('UPDATE pkm_movedata SET battle_effect = \'' . $pkm['battle_effect'] . '000\' WHERE move_id = ' . $pkm['move_id']);
 }*/
 
 BATTLEERROR:

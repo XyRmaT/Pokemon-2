@@ -2,13 +2,13 @@
 
 {template index/header}
 
-<div class="banner"><img src="{ROOTIMG}/other/banner-daycare.png"></div>
+<div class="banner"><img src="{ROOT_IMAGE}/other/banner-daycare.png"></div>
 
 <!--{/if}-->
 
 <div class="dc-info">
 
-	<div class="dc-dscptn">
+	<div class="dc-description">
 		欢迎来到饲育屋！我和老奶奶一起为年轻的训练师们照看精灵，如果你有什么急事又担心精灵的成长那就交给我们吧！<br><br>
 		<!--{if !empty($psbstatus)}--><div class="m-$randmax">$psbstatus</div><!--{else}-->$status<!--{/if}-->
 	</div>
@@ -23,15 +23,15 @@
 					<button>寄放</button>
 				<!--{else}-->
 					<span class="flt-l">$val[nickname]{$val[gendersign]} Lv.$val[level]</span>
-					<span class="flt-r"><img src="$val[capitem]"><!--{if !empty($val['itemimgpath'])}--><img src="$val[itemimgpath]"><!--{/if}--></span><br class="cl">
-					<div class="mid"><img src="$val[pkmimgpath]" data-pid="$val[pid]"><br>已获得 $val[incexp] Exp.<br>取出需花费 $val[cost] $SYS[moneyname]</div>
+					<span class="flt-r"><img src="$val[item_captured]"><!--{if !empty($val['itemimgpath'])}--><img src="$val[itemimgpath]"><!--{/if}--></span><br class="cl">
+					<div class="move_id"><img src="$val[pkmimgpath]" data-pkm_id="$val[pkm_id]"><br>已获得 $val[incexp] Exp.<br>取出需花费 $val[cost] $system[currency_name]</div>
 				<!--{/if}-->
 			</li>
 		<!--{/loop}-->
 		<!--{if $egg === 1}-->
 			<li>
 				<span class="flt-l">蛋</span><br class="cl">
-				<div class="mid"><img src="$eggsprite" class="egg"><br>{$pokemon[0][nickname]}{$pokemon[0][gendersign]}与{$pokemon[1][nickname]}{$pokemon[1][gendersign]}幸福的结晶！</div>
+				<div class="move_id"><img src="$eggsprite" class="egg"><br>{$pokemon[0][nickname]}{$pokemon[0][gendersign]}与{$pokemon[1][nickname]}{$pokemon[1][gendersign]}幸福的结晶！</div>
 			</li>
 		<!--{/if}-->
 	</ul>
@@ -46,8 +46,8 @@
 					<ul class="pmtarget">
 						<!--{eval $i = 0;}-->
 						<!--{loop $party $key $val}-->
-							<!--{if !empty($val['id'])}-->
-								<li{if $i !== 0} class="h"{/if} data-index="$i" data-pid="$val[pid]">
+							<!--{if !empty($val['nat_id'])}-->
+								<li{if $i !== 0} class="h"{/if} data-index="$i" data-pkm_id="$val[pkm_id]">
 									<img src="$val[pkmimgpath]"><br>
 									$val[nickname]{$val[gender]} Lv.$val[level]<br>
 									$val[egggrp]

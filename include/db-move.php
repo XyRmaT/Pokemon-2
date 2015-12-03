@@ -60,7 +60,7 @@ class MoveDb extends Battle {
 
 		}
 
-		if(parent::$atkkey === 0 && $hp === 0 || (parent::$atk[0]['level'] + parent::$def[0]['level']) * rand(0, 255) < parent::$def[0]['level'] / 4 || parent::$def[0]['abi'] === '21' || parent::$def[1][2][23] === 1) {
+		if(parent::$atkkey === 0 && $hp === 0 || (parent::$atk[0]['level'] + parent::$def[0]['level']) * rand(0, 255) < parent::$def[0]['level'] / 4 || parent::$def[0]['ability'] === '21' || parent::$def[1][2][23] === 1) {
 
 			return parent::FailMove();
 
@@ -443,7 +443,7 @@ class MoveDb extends Battle {
 
 	public static function __120() { # 自爆
 
-		if(parent::$def[0]['abi'] === '6') {
+		if(parent::$def[0]['ability'] === '6') {
 
 			return parent::FailMove();
 
@@ -594,7 +594,7 @@ class MoveDb extends Battle {
 
 	public static function __153() { # 大爆炸
 
-		if(parent::$def[0]['abi'] === '6') {
+		if(parent::$def[0]['ability'] === '6') {
 
 			return parent::FailMove();
 
@@ -662,7 +662,7 @@ class MoveDb extends Battle {
 
 	public static function __174() { # 诅咒
 
-		if(!in_array('16', [parent::$atk[0]['type'], parent::$atk[0]['typeb']])) {
+		if(!in_array('16', [parent::$atk[0]['type'], parent::$atk[0]['type_b']])) {
 
 			parent::AlterStatLevel(parent::$atk, 'ATK-INC');
 			parent::AlterStatLevel(parent::$atk, 'DEF-INC');
@@ -745,14 +745,14 @@ class MoveDb extends Battle {
 	public static function __214() { # 梦话、in process...
 
 		$exception          = '13,19,76,91,117,119,130,143,214,253,291,382,383,448,467,507,553,554,264';
-		$count              = DB::result_first('SELECT COUNT(*) FROM pkm_movedata WHERE mid NOT IN (' . $exception);
-		$move               = DB::fetch_first('SELECT mid, name_zh, type, class, power, acc, pp, prio, freq, critrt, effect, btlefct FROM pkm_movedata LIMIT ' . rand(0, $count - 1) . ', 1');
+		$count              = DB::result_first('SELECT COUNT(*) FROM pkm_movedata WHERE move_id NOT IN (' . $exception);
+		$move               = DB::fetch_first('SELECT move_id, name_zh name, type, class, power, acc, pp, prio, freq, critrt, effect, battle_effect FROM pkm_movedata LIMIT ' . rand(0, $count - 1) . ', 1');
 		parent::$m['power'] = $move['power'];
 		parent::$report .= parent::$atk[0]['name'] . '使出了' . parent::$atkmove['name'] . '！<br>';
 
 		if($move['effect'] !== '1') {
 
-			$movename = '__' . $move['mid'];
+			$movename = '__' . $move['move_id'];
 
 			self::$movename();
 
@@ -815,7 +815,7 @@ class MoveDb extends Battle {
 
 		if(parent::$moveflag === 'CALTYPE') {
 
-			$iv                 = explode(',', parent::$atk[0]['iv']);
+			$iv                 = explode(',', parent::$atk[0]['ind_value']);
 			$typearr            = ['6', '7', '9', '11', '10', '8', '16', '12', '1', '2', '3', '4', '14', '13', '17', '15'];
 			parent::$m['type']  = $typearr[floor((($iv[0] & 1) + 2 * ($iv[1] & 1) + 4 * ($iv[2] & 1) + 8 * ($iv[5] & 1) + 16 * ($iv[3] & 1) + 32 * ($iv[4] & 1)) * 15 / 63)];
 			parent::$m['power'] = floor(((in_array($iv[0] % 4, [2, 3]) ? 1 : 0) + 2 * (in_array($iv[1] % 4, [2, 3]) ? 1 : 0) + 4 * (in_array($iv[2] % 4, [2, 3]) ? 1 : 0) + 8 * (in_array($iv[5] % 4, [2, 3]) ? 1 : 0) + 16 * (in_array($iv[3] % 4, [2, 3]) ? 1 : 0) + 32 * (in_array($iv[4] % 4, [2, 3]) ? 1 : 0)) * 40 / 63 + 30);
@@ -1154,13 +1154,13 @@ class MoveDb extends Battle {
 
 	public static function __363() { # 自然恩惠
 
-		if(empty(parent::$atk[0]['crritem']) || !in_array('0', [parent::$field['other']{2}, parent::$def[1][2][7]])) {
+		if(empty(parent::$atk[0]['item_carrying']) || !in_array('0', [parent::$field['other']{2}, parent::$def[1][2][7]])) {
 
 			return parent::FailMove();
 
 		} else {
 
-			list(parent::$atkmove['type'], parent::$m['power']) = explode(',', DB::result_first('SELECT ngiftpwr FROM pkm_itemdata WHERE iid = ' . parent::$atk[0]['crritem']));
+			list(parent::$atkmove['type'], parent::$m['power']) = explode(',', DB::result_first('SELECT ngiftpwr FROM pkm_itemdata WHERE item_id = ' . parent::$atk[0]['item_carrying']));
 
 		}
 
@@ -1183,7 +1183,7 @@ class MoveDb extends Battle {
 
 		$arr = [];
 
-		foreach(parent::$atk[0]['move'] as $val) {
+		foreach(parent::$atk[0]['moves'] as $val) {
 
 			if($val[0] === 387) {
 
@@ -1327,7 +1327,7 @@ class MoveDb extends Battle {
 
 	public static function __445() { # 诱惑
 
-		if(in_array('0', [parent::$atk[0]['gender'], parent::$def[0]['gender']]) || parent::$atk[0]['gender'] | parent::$def[0]['gender'] !== 3 || parent::$def[0]['abi'] === '12') { # 无性、异性、钝感
+		if(in_array('0', [parent::$atk[0]['gender'], parent::$def[0]['gender']]) || parent::$atk[0]['gender'] | parent::$def[0]['gender'] !== 3 || parent::$def[0]['ability'] === '12') { # 无性、异性、钝感
 
 			return parent::FailMove();
 
@@ -1347,7 +1347,7 @@ class MoveDb extends Battle {
 
 	public static function __449() { # 制裁之砾
 
-		switch(parent::$atk[0]['crritem']) {
+		switch(parent::$atk[0]['item_carrying']) {
 			case '火球石板':
 				parent::$m['type'] = '1';
 				break;
@@ -1566,7 +1566,7 @@ class MoveDb extends Battle {
 
 	public static function __546() { # 科技爆破
 
-		switch(parent::$atk[0]['crritem']) {
+		switch(parent::$atk[0]['item_carrying']) {
 			case '火焰卡带':
 				parent::$m['type'] = '1';
 				break;

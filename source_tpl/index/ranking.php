@@ -1,6 +1,6 @@
 {template index/header}
 
-<div class="banner"><img src="{ROOTIMG}/other/banner-ranking.png"></div>
+<div class="banner"><img src="{ROOT_IMAGE}/other/banner-ranking.png"></div>
 
 <div class="rank-list" style="margin-left:0">
 	<h4>训练师榜</h4>
@@ -11,10 +11,10 @@
 	</ul>
 </div>
 <div class="rank-list rank-pm">
-	<h4>精灵榜</h4>
+	<h4>精灵等级榜</h4>
 	<ul>
 		<!--{loop $pokemon $key $val}-->
-			<li<!--{if $key === 0}--> class="tbd-cl"<!--{/if}-->><!--{if $key < 3}--><div class="rank-icon" style="background-position:0 {echo $key * -24}px"></div><!--{else}--><div class="rank-icont">{echo $key + 1}</div><!--{/if}--><img src="{ROOTIMG}/pokemon-icon/$val[id].png" title="$val[username]的{$val[nickname]}"><b>$val[nickname]{$val[gender]}</b><br>Lv.$val[level]</li>
+			<li<!--{if $key === 0}--> class="tbd-cl"<!--{/if}-->><!--{if $key < 3}--><div class="rank-icon" style="background-position:0 {echo $key * -24}px"></div><!--{else}--><div class="rank-icont">{echo $key + 1}</div><!--{/if}--><img src="{ROOT_IMAGE}/pokemon-icon/$val[nat_id].png" title="$val[username]的{$val[nickname]}"><b>$val[nickname]{$val[gender]}</b><br>Lv.$val[level]</li>
 		<!--{/loop}-->
 	</ul>
 </div>

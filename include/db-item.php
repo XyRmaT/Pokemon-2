@@ -11,7 +11,7 @@ class ItemDb {
 
 	public static function __170() { # 力量之粉
 
-		self::$pokemon['hpns'] -= min((self::$pokemon['hpns'] >= 200) ? 10 : 5, 255 - self::$pokemon['hpns']);
+		self::$pokemon['happiness'] -= min((self::$pokemon['happiness'] >= 200) ? 10 : 5, 255 - self::$pokemon['happiness']);
 		self::$message = self::Message('sucks');
 
 	}
@@ -29,21 +29,21 @@ class ItemDb {
 
 	public static function __171() { # 力量之根
 
-		self::$pokemon['hpns'] -= min((self::$pokemon['hpns'] >= 200) ? 15 : 10, 255 - self::$pokemon['hpns']);
+		self::$pokemon['happiness'] -= min((self::$pokemon['happiness'] >= 200) ? 15 : 10, 255 - self::$pokemon['happiness']);
 		self::$message = self::Message('sucks');
 
 	}
 
 	public static function __186() { # 万能粉
 
-		self::$pokemon['hpns'] -= min((self::$pokemon['hpns'] >= 200) ? 10 : 5, 255 - self::$pokemon['hpns']);
+		self::$pokemon['happiness'] -= min((self::$pokemon['happiness'] >= 200) ? 10 : 5, 255 - self::$pokemon['happiness']);
 		self::$message = self::Message('sucks');
 
 	}
 
 	public static function __192() { # 复活草
 
-		self::$pokemon['hpns'] -= min((self::$pokemon['hpns'] >= 200) ? 20 : 15, 255 - self::$pokemon['hpns']);
+		self::$pokemon['happiness'] -= min((self::$pokemon['happiness'] >= 200) ? 20 : 15, 255 - self::$pokemon['happiness']);
 		self::$message = self::Message('sucks');
 
 	}

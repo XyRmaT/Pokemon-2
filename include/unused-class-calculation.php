@@ -11,7 +11,7 @@ function damageCalculate($self, $foe, $condition) {
     //本函数计算技能造成的威力
     //需要一个变身或模仿时的临时数据储存栏
     //调用函数时需要将数据封装为一个数组
-    //本方（self）：level,bsStr,ivStr,evStr,iid,nature,abi,gender,
+    //本方（self）：level,bsStr,ivStr,evStr,item_id,nature,ability,gender,
     //对方（foe）：
     //场地（condition）：weather,
 

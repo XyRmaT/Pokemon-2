@@ -7,7 +7,7 @@ include dirname(__FILE__) . '/../include/class_cron.php';
 	Generate report for the shop
 */
 
-$query  = DB::query('SELECT iid, mthsell FROM pkm_itemdata WHERE mthsell > 0 ORDER BY mthsell DESC');
+$query  = DB::query('SELECT item_id, mthsell FROM pkm_itemdata WHERE mthsell > 0 ORDER BY mthsell DESC');
 $report = '';
 
 while($info = DB::fetch($query)) {

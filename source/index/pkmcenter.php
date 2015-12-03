@@ -9,13 +9,13 @@ switch($_GET['section']) {
 			Fetch pokemon data where in healing mode
 		*/
 
-		$query = DB::query('SELECT m.pid, m.nickname, m.gender, m.ev, m.level, m.nature, m.iv, m.hp, m.id, m.hltime, m.imgname, p.bs FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id WHERE m.place = 8 AND m.uid = ' . $trainer['uid'] . ' ORDER BY m.hltime DESC');
+		$query = DB::query('SELECT m.pkm_id, m.nickname, m.gender, m.eft_value, m.level, m.nature, m.ind_value, m.hp, m.nat_id, m.hltime, m.sprite_name, p.base_stat FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE m.location = 8 AND m.uid = ' . $trainer['uid'] . ' ORDER BY m.hltime DESC');
 		$heal  = [];
 
 		while($info = DB::fetch($query)) {
 
-			$info               = array_merge($info, Obtain::Stat($info['level'], $info['bs'], $info['iv'], $info['ev'], $info['nature']));
-			$info['pkmimgpath'] = Obtain::Sprite('pokemon', 'png', $info['imgname']);
+			$info               = array_merge($info, Obtain::Stat($info['level'], $info['base_stat'], $info['ind_value'], $info['eft_value'], $info['nature']));
+			$info['pkmimgpath'] = Obtain::Sprite('pokemon', 'png', $info['sprite_name']);
 			$info['needtime']   = ceil(($info['maxhp'] - $info['hp']) * 6.6);
 			$info['rmtime']     = max(0, $info['hltime'] + $info['needtime'] - $_SERVER['REQUEST_TIME']);
 			$info['hltime']     = [floor($info['rmtime'] / 60 / 24), round($info['rmtime'] / 60)];
@@ -39,18 +39,18 @@ switch($_GET['section']) {
 			Fetch pokemon data in party
 		*/
 
-		$query   = DB::query('SELECT m.pid, m.nickname, m.id, m.imgname, m.exp, m.hp, m.gender, m.iv, m.ev, m.level, p.bs, p.exptype FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.id = p.id WHERE m.id != 0 AND m.place IN (1, 2, 3, 4, 5, 6) AND uid = ' . $trainer['uid'] . ' ORDER BY m.place');
+		$query   = DB::query('SELECT m.pkm_id, m.nickname, m.nat_id, m.sprite_name, m.exp, m.hp, m.gender, m.ind_value, m.eft_value, m.level, p.base_stat, p.exp_type FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE m.nat_id != 0 AND m.location IN (1, 2, 3, 4, 5, 6) AND uid = ' . $trainer['uid'] . ' ORDER BY m.location');
 		$pokemon = [];
 
 		while($info = DB::fetch($query)) {
 
-			$info               = array_merge($info, Obtain::Stat($info['level'], $info['bs'], $info['iv'], $info['ev'], 1, $info['hp']));
+			$info               = array_merge($info, Obtain::Stat($info['level'], $info['base_stat'], $info['ind_value'], $info['eft_value'], 1, $info['hp']));
 			$info['gender']     = Obtain::GenderSign($info['gender']);
-			$info['minexp']     = Obtain::Exp($info['exptype'], $info['level']);
-			$info['maxexp']     = Obtain::Exp($info['exptype'], $info['level'] + 1) - $info['minexp'];
+			$info['minexp']     = Obtain::Exp($info['exp_type'], $info['level']);
+			$info['maxexp']     = Obtain::Exp($info['exp_type'], $info['level'] + 1) - $info['minexp'];
 			$info['exp']        = $info['exp'] - $info['minexp'];
 			$info['expper']     = round($info['exp'] / $info['maxexp'] * 100);
-			$info['pkmimgpath'] = Obtain::Sprite('pokemon', 'png', $info['imgname']);
+			$info['pkmimgpath'] = Obtain::Sprite('pokemon', 'png', $info['sprite_name']);
 			$pokemon[]          = $info;
 
 		}
@@ -65,11 +65,11 @@ switch($_GET['section']) {
 
 		/*for($i = 1; $i < 100; $i++) {
 
-			rename(ROOTIMG . '/pokemon-icon/' . ($i < 10 ? '00' : '0') . $i . '.png', ROOTIMG . '/pokemon-icon/' . $i . '.png');
+			rename(ROOT_IMAGE . '/pokemon-icon/' . ($i < 10 ? '00' : '0') . $i . '.png', ROOT_IMAGE . '/pokemon-icon/' . $i . '.png');
 			
 		}*/
 
-		$query   = DB::query('SELECT m.pid, m.id, m.place, m.nickname, m.level, m.gender, m.imgname, p.name, p.type, p.typeb, a.name abi FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON p.id = m.id LEFT JOIN pkm_abilitydata a ON a.aid = m.abi WHERE m.uid = ' . $trainer['uid'] . ' ORDER BY m.place ASC');
+		$query   = DB::query('SELECT m.pkm_id, m.nat_id, m.location, m.nickname, m.level, m.gender, m.sprite_name, p.name, p.type, p.type_b, a.name ability FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON p.nat_id = m.nat_id LEFT JOIN pkm_abilitydata a ON a.abi_id = m.ability WHERE m.uid = ' . $trainer['uid'] . ' ORDER BY m.location ASC');
 		$pokemon = [];
 		$boxnum  = $system['initial_box'] + $trainer['boxnum'];
 
@@ -78,18 +78,18 @@ switch($_GET['section']) {
 
 		while($info = DB::fetch($query)) {
 
-			if(!isset($pokemon[$info['place']]) && $info['place'] > 6 || $info['place'] > 6 && $info['place'] < 101)
+			if(!isset($pokemon[$info['location']]) && $info['location'] > 6 || $info['location'] > 6 && $info['location'] < 101)
 
 				continue;
 
-			if($info['place'] < 7)
+			if($info['location'] < 7)
 
-				$info['place'] = 'party';
+				$info['location'] = 'party';
 
 			$info['gender'] = Obtain::GenderSign($info['gender']);
-			$info['type']   = Obtain::TypeName($info['type'], $info['typeb']);
+			$info['type']   = Obtain::TypeName($info['type'], $info['type_b']);
 
-			$pokemon[$info['place']][] = $info;
+			$pokemon[$info['location']][] = $info;
 
 		}
 
@@ -100,14 +100,14 @@ switch($_GET['section']) {
 			Fetch pokemon data in party
 		*/
 
-		$query = DB::query('SELECT m.pid, m.nickname, m.level, m.gender, m.pid, m.imgname, p.type, p.typeb FROM pkm_mypkm m, pkm_pkmdata p WHERE m.id = p.id AND place IN (1, 2, 3, 4, 5, 6) AND uid = ' . $trainer['uid']);
+		$query = DB::query('SELECT m.pkm_id, m.nickname, m.level, m.gender, m.pkm_id, m.sprite_name, p.type, p.type_b FROM pkm_mypkm m, pkm_pkmdata p WHERE m.nat_id = p.nat_id AND location IN (1, 2, 3, 4, 5, 6) AND uid = ' . $trainer['uid']);
 		$party = [];
 
 		while($info = DB::fetch($query)) {
 
-			$info['type']       = Obtain::TypeName($info['type'], $info['typeb']);
+			$info['type']       = Obtain::TypeName($info['type'], $info['type_b']);
 			$info['gender']     = Obtain::GenderSign($info['gender']);
-			$info['pkmimgpath'] = Obtain::Sprite('pokemon', 'png', $info['imgname']);
+			$info['pkmimgpath'] = Obtain::Sprite('pokemon', 'png', $info['sprite_name']);
 			$party[]            = $info;
 
 		}
@@ -117,25 +117,25 @@ switch($_GET['section']) {
 			Fetch pokemon data which are in trade or been requested
 		*/
 
-		$query = DB::query('SELECT m.nickname, m.level, m.gender, m.pid, m.imgname, 
-				mb.pid pidb, mb.nickname nicknameb, mb.level levelb, mb.gender genderb, mb.pid pidb, mb.imgname imgnameb, 
-				p.type, p.typeb, pb.type typeba, pb.typeb typebb, 
+		$query = DB::query('SELECT m.nickname, m.level, m.gender, m.pkm_id, m.sprite_name,
+				mb.pkm_id pidb, mb.nickname nicknameb, mb.level levelb, mb.gender genderb, mb.pkm_id pidb, mb.sprite_name imgnameb,
+				p.type, p.type_b, pb.type typeba, pb.type_b typebb,
 				mbr.username, mt.tradeid, mt.time 
 			FROM pkm_mytrade mt 
-			LEFT JOIN pkm_mypkm m ON m.pid = mt.pid 
-			LEFT JOIN pkm_mypkm mb ON mb.pid = mt.oPid 
-			LEFT JOIN pkm_pkmdata p ON p.id = m.id 
+			LEFT JOIN pkm_mypkm m ON m.pkm_id = mt.pkm_id
+			LEFT JOIN pkm_mypkm mb ON mb.pkm_id = mt.oPid
+			LEFT JOIN pkm_pkmdata p ON p.nat_id = m.nat_id
 			LEFT JOIN pkm_pkmdata pb ON pb.id = mb.id 
 			LEFT JOIN pre_common_member mbr ON mbr.uid = mt.uid
 			WHERE mt.uid = ' . $trainer['uid'] . ' OR mt.ouid = ' . $trainer['uid']);
 		$trade = [];
 
 		while($info = DB::fetch($query)) {
-			$info['type']        = Obtain::TypeName($info['type'], $info['typeb']);
+			$info['type']        = Obtain::TypeName($info['type'], $info['type_b']);
 			$info['typeba']      = Obtain::TypeName($info['typeba'], $info['typebb']);
 			$info['gender']      = Obtain::GenderSign($info['gender']);
 			$info['genderb']     = Obtain::GenderSign($info['gender2']);
-			$info['pkmimgpath']  = Obtain::Sprite('pokemon', 'png', $info['imgname']);
+			$info['pkmimgpath']  = Obtain::Sprite('pokemon', 'png', $info['sprite_name']);
 			$info['pkmimgpathb'] = Obtain::sprite('pokemon', 'png', $info['imgnameb']);
 			$info['time']        = date('Y/m/d H:i', $_SERVER['REQUEST_TIME']);
 			$trade[]             = $info;
@@ -150,11 +150,11 @@ switch($_GET['section']) {
 				Obtaining sent requests
 			*/
 
-			$query = DB::query('SELECT t.tradeid, t.time, t.uid, t.ouid, m.id, m.nickname, m.level, m.gender, m.nature, m.imgname, p.name, p.type, p.typeb, mo.id oid, mo.nickname onickname, mo.level olevel, mo.gender ogender, mo.nature onature, mo.imgname oimgname, po.name oname, po.type otype, po.typeb otypeb, mb.username 
+			$query = DB::query('SELECT t.tradeid, t.time, t.uid, t.ouid, m.nat_id, m.nickname, m.level, m.gender, m.nature, m.sprite_name, p.name, p.type, p.type_b, mo.id oid, mo.nickname onickname, mo.level olevel, mo.gender ogender, mo.nature onature, mo.sprite_name oimgname, po.name oname, po.type otype, po.type_b otypeb, mb.username
 				FROM pkm_mytrade t 
-				LEFT JOIN pkm_mypkm m ON m.pid = t.pid 
-				LEFT JOIN pkm_mypkm mo ON mo.pid = t.opid 
-				LEFT JOIN pkm_pkmdata p ON p.id = m.id 
+				LEFT JOIN pkm_mypkm m ON m.pkm_id = t.pkm_id
+				LEFT JOIN pkm_mypkm mo ON mo.pkm_id = t.opid
+				LEFT JOIN pkm_pkmdata p ON p.nat_id = m.nat_id
 				LEFT JOIN pkm_pkmdata po ON po.id = mo.id 
 				LEFT JOIN pre_common_member mb ON mb.uid = t.uid
 				WHERE t.uid = ' . $trainer['uid'] . ' OR t.ouid = ' . $trainer['uid']
@@ -164,10 +164,10 @@ switch($_GET['section']) {
 			while($info = DB::fetch($query)) {
 
 				$info['time']        = date('Y-m-d H:i:s', $info['time']);
-				$info['type']        = Obtain::TypeName($info['type'], $info['typeb']);
+				$info['type']        = Obtain::TypeName($info['type'], $info['type_b']);
 				$info['gender']      = Obtain::GenderSign($info['gender']);
 				$info['nature']      = Obtain::NatureName($info['nature']);
-				$info['pkmimgpath']  = empty($info['id']) ? Obtain::Sprite('egg', 'png', 0) : Obtain::Sprite('pokemon', 'png', $info['imgname']);
+				$info['pkmimgpath']  = empty($info['nat_id']) ? Obtain::Sprite('egg', 'png', 0) : Obtain::Sprite('pokemon', 'png', $info['sprite_name']);
 				$info['otype']       = Obtain::TypeName($info['otype'], $info['otypeb']);
 				$info['ogender']     = Obtain::GenderSign($info['ogender']);
 				$info['onature']     = Obtain::NatureName($info['onature']);

@@ -52,9 +52,9 @@ class Cache {
     public static function Css($filename, $varfilename = '') {
 
         $file    = '';
-        $frmfile = TPLDIR . '/' . $filename[0] . '.css';
-        $objfile = ROOTCACHE . '/css_' . TEMPLATEID . '_' . str_replace('/', '_', $filename[0]) . '.css';
-        $varfile = TPLDIR . '/' . $varfilename . '.php';
+        $frmfile = ROOT_TEMPLATE . '/' . $filename[0] . '.css';
+        $objfile = ROOT_CACHE . '/css_' . TEMPLATEID . '_' . str_replace('/', '_', $filename[0]) . '.css';
+        $varfile = ROOT_TEMPLATE . '/' . $varfilename . '.php';
         $frmtime = filemtime($frmfile);
 
         // Time cross check, if the file's creation time is still cool then there's no need to re-parse.
@@ -62,8 +62,8 @@ class Cache {
 
         // Save the contents in css file into a variable
         foreach($filename as $val) {
-            $frmfile = TPLDIR . '/' . $val . '.css';
-            file_exists($frmfile) && $file = file_get_contents($frmfile);
+            $frmfile = ROOT_TEMPLATE . '/' . $val . '.css';
+            file_exists($frmfile) && $file .= file_get_contents($frmfile);
         }
 
         // Replace %%variable%% in templates to actual values

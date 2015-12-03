@@ -12,7 +12,7 @@ class Trainer {
     public static function Generate($uid) {
 
         // Use prepared statement to find out if the trainer id already exists
-        if(!($stmt = DB::prepare('SELECT trainerId FROM pkm_trainerdata WHERE trainerId = ?'))) return FALSE;
+        if(!($stmt = DB::prepare('SELECT trainer_id FROM pkm_trainerdata WHERE trainer_id = ?'))) return FALSE;
 
         $stmt->bind_param('s', $trainerId);
         while(1) {
@@ -21,10 +21,21 @@ class Trainer {
         }
 
         // Insert newly genderated trainer data, also add an stat entry for the trainer
-        DB::query('INSERT INTO pkm_trainerdata (uid, trainerId, time_begin, time_happiness_checked) VALUES (' . $uid . ', \'' . $trainerId . '\', ' . $_SERVER['REQUEST_TIME'] . ', ' . $_SERVER['REQUEST_TIME'] . ')');
+        DB::query('INSERT INTO pkm_trainerdata (uid, trainer_id, time_begin, time_happiness_checked) VALUES (' . $uid . ', \'' . $trainerId . '\', ' . $_SERVER['REQUEST_TIME'] . ', ' . $_SERVER['REQUEST_TIME'] . ')');
         DB::query('INSERT INTO pkm_trainerstat (uid) VALUES (' . $uid . ')');
 
         return TRUE;
+
+    }
+
+    public static function Fetch($uid) {
+
+        $trainer = DB::fetch_first('SELECT uid, trainer_id, exp, level, has_starter, box_quantity, time_happiness_checked, is_battling, has_new_message FROM pkm_trainerdata WHERE uid = ' . $uid);
+
+        if(!empty($trainer))
+            $trainer['stat'] = DB::fetch_first('SELECT * FROM pkm_trainerstat WHERE uid = ' . $uid);
+
+        return $trainer;
 
     }
 
@@ -54,50 +65,46 @@ class Trainer {
      * @return int
      */
     public static function AddTemporaryStat($stat, $adding = 1) {
-
-        global $user;
-        return !empty($trainer['stat']['new'][$stat]) ? $trainer['stat']['new'][$stat] += $adding : 0;
-
+        return !empty($GLOBALS['trainer']['stat_add'][$stat]) ? $GLOBALS['trainer']['stat_add'][$stat] += $adding : 0;
     }
 
     /**
-     * Using
+     * @param $uid
+     * @param $statNew
      * @return bool|mysqli_result
      */
-    public static function SaveTemporaryStat() {
+    public static function SaveTemporaryStat($uid, $statNew) {
 
-        global $user;
+        if(array_sum($statNew) === 0) return FALSE;
 
-        if(!($diff = array_diff($trainer['stat']['new'], $trainer['stat']['old']))) return FALSE;
-
-        $keys = array_keys($diff);
-        $vals = array_values($diff);
+        $keys = array_keys($statNew);
+        $vals = array_values($statNew);
         $exts = [];
 
         foreach($keys as $val)
             $exts[] = $val . ' = VALUES(' . $val . ')';
 
-        return DB::query('INSERT INTO pkm_trainerstat (uid, ' . implode(',', $keys) . ') VALUES (' . $trainer['uid'] . ', ' . implode(',', $vals) . ') ON DUPLICATE KEY UPDATE ' . implode(',', $exts));
+        return DB::query('INSERT INTO pkm_trainerstat (uid, ' . implode(',', $keys) . ') VALUES (' . $uid . ', ' . implode(',', $vals) . ') ON DUPLICATE KEY UPDATE ' . implode(',', $exts));
 
     }
 
     public static function Item($action, $uid, $iid, $num, $curnum = 'UNKNOWN', $limit = 0) {
 
         if($curnum === 'UNKNOWN')
-            $curnum = DB::result_first('SELECT num FROM pkm_myitem WHERE iid = ' . $iid . ' AND uid = ' . $uid);
+            $curnum = DB::result_first('SELECT quantity FROM pkm_myitem WHERE item_id = ' . $iid . ' AND uid = ' . $uid);
 
         if($action === 'DROP' && $curnum - $num <= 0)
-            DB::query('DELETE FROM pkm_myitem WHERE iid = ' . $iid . ' AND uid = ' . $uid);
+            DB::query('DELETE FROM pkm_myitem WHERE item_id = ' . $iid . ' AND uid = ' . $uid);
         elseif($action === 'DROP')
-            DB::query('UPDATE pkm_myitem SET num = ' . ($curnum - $num) . ' WHERE uid = ' . $uid . ' AND iid = ' . $iid);
+            DB::query('UPDATE pkm_myitem SET quantity = ' . ($curnum - $num) . ' WHERE uid = ' . $uid . ' AND item_id = ' . $iid);
         elseif($action === 'OBTAIN') {
 
             if($limit !== 0 && $curnum + $num > $limit) return FALSE;
 
             if(empty($curnum))
-                DB::query('INSERT INTO pkm_myitem (iid, num, uid) VALUES (' . $iid . ', ' . $num . ', ' . $uid . ')');
+                DB::query('INSERT INTO pkm_myitem (item_id, quantity, uid) VALUES (' . $iid . ', ' . $num . ', ' . $uid . ')');
             else
-                DB::query('UPDATE pkm_myitem SET num = num' . ($action === 'DROP' ? '-' : '+') . $num . ' WHERE iid = ' . $iid . ' AND uid = ' . $uid);
+                DB::query('UPDATE pkm_myitem SET quantity = quantity' . ($action === 'DROP' ? '-' : '+') . $num . ' WHERE item_id = ' . $iid . ' AND uid = ' . $uid);
 
         }
 

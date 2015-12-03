@@ -3,7 +3,7 @@
 switch($_GET['process']) {
 	case 'pmsave':
 
-		$dccount = DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE uid = ' . $trainer['uid'] . ' AND place = 7');
+		$dccount = DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE uid = ' . $trainer['uid'] . ' AND location = 7');
 
 		if($dccount >= 2) {
 
@@ -13,24 +13,24 @@ switch($_GET['process']) {
 
 		}
 
-		$pokemon = DB::fetch_first('SELECT id, pid, nickname, place FROM pkm_mypkm WHERE pid = ' . intval($_GET['pid']));
+		$pokemon = DB::fetch_first('SELECT id, pkm_id, nickname, location FROM pkm_mypkm WHERE pkm_id = ' . intval($_GET['pkm_id']));
 
 		if(empty($pokemon))
 
 			$return['msg'] = '……';
 
-		elseif(empty($pokemon['id']))
+		elseif(empty($pokemon['nat_id']))
 
 			$return['msg'] = '我们不负责孵化鸡蛋！';
 
-		elseif($pokemon['place'] > 6)
+		elseif($pokemon['location'] > 6)
 
 			$return['msg'] = '咦？' . $pokemon['nickname'] . '不在身上！';
 
 		else {
 
-			DB::query('UPDATE pkm_mypkm SET place = 7, dayctime = ' . $_SERVER['REQUEST_TIME'] . ', eggcheck = ' . $_SERVER['REQUEST_TIME'] . ' WHERE pid = ' . $pokemon['pid']);
-			DB::query('UPDATE pkm_mypkm SET egg = 0 WHERE uid = ' . $trainer['uid'] . ' AND place = 7');
+			DB::query('UPDATE pkm_mypkm SET location = 7, time_daycare_sent = ' . $_SERVER['REQUEST_TIME'] . ', eggcheck = ' . $_SERVER['REQUEST_TIME'] . ' WHERE pkm_id = ' . $pokemon['pkm_id']);
+			DB::query('UPDATE pkm_mypkm SET time_hatched = 0 WHERE uid = ' . $trainer['uid'] . ' AND location = 7');
 
 			ob_start();
 
@@ -47,22 +47,22 @@ switch($_GET['process']) {
 
 		Kit::Library('class', ['obtain']);
 
-		$pid     = intval($_GET['pid']);
-		$pokemon = DB::fetch_first('SELECT pid, dayctime, egg, place, nickname FROM pkm_mypkm WHERE pid = ' . $pid);
+		$pid     = intval($_GET['pkm_id']);
+		$pokemon = DB::fetch_first('SELECT pkm_id, time_daycare_sent, time_hatched, location, nickname FROM pkm_mypkm WHERE pkm_id = ' . $pid);
 
 		if(empty($pokemon))
 
 			$return['msg'] = '……';
 
-		elseif($pokemon['egg'] !== '0')
+		elseif($pokemon['time_hatched'] !== '0')
 
 			$return['msg'] = '请先把精灵蛋领回去！';
 
 		else {
 
-			$cost = (floor(($_SERVER['REQUEST_TIME'] - $pokemon['dayctime']) / 2400) + 1) * 5;
+			$cost = (floor(($_SERVER['REQUEST_TIME'] - $pokemon['time_daycare_sent']) / 2400) + 1) * 5;
 
-			if($trainer['money'] - $cost < 0) {
+			if($trainer['currency'] - $cost < 0) {
 
 				$return['msg'] = '抚养费交足了再来领回去吧！';
 
@@ -80,10 +80,10 @@ switch($_GET['process']) {
 
 			}
 
-			$incexp = floor((time() - $pokemon['dayctime']) / 12);
+			$incexp = floor((time() - $pokemon['time_daycare_sent']) / 12);
 
-			DB::query('UPDATE pkm_mypkm SET egg = 0 WHERE uid = ' . $trainer['uid'] . ' AND place = 7');
-			DB::query('UPDATE pkm_mypkm SET dayctime = 0, place = ' . $place . ', exp = exp + ' . $incexp . ' WHERE pid = ' . $pokemon['pid']);
+			DB::query('UPDATE pkm_mypkm SET time_hatched = 0 WHERE uid = ' . $trainer['uid'] . ' AND location = 7');
+			DB::query('UPDATE pkm_mypkm SET time_daycare_sent = 0, location = ' . $place . ', exp = exp + ' . $incexp . ' WHERE pkm_id = ' . $pokemon['pkm_id']);
 
             App::CreditsUpdate($trainer['uid'], -$cost);
 
@@ -101,12 +101,12 @@ switch($_GET['process']) {
 		break;
 	case 'eggtake':
 
-		$query = DB::query('SELECT id, gender FROM pkm_mypkm WHERE uid = ' . $trainer['uid'] . ' AND place = 7 AND egg = 1 LIMIT 2');
+		$query = DB::query('SELECT id, gender FROM pkm_mypkm WHERE uid = ' . $trainer['uid'] . ' AND location = 7 AND time_hatched = 1 LIMIT 2');
 		$id    = $gender = [];
 
 		while($info = DB::fetch($query)) {
 
-			$id[]     = $info['id'];
+			$id[]     = $info['nat_id'];
 			$gender[] = $info['gender'];
 
 		}
@@ -130,7 +130,7 @@ switch($_GET['process']) {
 
 			}
 
-			$code = Pokemon::Generate($id, $trainer['uid'], ['mtplace' => 601, 'egg' => 1]);
+			$code = Pokemon::Generate($id, $trainer['uid'], ['met_location' => 601, 'time_hatched' => 1]);
 
 			if($code === 3) {
 
@@ -140,7 +140,7 @@ switch($_GET['process']) {
 
 			}
 
-			DB::query('UPDATE pkm_mypkm SET egg = 0 WHERE uid = ' . $trainer['uid'] . ' AND place = 7 AND egg = 1 LIMIT 2');
+			DB::query('UPDATE pkm_mypkm SET time_hatched = 0 WHERE uid = ' . $trainer['uid'] . ' AND location = 7 AND time_hatched = 1 LIMIT 2');
 
 			$trainer['addexp'] += 6;
 

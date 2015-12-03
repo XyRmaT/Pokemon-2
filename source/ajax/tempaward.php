@@ -19,7 +19,7 @@ switch($_GET['process']) {
 
 			Kit::Library('class', ['pokemon', 'obtain']);
 
-			Pokemon::Generate($sid, $trainer['uid'], ['mtplace' => 600]);
+			Pokemon::Generate($sid, $trainer['uid'], ['met_location' => 600]);
 
 			DB::query('UPDATE pkm_trainerdata SET sttchk = 1 WHERE uid = ' . $trainer['uid']);
 

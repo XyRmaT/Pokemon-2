@@ -117,26 +117,26 @@ switch($_GET['process']) {
 
 				} else {
 
-					$item = DB::result_first('SELECT name FROM pkm_itemdata WHERE iid = ' . $iid);
+					$item = DB::result_first('SELECT name FROM pkm_itemdata WHERE item_id = ' . $iid);
 
 					$return['msg'] = '获得了' . $num . '个' . (($param[0] === 'public') ? '公测' : '内测') . $item . '！' . (($trainer['lbagnum'] - 1 > 0) ? '还剩下' . ($trainer['lbagnum'] - 1) . '个福袋！' : '没有福袋了！');
-					$return['num'] = $trainer['lbagnum'] - 1;
+					$return['quantity'] = $trainer['lbagnum'] - 1;
 
 					if($param[0] === 'test') {
 
-						$count = DB::result_first('SELECT COUNT(*) FROM pkm_myitem WHERE iid = ' . $iid . ' AND uid = ' . $trainer['uid']);
+						$count = DB::result_first('SELECT COUNT(*) FROM pkm_myitem WHERE item_id = ' . $iid . ' AND uid = ' . $trainer['uid']);
 
 						if($count < 1)
 
-							DB::query('INSERT INTO pkm_myitem (iid, uid, num) VALUES (' . $iid . ', ' . $trainer['uid'] . ', ' . $num . ')');
+							DB::query('INSERT INTO pkm_myitem (item_id, uid, quantity) VALUES (' . $iid . ', ' . $trainer['uid'] . ', ' . $num . ')');
 
 						else
 
-							DB::query('UPDATE pkm_myitem SET num = num + ' . $num . ' WHERE iid = ' . $iid . ' AND uid = ' . $trainer['uid']);
+							DB::query('UPDATE pkm_myitem SET quantity = quantity + ' . $num . ' WHERE item_id = ' . $iid . ' AND uid = ' . $trainer['uid']);
 
 					}
 
-					DB::query('UPDATE pkm_trainerdata SET lbagnum = ' . $return['num'] . ' WHERE uid = ' . $trainer['uid']);
+					DB::query('UPDATE pkm_trainerdata SET lbagnum = ' . $return['quantity'] . ' WHERE uid = ' . $trainer['uid']);
 
 				}
 
