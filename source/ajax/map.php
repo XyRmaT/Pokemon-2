@@ -4,11 +4,10 @@ switch($_GET['process']) {
     case 'update':
 
         $_GET['mapid'] = 1;
-        $query         = DB::query('SELECT uid, username, x, y, map_id FROM pkm_mapcoordinate WHERE map_id = ' . intval($_GET['mapid']) . ' AND uid != ' . $trainer['uid']);
+        $query         = DB::query('SELECT uid, username, coord_x, coord_y, map_id FROM pkm_mapcoordinate WHERE map_id = ' . intval($_GET['mapid']) . ' AND uid != ' . $trainer['uid']);
         $data          = [];
 
         while($info = DB::fetch($query))
-
             $data[] = '[' . $info['uid'] . ', \'' . $info['username'] . '\', ' . $info['x'] . ', ' . $info['y'] . ']';
 
         $return['js'] = 'p([' . implode(',', $data) . ']);';
@@ -108,7 +107,7 @@ switch($_GET['process']) {
 
             if($i > 50) break;
 
-            DB::query('INSERT INTO pkm_battlefield (uid) VALUES (' . $trainer['uid'] . ') ON DUPLICATE KEY UPDATE weather = 0, trkroom = 0, gravity = 0');
+            DB::query('INSERT INTO pkm_battlefield (uid) VALUES (' . $trainer['uid'] . ') ON DUPLICATE KEY UPDATE weather = 0, has_trickroom = 0, has_gravity = 0');
             DB::query('UPDATE pkm_trainerdata SET is_battling = 1 WHERE uid = ' . $trainer['uid']);
 
             Battle::$pokemon[0] = [

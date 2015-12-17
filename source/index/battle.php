@@ -55,7 +55,7 @@ if(!$map) {
 
     }
 
-    DB::query('INSERT INTO pkm_battlefield (uid) VALUES (' . $trainer['uid'] . ') ON DUPLICATE KEY UPDATE weather = 0, trkroom = 0, gravity = 0');
+    DB::query('INSERT INTO pkm_battlefield (uid) VALUES (' . $trainer['uid'] . ') ON DUPLICATE KEY UPDATE weather = 0, has_trickroom = 0, has_gravity = 0');
 
     Battle::$pokemon[0] = [
         Pokemon::Generate($appearpkm['nat_id'], $trainer['uid'], [

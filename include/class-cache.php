@@ -58,7 +58,7 @@ class Cache {
         $frmtime = filemtime($frmfile);
 
         // Time cross check, if the file's creation time is still cool then there's no need to re-parse.
-        if(file_exists($objfile) && $_SERVER['REQUEST_TIME'] - $frmtime < 900) return $objfile;
+        //if(file_exists($objfile) && $_SERVER['REQUEST_TIME'] - $frmtime < 900) return $objfile;
 
         // Save the contents in css file into a variable
         foreach($filename as $val) {
@@ -72,7 +72,7 @@ class Cache {
             if(!empty($cssvar)) {
                 $pattern = $replacement = [];
                 foreach($cssvar as $name => $val) {
-                    $pattern[]     = '/%%' . $name . '%%/';
+                    $pattern[]     = '/_' . $name . '_/';
                     $replacement[] = $val;
                 }
                 $file = preg_replace($pattern, $replacement, $file); // variables

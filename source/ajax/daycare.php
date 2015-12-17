@@ -10,7 +10,7 @@ switch($_GET['process']) {
 			break;
 		}
 
-		$pokemon = DB::fetch_first('SELECT id, pkm_id, nickname, location FROM pkm_mypkm WHERE pkm_id = ' . intval($_GET['pkm_id']));
+		$pokemon = DB::fetch_first('SELECT nat_id, pkm_id, nickname, location FROM pkm_mypkm WHERE pkm_id = ' . intval($_GET['pkm_id']));
 
 		if(empty($pokemon))
 			$return['msg'] = '……';
@@ -61,9 +61,9 @@ switch($_GET['process']) {
 
 			}
 
-			$place = Obtain::DepositBox($trainer['uid']);
+			$location = Obtain::DepositBox($trainer['uid']);
 
-			if($place === FALSE) {
+			if($location === FALSE) {
 
 				$return['msg'] = '没地方存放精灵了哟~';
 
@@ -74,11 +74,11 @@ switch($_GET['process']) {
 			$incexp = floor((time() - $pokemon['time_daycare_sent']) / 12);
 
 			DB::query('UPDATE pkm_mypkm SET time_hatched = 0 WHERE uid = ' . $trainer['uid'] . ' AND location = 7');
-			DB::query('UPDATE pkm_mypkm SET time_daycare_sent = 0, location = ' . $place . ', exp = exp + ' . $incexp . ' WHERE pkm_id = ' . $pokemon['pkm_id']);
+			DB::query('UPDATE pkm_mypkm SET time_daycare_sent = 0, location = ' . $location . ', exp = exp + ' . $incexp . ' WHERE pkm_id = ' . $pokemon['pkm_id']);
 
             App::CreditsUpdate($trainer['uid'], -$cost);
 
-			$return['msg'] = '抚养费共计' . $cost . $system['currency_name'] . '。' . "\n" . $pokemon['nickname'] . '表示很高兴！' . (($place > 100) ? "\n" . '但身上放不了更多的精灵了，只好将他传送到' . ($place - 100) . '号精灵箱。' : '');
+			$return['msg'] = '抚养费共计' . $cost . $system['currency_name'] . '。' . "\n" . $pokemon['nickname'] . '表示很高兴！' . (($location > 100) ? "\n" . '但身上放不了更多的精灵了，只好将他传送到' . ($location - 100) . '号精灵箱。' : '');
 
 			ob_start();
 

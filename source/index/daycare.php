@@ -27,14 +27,14 @@ Kit::Library('class', ['obtain']);
 	time_egg_checked records the timestamp of last time being checked if there is an time_hatched or not, only modify when starts to check is it any eggs produced
 */
 
-$query   = DB::query('SELECT m.pkm_id, m.level, m.nickname, m.nat_id, m.time_daycare_sent, m.time_egg_checked, m.time_hatched, m.gender, m.uid_initial, m.sprite_name, m.item_carrying, m.item_captured, p.egggrp, p.egggrpb, p.name FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE location = 7 AND uid = ' . $trainer['uid'] . ' LIMIT 2');
+$query   = DB::query('SELECT m.pkm_id, m.level, m.nickname, m.nat_id, m.time_daycare_sent, m.time_egg_checked, m.time_hatched, m.gender, m.uid_initial, m.sprite_name, m.item_carrying, m.item_captured, p.egg_group, p.egg_group_b, p.name FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE location = 7 AND uid = ' . $trainer['uid'] . ' LIMIT 2');
 $pokemon = [];
 
 while($info = DB::fetch($query)) {
 
 	$info['incexp']      = floor(($_SERVER['REQUEST_TIME'] - $info['time_daycare_sent']) / 12);
 	$info['cost']        = (floor(($_SERVER['REQUEST_TIME'] - $info['time_daycare_sent']) / 2400) + 1) * 5;
-	$info['egggrpn']     = Obtain::EggGroupName($info['egggrp'], $info['egggrpb']);
+	$info['egg_groupn']     = Obtain::EggGroupName($info['egg_group'], $info['egg_group_b']);
 	$info['pkmimgpath']  = Obtain::Sprite('pokemon', 'png', $info['sprite_name']);
 	$info['gendersign']  = Obtain::GenderSign($info['gender']);
 	$info['item_captured']     = Obtain::Sprite('item', 'png', 'item_' . $info['item_captured']);
@@ -62,7 +62,7 @@ if($pmcount === 2) {
 
 	$eggpossible = 0;
 
-	if(!in_array(15, [$pokemon[0]['egggrp'], $pokemon[1]['egggrp']])) {
+	if(!in_array(15, [$pokemon[0]['egg_group'], $pokemon[1]['egg_group']])) {
 
 		if(in_array(132, [$pokemon[0]['nat_id'], $pokemon[1]['nat_id']])) {
 
@@ -70,7 +70,7 @@ if($pmcount === 2) {
 
 		} elseif($pokemon[0]['gender'] != $pokemon[1]['gender'] && !in_array(0, [$pokemon[0]['gender'], $pokemon[1]['gender']])) {
 
-			if(in_array($pokemon[0]['egggrp'], [$pokemon[1]['egggrp'], $pokemon[1]['egggrpb']]) || !empty($pokemon[0]['egggrpb']) && in_array($pokemon[0]['egggrpb'], [$pokemon[1]['egggrp'], $pokemon[1]['egggrpb']]))
+			if(in_array($pokemon[0]['egg_group'], [$pokemon[1]['egg_group'], $pokemon[1]['egg_group_b']]) || !empty($pokemon[0]['egg_group_b']) && in_array($pokemon[0]['egg_group_b'], [$pokemon[1]['egg_group'], $pokemon[1]['egg_group_b']]))
 
 				$eggpossible = 1;
 
@@ -195,12 +195,12 @@ if($pmcount < 2) {
 
 	$pokemon = array_merge($pokemon, array_fill($pmcount, 2 - $pmcount, []));
 
-	$query = DB::query('SELECT m.nat_id, m.nickname, m.pkm_id, m.sprite_name, m.level, m.gender, p.egggrp, p.egggrpb, p.name FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id AND m.nat_id != 0 WHERE location IN (1, 2, 3, 4, 5, 6) AND uid = ' . $trainer['uid'] . ' LIMIT 6');
+	$query = DB::query('SELECT m.nat_id, m.nickname, m.pkm_id, m.sprite_name, m.level, m.gender, p.egg_group, p.egg_group_b, p.name FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id AND m.nat_id != 0 WHERE location IN (1, 2, 3, 4, 5, 6) AND uid = ' . $trainer['uid'] . ' LIMIT 6');
 	$party = [];
 
 	while($info = DB::fetch($query)) {
 
-		$info['egggrp']     = Obtain::EggGroupName($info['egggrp'], $info['egggrpb']);
+		$info['egg_group']     = Obtain::EggGroupName($info['egg_group'], $info['egg_group_b']);
 		$info['pkmimgpath'] = Obtain::Sprite('pokemon', 'png', $info['sprite_name']);
 		$info['gender']     = Obtain::GenderSign($info['gender']);
 

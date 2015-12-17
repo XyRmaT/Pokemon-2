@@ -45,6 +45,14 @@ class Battle {
     protected static $moveflag     = '';
     protected static $m            = [];
 
+    const STATUS_BURN     = 1;
+    const STATUS_FREEZE   = 1;
+    const STATUS_PARALYZE = 1;
+    const STATUS_SLEEP    = 1;
+    const STATUS_POISON   = 1;
+    const STATUS_TOXIC    = 1;
+
+
     private static $tempsaver = [];
 
     private static $langtrapped = [
@@ -529,7 +537,7 @@ class Battle {
 
                 }
 
-                if(self::$field['gravity'] > 0 && in_array($atkmove['move_id'], [19, 26, 136, 150, 340, 393, 477, 507])) { # 场地状态 - 重力
+                if(self::$field['has_gravity'] > 0 && in_array($atkmove['move_id'], [19, 26, 136, 150, 340, 393, 477, 507])) { # 场地状态 - 重力
 
                     self::$report .= $atk[0]['name'] . '感觉身体很重。<br>';
 
@@ -775,7 +783,7 @@ class Battle {
                         elseif($atk[0]['item_carrying'] === '88' && self::$order{1} === '1') $accmod *= 1.2;        # 放大镜
                         elseif(in_array($def[0]['item_carrying'], ['39', '72'], TRUE)) $accmod *= 0.9;        # 光粉、舒畅之香
 
-                        if(self::$field['gravity'] == '1') $accmod *= 5 / 3;    # 重力
+                        if(self::$field['has_gravity'] == '1') $accmod *= 5 / 3;    # 重力
 
                         if(self::$field['weather']{0} === '1' && in_array($atkmove['move_id'], ['87', '542'], TRUE))            # 晴天、雷电、暴风
 
@@ -1302,7 +1310,7 @@ class Battle {
 
             # MOVE ACTIVATION - 欺骗空间
 
-            if(self::$field['trkroom'] !== '0') {
+            if(self::$field['has_trickroom'] !== '0') {
 
                 self::$order = ($spddiff < 0) ? '10' : (($spddiff === 0) ? $randorder : '01');
 
@@ -1453,12 +1461,12 @@ class Battle {
 
     public static function CatchPokemon($iid) {
 
-        global $user;
+        global $trainer;
 
         $mod  = $smod = 1;
         $heal = $caught = FALSE;
 
-        $catchrate = DB::result_first('SELECT catchrt FROM pkm_pkmdata WHERE id = ' . self::$pokemon[0][0]['nat_id']);
+        $catchrate = DB::result_first('SELECT catch_rate FROM pkm_pkmdata WHERE nat_id = ' . self::$pokemon[0][0]['nat_id']);
 
         switch($iid) {
             case '2':
@@ -1487,11 +1495,8 @@ class Battle {
                 $chain = [];
                 $query = DB::query('SELECT id FROM pkm_pkmextra WHERE devolve = ' . self::$pokemon[0][0]['nat_id']);
 
-                while($info = DB::fetch($query)) {
-
+                while($info = DB::fetch($query))
                     $chain[] = $info['nat_id'];
-
-                }
 
                 if((!empty($inchain) && in_array(self::$pokemon[1][0]['nat_id'], $inchain, TRUE) ||
                         self::$pokemon[0][0]['nat_id'] === self::$pokemon[1][0]['nat_id']) &&
@@ -1534,7 +1539,7 @@ class Battle {
 
                 break;
             case '18':
-                $mod = min(4, 1 + self::$field['turn'] * 0.3);
+                $mod = min(4, 1 + self::$field['current_turn'] * 0.3);
                 break; # 时间球
             case '21':
                 $mod = 1;
@@ -1546,79 +1551,59 @@ class Battle {
         }
 
         if(in_array((string)self::$pokemon[0][0]['status'], ['1', '3', '5', '6'], TRUE))
-
             $smod = 1.5;
-
         elseif(in_array((string)self::$pokemon[0][0]['status'], ['2', '4'], TRUE))
-
             $smod = 2;
 
         $diff = self::$pokemon[0][0]['level'] - self::$pokemon[1][0]['level'];
-
         $lmod = min(($diff > 0) ? 1 - $diff / 100 : 1 + $diff / 100, 1.05);
+        $x    = (3 * self::$pokemon[0][0]['maxhp'] - 2 * self::$pokemon[0][0]['hp']) * $catchrate * (($catchrate < 10) ? 0.5 : 1) * $mod * $smod * $lmod / 3 / self::$pokemon[0][0]['maxhp'];
 
-        $x = (3 * self::$pokemon[0][0]['maxhp'] - 2 * self::$pokemon[0][0]['hp']) * $catchrate * (($catchrate < 10) ? 0.5 : 1) * $mod * $smod * $lmod / 3 / self::$pokemon[0][0]['maxhp'];
-
-        if($x >= 255) {
-
-            $caught = TRUE;
-
-        } else {
-
-            $caught = TRUE;
-            $y      = 65535 / pow(255 / $x, 0.25);
-
+        $caught = TRUE;
+        if($x < 255) {
+            $y = 65535 / pow(255 / $x, 0.25);
             for($i = 0; $i < 3; $i++) {
-
                 if(rand(0, 65535) >= $y) {
-
                     $caught = FALSE;
-
                     break;
-
                 }
-
             }
-
         }
 
         if($caught === FALSE) {
-
             self::$report .= self::$pokemon[0][0]['name'] . '从球里逃了出来！<br>';
-
             return FALSE;
-
         }
 
-        $place = Obtain::DepositBox($trainer['uid']);
+        $location = Obtain::DepositBox($trainer['uid']);
 
-        if($place === FALSE) return FALSE;
+        if($location === FALSE) return FALSE;
 
         $info = [
-            'id'           => self::$pokemon[0][0]['nat_id'],
-            'nickname'     => '\'' . self::$pokemon[0][0]['name'] . '\'',
-            'gender'       => self::$pokemon[0][0]['gender'],
-            'psn_value'    => '\'' . self::$pokemon[0][0]['psn_value'] . '\'',
-            'ind_value'    => '\'' . self::$pokemon[0][0]['ind_value'] . '\'',
-            'eft_value'    => '\'' . self::$pokemon[0][0]['eft_value'] . '\'',
-            'is_shiny'        => self::$pokemon[0][0]['is_shiny'],
-            'uid_initial'  => $trainer['uid'],
-            'nature'       => self::$pokemon[0][0]['nature'],
-            'level'        => self::$pokemon[0][0]['level'],
-            'exp'          => self::$pokemon[0][0]['exp'],
-            'item_carrying'      => self::$pokemon[0][0]['item_carrying'],
-            'happiness'         => ($iid == '9') ? 200 : self::$pokemon[0][0]['happiness'],
+            'id'            => self::$pokemon[0][0]['nat_id'],
+            'nickname'      => '\'' . self::$pokemon[0][0]['name'] . '\'',
+            'gender'        => self::$pokemon[0][0]['gender'],
+            'psn_value'     => '\'' . self::$pokemon[0][0]['psn_value'] . '\'',
+            'ind_value'     => '\'' . self::$pokemon[0][0]['ind_value'] . '\'',
+            'eft_value'     => '\'' . self::$pokemon[0][0]['eft_value'] . '\'',
+            'is_shiny'      => self::$pokemon[0][0]['is_shiny'],
+            'uid_initial'   => $trainer['uid'],
+            'nature'        => self::$pokemon[0][0]['nature'],
+            'level'         => self::$pokemon[0][0]['level'],
+            'exp'           => self::$pokemon[0][0]['exp'],
+            'item_carrying' => self::$pokemon[0][0]['item_carrying'],
+            'happiness'     => ($iid == '9') ? 200 : self::$pokemon[0][0]['happiness'],
             'moves'         => '\'' . serialize(self::$pokemon[0][0]['moves']) . '\'',
-            'met_level'    => self::$pokemon[0][0]['level'],
-            'met_time'     => $_SERVER['REQUEST_TIME'],
-            'met_location' => self::$pokemon[0][0]['met_location'],
-            'ability'          => self::$pokemon[0][0]['ability'],
-            'uid'          => $trainer['uid'],
-            'item_captured'      => $iid,
-            'hp'           => self::$pokemon[0][0][($iid == '22' || $place > 6) ? 'maxhp' : 'hp'],
-            'location'     => $place,
-            'status'       => ($iid == '22' || $place > 6) ? 0 : self::$pokemon[0][0]['status'],
-            'sprite_name'  => '\'' . self::$pokemon[0][0]['sprite_name'] . '\''
+            'met_level'     => self::$pokemon[0][0]['level'],
+            'met_time'      => $_SERVER['REQUEST_TIME'],
+            'met_location'  => self::$pokemon[0][0]['met_location'],
+            'ability'       => self::$pokemon[0][0]['ability'],
+            'uid'           => $trainer['uid'],
+            'item_captured' => $iid,
+            'hp'            => self::$pokemon[0][0][($iid == '22' || $location > 6) ? 'maxhp' : 'hp'],
+            'location'      => $location,
+            'status'        => ($iid == '22' || $location > 6) ? 0 : self::$pokemon[0][0]['status'],
+            'sprite_name'   => '\'' . self::$pokemon[0][0]['sprite_name'] . '\''
         ];
 
         self::$isend = TRUE;
@@ -2014,7 +1999,7 @@ class Battle {
 
         if($action === 'DROP' && !empty($pokemon[0]['item_carrying'])) {
 
-            $pokemon[1][10]        = $pokemon[0]['item_carrying'];
+            $pokemon[1][10]              = $pokemon[0]['item_carrying'];
             $pokemon[0]['item_carrying'] = '0';
 
         } elseif($action === 'OBTAIN' && !empty($iid)) {
@@ -2023,7 +2008,7 @@ class Battle {
 
         } elseif($action === 'SWAP' && is_array($swappokemon)) {
 
-            $tmp                     = self::$atk[0]['item_carrying'];
+            $tmp                           = self::$atk[0]['item_carrying'];
             self::$atk[0]['item_carrying'] = self::$def[0]['item_carrying'];
             self::$def[0]['item_carrying'] = self::$atk[0]['item_carrying'];
 
@@ -2125,7 +2110,7 @@ class Battle {
 
                 if(!self::$faintswap)
 
-                    DB::query('UPDATE pkm_battlefield SET weather = \'' . self::$field['weather'] . '\', trkroom = ' . self::$field['trkroom'] . ', gravity = ' . self::$field['gravity'] . ', turn = ' . ++self::$field['turn'] . ' WHERE uid = ' . $trainer['uid']);
+                    DB::query('UPDATE pkm_battlefield SET weather = \'' . self::$field['weather'] . '\', has_trickroom = ' . self::$field['has_trickroom'] . ', has_gravity = ' . self::$field['has_gravity'] . ', current_turn = ' . ++self::$field['current_turn'] . ' WHERE uid = ' . $trainer['uid']);
 
                 goto UPDATEPOKEMON;
 
@@ -2160,7 +2145,7 @@ class Battle {
 
     public static function GainExp() {
 
-        global $user;
+        global $trainer;
 
         $baseexp = DB::result_first('SELECT baseexp FROM pkm_pkmdata WHERE id = ' . self::$pokemon[0][0]['nat_id']);
 
@@ -2229,9 +2214,9 @@ class Battle {
 
     }
 
-    public static function GenerateBattleData($pid = 0, $place = 0) {
+    public static function GenerateBattleData($pid = 0, $location = 0) {
 
-        return [$pid, [0, 0, 0, 0, 0, 0, 0], array_fill(0, self::$num['ssn'], FALSE), $place, 0, 0, 0, 0, 0, 0, 0, FALSE, 'insstatus' => 0];
+        return [$pid, [0, 0, 0, 0, 0, 0, 0], array_fill(0, self::$num['ssn'], FALSE), $location, 0, 0, 0, 0, 0, 0, 0, FALSE, 'insstatus' => 0];
 
     }
 

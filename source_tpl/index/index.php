@@ -9,14 +9,14 @@
 		<button class="idx-btn signup flt-r">注册</button>
 		<br clear="all">
 	</div>
-	<img class="index-banner t1" src="{ROOT_IMAGE}/other/new/bnr-idx-1.jpg">
-	<img class="index-banner t1" src="{ROOT_IMAGE}/other/new/bnr-idx-2.jpg">
-	<img class="index-banner t1" src="{ROOT_IMAGE}/other/new/bnr-idx-3.jpg">
-	<img class="index-banner t1" src="{ROOT_IMAGE}/other/new/bnr-idx-4.jpg">
+	<img class="index-banner t1" src="{ROOT_IMAGE}/other/banner-index-1.jpg">
+	<img class="index-banner t1" src="{ROOT_IMAGE}/other/banner-index-2.jpg">
+	<img class="index-banner t1" src="{ROOT_IMAGE}/other/banner-index-3.jpg">
+	<img class="index-banner t1" src="{ROOT_IMAGE}/other/banner-index-4.jpg">
 </div>
 
 <div class="index-right float-left">
-	<img class="index-banner t0" src="{ROOT_IMAGE}/other/new/bnr-idx-0.jpg">
+	<img class="index-banner t0" src="{ROOT_IMAGE}/other/banner-index-0.jpg">
 
 	<div class="index-inner-left float-left">
 		<div>
@@ -44,7 +44,7 @@
 	</div>
 	
 	<div class="idx-inrr flt-r">
-		<img class="index-banner t2" src="{ROOT_IMAGE}/other/new/bnr-idx-5.jpg">
+		<img class="index-banner t2" src="{ROOT_IMAGE}/other/banner-index-5.jpg">
 		<div class="idx-rand">
 			<div class="idx-bar">$randpm[nickname]{$randpm[gender]} <em>Lv.$randpm[level]</em></div>
 			<p align="center"><img src="$randpm[pkmimgpath]" height="96" width="96" title="$randpm[nickname]"></p>

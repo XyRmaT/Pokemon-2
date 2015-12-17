@@ -17,9 +17,12 @@ app.factory('generalQueue', ['$q', '$timeout', function ($q, $timeout) {
     return _fact;
 }]);
 
-app.directive('popUp', function($scope) {
+/*app.directive('popUp', function($scope) {
     return {
-        restrict: 'E
+        restrict: 'E',
+        replace: true,
+        scope: {
+            text*/
 
 
 window.ondragstart = function() { return false };

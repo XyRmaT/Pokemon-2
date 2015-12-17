@@ -50,7 +50,7 @@
 								<li{if $i !== 0} class="h"{/if} data-index="$i" data-pkm_id="$val[pkm_id]">
 									<img src="$val[pkmimgpath]"><br>
 									$val[nickname]{$val[gender]} Lv.$val[level]<br>
-									$val[egggrp]
+									$val[egg_group]
 								</li>
 								<!--{eval ++$i;}-->
 							<!--{/if}-->

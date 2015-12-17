@@ -120,14 +120,14 @@ switch($_GET['section']) {
 		$query = DB::query('SELECT m.nickname, m.level, m.gender, m.pkm_id, m.sprite_name,
 				mb.pkm_id pidb, mb.nickname nicknameb, mb.level levelb, mb.gender genderb, mb.pkm_id pidb, mb.sprite_name imgnameb,
 				p.type, p.type_b, pb.type typeba, pb.type_b typebb,
-				mbr.username, mt.tradeid, mt.time 
+				mbr.username, mt.pkm_id, mt.time
 			FROM pkm_mytrade mt 
 			LEFT JOIN pkm_mypkm m ON m.pkm_id = mt.pkm_id
 			LEFT JOIN pkm_mypkm mb ON mb.pkm_id = mt.oPid
 			LEFT JOIN pkm_pkmdata p ON p.nat_id = m.nat_id
 			LEFT JOIN pkm_pkmdata pb ON pb.id = mb.id 
 			LEFT JOIN pre_common_member mbr ON mbr.uid = mt.uid
-			WHERE mt.uid = ' . $trainer['uid'] . ' OR mt.ouid = ' . $trainer['uid']);
+			WHERE mt.uid = ' . $trainer['uid'] . ' OR mt.uid_target = ' . $trainer['uid']);
 		$trade = [];
 
 		while($info = DB::fetch($query)) {
@@ -150,14 +150,14 @@ switch($_GET['section']) {
 				Obtaining sent requests
 			*/
 
-			$query = DB::query('SELECT t.tradeid, t.time, t.uid, t.ouid, m.nat_id, m.nickname, m.level, m.gender, m.nature, m.sprite_name, p.name, p.type, p.type_b, mo.id oid, mo.nickname onickname, mo.level olevel, mo.gender ogender, mo.nature onature, mo.sprite_name oimgname, po.name oname, po.type otype, po.type_b otypeb, mb.username
+			$query = DB::query('SELECT t.pkm_id, t.time, t.uid, t.uid_target, m.nat_id, m.nickname, m.level, m.gender, m.nature, m.sprite_name, p.name, p.type, p.type_b, mo.id oid, mo.nickname onickname, mo.level olevel, mo.gender ogender, mo.nature onature, mo.sprite_name oimgname, po.name oname, po.type otype, po.type_b otypeb, mb.username
 				FROM pkm_mytrade t 
 				LEFT JOIN pkm_mypkm m ON m.pkm_id = t.pkm_id
-				LEFT JOIN pkm_mypkm mo ON mo.pkm_id = t.opid
+				LEFT JOIN pkm_mypkm mo ON mo.pkm_id = t.pkm_id_target
 				LEFT JOIN pkm_pkmdata p ON p.nat_id = m.nat_id
 				LEFT JOIN pkm_pkmdata po ON po.id = mo.id 
 				LEFT JOIN pre_common_member mb ON mb.uid = t.uid
-				WHERE t.uid = ' . $trainer['uid'] . ' OR t.ouid = ' . $trainer['uid']
+				WHERE t.uid = ' . $trainer['uid'] . ' OR t.uid_target = ' . $trainer['uid']
 			);
 			$sent  = $received = [];
 
@@ -177,7 +177,7 @@ switch($_GET['section']) {
 
 					$sent[] = $info;
 
-				elseif($info['ouid'] == $trainer['uid'])
+				elseif($info['uid_target'] == $trainer['uid'])
 
 					$received[] = $info;
 

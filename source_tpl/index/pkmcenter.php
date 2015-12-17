@@ -58,7 +58,7 @@
 				<!--{if !empty($sent)}-->
 					<ul class="pc-tradelist">
 						<!--{loop $sent $val}-->
-							<li data-tradeid="$val[tradeid]">
+							<li data-pkm_id="$val[pkm_id]">
 								<div>本方精灵</div>
 								<div class="lbd">请求精灵</div>
 								<div><img src="$val[pkmimgpath]" title="<!--{if $val['nat_id']}-->No.$val[nat_id] $val[name] $val[gender]<br>等级：$val[level]<br>昵称：$val[nickname]<br>属性：$val[type]<br>性格：$val[nature]<!--{else}-->$val[nickname]<!--{/if}-->"></div>
@@ -79,7 +79,7 @@
 				<!--{if !empty($received)}-->
 					<ul class="pc-tradelist">
 						<!--{loop $received $val}-->
-							<li data-tradeid="$val[tradeid]">
+							<li data-pkm_id="$val[pkm_id]">
 								<div>对方精灵</div>
 								<div class="lbd">请求精灵</div>
 								<div><img src="$val[pkmimgpath]" title="<!--{if $val['nat_id']}-->No.$val[nat_id] $val[name] $val[gender]<br>等级：$val[level]<br>昵称：$val[nickname]<br>属性：$val[type]<br>性格：$val[nature]<!--{else}-->$val[nickname]<!--{/if}-->"></div>

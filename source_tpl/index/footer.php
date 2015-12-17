@@ -120,13 +120,13 @@
 							ajax('?index=pc&process=traderequest');
 						});
 						$('.sub-trade').off().on('click', function() {
-							var opid = $(this).parent().data('pkm_id');
+							var pkm_id_target = $(this).parent().data('pkm_id');
 							$('#layer-traderequest').dialog({
 								modal: true, 
 								title: '交换请求', 
 								buttons: {
 									'就你了': function() {
-										ajax('?index=pc&process=traderequest&pkm_id=' + $('.pmchoose li:not(.h)', this).data('pkm_id') + '&opid=' + opid);
+										ajax('?index=pc&process=traderequest&pkm_id=' + $('.pmchoose li:not(.h)', this).data('pkm_id') + '&pkm_id_target=' + pkm_id_target);
 										$(this).dialog('destroy');
 									}, 
 									'不对': function() {
@@ -158,7 +158,7 @@
 					$('.pc-tradelist button').on('click', function() {
 						var action = $(this).attr('class').substring(4), 
 							parent = $(this).parent();
-						ajax('?index=pc&process=trade' + action + '&tradeid=' + parent.data('tradeid'), function(i) {
+						ajax('?index=pc&process=trade' + action + '&pkm_id=' + parent.data('pkm_id'), function(i) {
 							if(i.succeed) {
 								var grandparent = parent.parent();
 								parent.remove();

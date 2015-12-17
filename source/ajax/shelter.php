@@ -7,7 +7,7 @@ switch($_GET['process']) {
 
 		Kit::Library('class', ['obtain', 'pokemon']);
 
-		$info = DB::fetch_first('SELECT pkm_id, id, uid_initial FROM pkm_mypkm WHERE pkm_id = ' . intval($_GET['pkm_id']) . ' AND uid = 0 AND location = 9');
+		$info = DB::fetch_first('SELECT pkm_id, nat_id, uid_initial FROM pkm_mypkm WHERE pkm_id = ' . intval($_GET['pkm_id']) . ' AND uid = 0 AND location = 9');
 
 		if(empty($info)) {
 
@@ -21,7 +21,7 @@ switch($_GET['process']) {
 
 			break;
 
-		} elseif(($place = Obtain::DepositBox($trainer['uid'])) === FALSE) {
+		} elseif(($location = Obtain::DepositBox($trainer['uid'])) === FALSE) {
 
 			$return['msg'] = '身上和箱子都满了，你没办法携带更多的精灵了！';
 
@@ -29,7 +29,7 @@ switch($_GET['process']) {
 
 		}
 
-		DB::query('UPDATE pkm_mypkm SET location = ' . $place . ', uid = ' . $trainer['uid'] . ' WHERE pkm_id = ' . $info['pkm_id']);
+		DB::query('UPDATE pkm_mypkm SET location = ' . $location . ', uid = ' . $trainer['uid'] . ' WHERE pkm_id = ' . $info['pkm_id']);
 
         App::CreditsUpdate($trainer['uid'], -$cost);
 		Pokemon::Register($info['nat_id'], !0);

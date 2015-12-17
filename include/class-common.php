@@ -187,7 +187,7 @@ class App {
 
     private static function IsLoggedIn($authcode) {
 
-        global $user;
+        global $trainer;
         list($username, $password, $questionId, $answer) = explode(',,', uc_authcode($authcode, 'DECODE'));
 
         if(!$username || !$password) return FALSE;
