@@ -1,0 +1,124 @@
+/*noinspection CssInvalidPropertyValue*/
+body {
+    background  : #EFEFEF;
+    color       : _text-color-dark_;
+    font-size   : 12px;
+    font-family : "宋体";
+    overflow-x  : hidden;
+}
+
+body, html, ul {
+    padding : 0;
+    margin  : 0;
+}
+
+a {
+    color           : #3598DC;
+    text-decoration : none;
+}
+
+/*
+    页面背景：#efefef
+    导航条背景：#2d2d30
+    风格红色：#e63737（导航已经红色线条）
+    板块边框：#bcbcbc
+    板块背景：#f8f8f8
+    目前普通色用#333333 浅色用#999999 有连接可以点的用#3598dc
+*/
+
+header {
+    line-height        : 55px;
+    background         : #323236;
+    box-shadow         : 0 1px 5px #323236;
+    -moz-box-shadow    : 0 1px 5px #323236;
+    -webkit-box-shadow : 0 1px 5px #323236;
+    position           : relative;
+}
+
+header .decoration-bar {
+    position   : absolute;
+    height     : 5px;
+    width      : 100%;
+    background : _sub-color_;
+    bottom     : 1px;
+}
+
+/* Explicitly defines font-size to fix the inline-block whitespace issue */
+#menu {
+    font-size : 0;
+}
+
+#menu li {
+    text-align   : center;
+    display      : inline-block;
+    width        : 88px;
+    border       : solid #232327;
+    border-width : 0 1px 0 0;
+}
+
+#menu li:first-child {
+    border-width : 0 1px 0 1px;
+}
+
+#menu li a {
+    font-size   : 16px;
+    font-weight : bold;
+    color       : #FFF;
+    display     : block;
+}
+
+#menu li.current, #menu li:hover {
+    background : _sub-color_;
+}
+
+main, footer {
+    margin : 25px auto;
+    width  : 980px;
+}
+
+footer {
+    text-align : center;
+}
+
+.index-banner, .index-banner > img {
+    width  : 580px;
+    height : 250px;
+}
+
+.index-login {
+    width  : 378px;
+    height : 248px;
+}
+
+.box {
+    border     : 1px solid _border-color_;
+    background : _box-bg-color_;
+}
+
+.box .title {
+    line-height   : 40px;
+    height        : 40px;
+    border-bottom : 3px solid _sub-color_;
+    background    : _box-bg-color_ url(_image-root_/other/ball.png) 10px center no-repeat;
+    padding-left  : 40px;
+    font-size     : 14px;
+    font-weight   : bold;
+    color         : #4E5774;
+}
+
+.corrected-center {
+    margin : 0 auto;
+    width  : 980px;
+}
+
+.center {
+    margin : 0 auto;
+}
+
+.float-left {
+    float : left;
+}
+
+.float-right {
+    float : right;
+}

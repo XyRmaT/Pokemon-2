@@ -1441,7 +1441,7 @@ class Battle {
 
             if($item['type'] === '4')
 
-                DB::query('UPDATE pkm_mypkm SET hp = ' . $pokemon['hp'] . ', status = ' . $pokemon['status'] . ' WHERE pkm_id = ' . $pokemon['pkm_id']);
+                DB::query('UPDATE pkm_mypkm SET hp = ' . $pokemon['hp'] . ', STATUS = ' . $pokemon['status'] . ' WHERE pkm_id = ' . $pokemon['pkm_id']);
 
             if($item['type'] !== '1')
 

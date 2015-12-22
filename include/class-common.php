@@ -166,16 +166,17 @@ class App {
 
     public static function Initialize() {
 
-        global $user, $system;
+        global $user, $system, $lang, $smarty;
 
-        $user = $system = [];
+        $user = $system = $lang = [];
 
         // Include all the required files, including databse, config data, cache and UC
         include_once ROOT . '/include/data-config.php';
         include_once ROOT . '/../bbs/uc_client/client.php';
         include_once ROOT . '/include/class-database.php';
         include_once ROOT . '/include/class-cache.php';
-        include_once ROOT . '/include/function-template.php';
+        include_once ROOT . '/include/unused-function-template.php';
+        include_once ROOT . '/include/language-pack/zh.php';
 
         // Connect to the database
         DB::connect(UC_DBHOST, UC_DBUSER, UC_DBPW, UC_DBNAME, UC_DBCHARSET);
@@ -187,7 +188,7 @@ class App {
 
     private static function IsLoggedIn($authcode) {
 
-        global $trainer;
+        global $user;
         list($username, $password, $questionId, $answer) = explode(',,', uc_authcode($authcode, 'DECODE'));
 
         if(!$username || !$password) return FALSE;

@@ -6,13 +6,23 @@ define('INAJAX', (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_R
 define('ROOT', dirname(__FILE__));
 define('YEAR', date('Y', $_SERVER['REQUEST_TIME']));
 define('TEMPLATEID', 1);
-define('ROOT_IMAGE', './source_img');
-define('ROOT_TEMPLATE', './source_tpl');
+define('ROOT_IMAGE', './source-img');
+define('ROOT_TEMPLATE', './source-tpl');
 define('ROOT_CACHE', './cache');
 define('ROOT_RELATIVE', '.');
 
 include_once ROOT . '/include/class-common.php';
 App::Initialize();
+
+// Loading Smarty template engine
+include_once ROOT . '/include/smarty/Smarty.class.php';
+$smarty               = new Smarty();
+$smarty->template_dir = ROOT . '/source-tpl/index/';
+$smarty->compile_dir  = ROOT . '/source-tpl/_compile/';
+$smarty->config_dir   = ROOT . '/include/smarty/config/';
+$smarty->cache_dir    = ROOT . '/cache/template/';
+$smarty->debugging    = TRUE;
+
 error_reporting(E_ALL);
 
 // If the system is closed and it is not GM visiting, display the error message
@@ -69,6 +79,14 @@ if(!empty($user['uid'])) {
 
 }
 
+$smarty->assign('trainer', $trainer);
+$smarty->assign('user', $user);
+$smarty->assign('index', $index);
+$smarty->assign('system', $system);
+$smarty->assign('synclogin', $synclogin);
+$smarty->assign('lang', $lang);
+$smarty->assign('path', $path);
+
 if(INAJAX && !empty($index) && !empty($_GET['process'])) {
 
     if(empty($user['uid'])) $index = 'index';
@@ -98,7 +116,7 @@ if(INAJAX && !empty($index) && !empty($_GET['process'])) {
 
     include ROOT . '/source/index/' . $index . '.php';
 
-    include template('index/' . $index, 'pkm');
+    $smarty->display($index . '.tpl');
 
 }
 
