@@ -1,0 +1,200 @@
+/* Explicitly defines font-size to fix the inline-block whitespace issue */
+.index-banner, .index-banner > img {
+    width  : 580px;
+    height : 250px;
+}
+
+.index-trainer {
+    font-size : 13px;
+}
+
+.index-trainer .info {
+    height        : 43px;
+    border-bottom : 3px solid _sub-color_;
+    padding       : 25px 40px 25px 40px;
+    line-height   : 20px;
+}
+
+.index-trainer .name {
+    color       : #3092C8;
+    margin-left : 10px;
+}
+
+.index-trainer .signature {
+    color       : #656E89;
+    margin-left : 10px;
+}
+
+.index-trainer .ranking {
+    color     : #E63737;
+    font-size : 18px;
+    float     : right;
+}
+
+.index-trainer .other {
+    width  : 340px;
+    margin : 0 auto;
+}
+
+.index-trainer .other > .stat {
+    height      : 60px;
+    line-height : 30px;
+    width       : 80px;
+    padding     : 0 15px 0 15px;
+    margin      : 10px 0 10px 0;
+    text-align  : center;
+    font-size   : 14px;
+}
+
+.index-trainer .party {
+    width       : 340px;
+    height      : 48px;
+    line-height : 48px;
+    background  : #EFEFEF;
+}
+
+.index-trainer .party > img {
+    margin : 5px 12px 8px 12px;
+}
+
+.index-login > .content {
+    padding : 10px 20px 10px 20px;
+}
+
+.index-login input {
+    width  : 318px;
+    margin : 20px 0 5px 0;
+}
+
+.index-login button {
+    width      : 138px;
+    margin-top : 25px;
+}
+
+.index-login #sign_in {
+    background : #ABCD04;
+}
+
+.index-login #sign_up {
+    background : #F8B617;
+}
+
+.index-log li {
+    height      : 27px;
+    line-height : 27px;
+    padding     : 0 10px 0 10px;
+}
+
+.index-log .category {
+    background     : url(_image-root_/other/sprite-log-category.png);
+    width          : 35px;
+    height         : 17px;
+    display        : inline-block;
+    vertical-align : middle;
+    margin-right   : 10px;
+}
+
+.index-log .category.evt {
+    background-position : 0 -17px;
+}
+
+.index-log .category.upd {
+    background-position : 0 -34px;
+}
+
+.index-log .category.fix {
+    background-position : 0 -51px;
+}
+
+.index-stats table {
+    width : 100%;
+}
+
+.index-stats td {
+    width        : 50%;
+    font-size    : 13px;
+    line-height  : 30px;
+    padding-left : 20px;
+}
+
+.index-horde .content {
+    position : relative;
+    height   : 140px;
+}
+
+.index-horde .content > img {
+    position : absolute;
+    display  : none;
+}
+
+.index-horde .content > div {
+    position   : absolute;
+    bottom     : 15px;
+    width      : 158px;
+    text-align : center;
+}
+
+.index-trainers li {
+    display    : inline-block;
+    padding    : 0 32px 15px 33px;
+    text-align : center;
+}
+
+.index-trainers li > div {
+    background  : url(_image-root_/other/sprite-rank-top.png);
+    width       : 24px;
+    height      : 24px;
+    text-indent : -9999px;
+    white-space : nowrap;
+    margin      : 0 auto 5px auto;
+}
+
+.index-trainers li:nth-child(2) > div {
+    background-position : 0 -24px;
+}
+
+.index-trainers li:nth-child(3) > div {
+    background-position : 0 -48px;
+}
+
+.index-trainers li:nth-child(n+4) > div {
+    background    : #414E70;
+    text-indent   : 0;
+    height        : 15px;
+    margin-bottom : 9px;
+    color         : #FFF;
+    font-size     : 10px;
+    line-height   : 15px;
+}
+
+.index-login, .index-trainer {
+    width  : 378px;
+    height : 248px;
+}
+
+.index-horde, .index-stats {
+    width       : 178px;
+    margin-left : 20px;
+}
+
+.index-log, .index-horde, .index-stats {
+    margin-top : 20px;
+    height     : 203px;
+}
+
+.index-trainers, .index-ads {
+    margin-top : 20px;
+    height     : 158px;
+}
+
+.index-log, .index-trainers {
+    width : 578px;
+}
+
+.index-banner, .index-log, .index-trainers {
+    float : left;
+}
+
+.index-login, .index-trainer, .index-horde, .index-stats {
+    float : right;
+}

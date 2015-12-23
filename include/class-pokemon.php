@@ -14,12 +14,12 @@ class Pokemon {
         */
 
         $dftparam = [
-            'egg'      => 0,
-            'wild'     => 0,
-            'met_location'  => 0,
-            'met_level'  => 1,
-            'dreamabi' => 0,
-            'is_shiny'    => 0
+            'egg'          => 0,
+            'wild'         => 0,
+            'met_location' => 0,
+            'met_level'    => 1,
+            'dreamabi'     => 0,
+            'is_shiny'     => 0
         ];
 
         foreach($dftparam as $key => $val) {
@@ -220,41 +220,41 @@ class Pokemon {
         if($param['wild'] === 1) {
 
             $data = [
-                'id'      => $id,
-                'name'    => $pokemon['name'],
-                'gender'  => $gender,
-                'hp'      => $hp,
-                'ability'     => $abi,
-                'psn_value'      => $pv,
-                'ind_value'      => $iv,
-                'eft_value'      => '0,0,0,0,0,0',
-                'is_shiny'   => $shiny,
-                'nature'  => $nature,
-                'level'   => $param['met_level'],
+                'id'            => $id,
+                'name'          => $pokemon['name'],
+                'gender'        => $gender,
+                'hp'            => $hp,
+                'ability'       => $abi,
+                'psn_value'     => $pv,
+                'ind_value'     => $iv,
+                'eft_value'     => '0,0,0,0,0,0',
+                'is_shiny'      => $shiny,
+                'nature'        => $nature,
+                'level'         => $param['met_level'],
                 'item_carrying' => $crritem,
-                'happiness'    => $pokemon['stthpns'],
-                'moves'    => $move,
-                'uid'     => $uid,
-                'form'    => $form,
-                'status'  => 0,
-                'exp'     => $exp,
-                'met_location' => $param['met_location'],
-                'height'  => $pokemon['height'] / 10,
-                'weight'  => $pokemon['weight'] / 10
+                'happiness'     => $pokemon['stthpns'],
+                'moves'         => $move,
+                'uid'           => $uid,
+                'form'          => $form,
+                'status'        => 0,
+                'exp'           => $exp,
+                'met_location'  => $param['met_location'],
+                'height'        => $pokemon['height'] / 10,
+                'weight'        => $pokemon['weight'] / 10
             ];
 
             return array_merge($data, [
-                'type'    => $pokemon['type'],
-                'type_b'   => $pokemon['type_b'],
+                'type'        => $pokemon['type'],
+                'type_b'      => $pokemon['type_b'],
                 'sprite_name' => $spriteName,
-                'base_stat'      => $pokemon['base_stat']
+                'base_stat'   => $pokemon['base_stat']
             ]);
 
         } else {
 
             if(!empty($id)) self::Register($id, !0);
 
-            DB::query('INSERT INTO pkm_mypkm (id, nickname, gender, psn_value, ind_value, eft_value, is_shiny, uid_initial, time_daycare_sent, time_hatched, time_hatched, nature, level, exp, item_carrying,
+            DB::query('INSERT INTO pkm_mypkm (nat_id, nickname, gender, psn_value, ind_value, eft_value, is_shiny, uid_initial, time_daycare_sent, time_hatched, time_hatched, nature, level, exp, item_carrying,
                     time_pc_sent, happiness, beauty, moves, met_level, met_time, met_location, ability, uid, item_captured, hp, form, location, status, moves_new, sprite_name)
                 VALUES (' . $id . ', \'' . (!empty($eggset['name']) ? $eggset['name'] : $pokemon['name'] . (!empty($egg) ? '的蛋' : '')) . '\', ' . $gender . ', \'' . $pv . '\', \'' . $iv . '\', \'0,0,0,0,0,0\', ' . $shiny . ', ' . $uid . ', 0, ' . $egghatch . ', ' . $egg . ', ' . $nature . ', ' . $param['met_level'] . ', ' . $exp . ', ' . $crritem . ', 0, ' . $pokemon['stthpns'] . ', 0, \'' . $move . '\', ' . $param['met_level'] . ', ' . $_SERVER['REQUEST_TIME'] . ', ' . $param['met_location'] . ', ' . $abi . ', ' . $uid . ', 1, ' . $hp . ', 0, ' . $location . ', 0, \'\', \'' . $spriteName . '\')');
 
@@ -579,14 +579,10 @@ class Pokemon {
                         $shiny   = (($tidpart[0] ^ $tidpart[1] ^ (('0x' . $pvpart[0] . $pvpart[1]) * 1) ^ (('0x' . $pvpart[2] . $pvpart[3]) * 1)) <= 7) ? 1 : 0;
 
                         if($evoinfo['ability_dream'] !== $info['ability']) {
-
                             $tmp = base_convert($info['psn_value']{3}, 16, 2);
                             $abi = $evoinfo[(substr($tmp, -1, 1) === '1' || empty($evoinfo['ability_b'])) ? 'ability' : 'ability_b'];
-
                         } else {
-
                             $abi = $evoinfo['ability_dream'];
-
                         }
 
                         switch($evoinfo['genderrt']) {
@@ -596,7 +592,7 @@ class Pokemon {
                             case 254:
                                 $gender = 2;
                                 break;
-                            case 255:
+                            case 0:
                                 $gender = 1;
                                 break;
                             default:
@@ -609,15 +605,12 @@ class Pokemon {
 
                         $crritem = (!empty($val[5]) && $val[5] == $info['item_carrying']) ? 0 : $info['item_carrying'];
 
-                        Obtain::Sprite('pokemon', 'png', $spriteName);
+                        Obtain::Sprite('pokemon', 'gif', $spriteName);
                         DB::query('UPDATE pkm_mypkm SET ' . (($info['name'] === $info['nickname']) ? 'nickname = \'' . $evoinfo['name'] . '\', ' : '') . 'id = ' . $val[0] . ', ability = ' . $abi . ', is_shiny = ' . $shiny . ', gender = ' . $gender . ', sprite_name = \'' . $spriteName . '\', item_carrying = ' . $crritem . ' WHERE pkm_id = ' . $info['pkm_id']);
-                        DB::query('UPDATE pkm_trainerstat SET pmevolve = pmevolve + 1 WHERE uid = ' . $param['uid']);
+                        DB::query('UPDATE pkm_trainerstat SET pkm_evolved = pkm_evolved + 1 WHERE uid = ' . $param['uid']);
 
-                        if(self::$count === 0) {
-
+                        if(self::$count === 0)
                             self::$count = DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE location IN (1, 2, 3, 4, 5, 6) AND uid = ' . $param['uid']);
-
-                        }
 
                         self::Register($val[0], !0, $param['uid']);
 
@@ -636,14 +629,14 @@ class Pokemon {
                         }
 
                         $info = array_merge($info, [
-                            'id'       => $val[0],
-                            'sprite_name'  => $spriteName,
-                            'name'     => $evoinfo['name'],
-                            'nickname' => ($info['name'] === $info['nickname']) ? $evoinfo['name'] : $info['nickname'],
-                            'gender'   => $gender,
-                            'ability'      => $abi,
-                            'evolution_data'  => $evoinfo['evolution_data'],
-                            'base_stat'       => $evoinfo['base_stat']
+                            'id'             => $val[0],
+                            'sprite_name'    => $spriteName,
+                            'name'           => $evoinfo['name'],
+                            'nickname'       => ($info['name'] === $info['nickname']) ? $evoinfo['name'] : $info['nickname'],
+                            'gender'         => $gender,
+                            'ability'        => $abi,
+                            'evolution_data' => $evoinfo['evolution_data'],
+                            'base_stat'      => $evoinfo['base_stat']
                         ]);
 
                         return TRUE;

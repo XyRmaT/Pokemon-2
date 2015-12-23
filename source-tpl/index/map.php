@@ -1,6 +1,6 @@
 {template index/header}
 
-<script src="./source/plugin/pokemon_n/source-tpl/js/jquery.hotkeys-0.7.9.js" type="text/javascript"></script>
+<script src="./source/plugin/pokemon_n/source-tpl/javascript/jquery.hotkeys-0.7.9.js" type="text/javascript"></script>
 
 <br class="cl">
 

@@ -80,7 +80,7 @@ switch($_GET['section']) {
                     Pokemon::$pmtmp = [];
                     unset($info['evolution_data'], $info['exp_type']);
 
-                    $info['pkmimgpath']    = Obtain::Sprite('pokemon', 'png', $info['sprite_name']);
+                    $info['pkmimgpath']    = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
                     $info['item_captured'] = Obtain::Sprite('item', 'png', 'item_' . $info['item_captured']);
                     $info['itemimgpath']   = ($info['item_carrying']) ? Obtain::Sprite('item', 'png', 'item_' . $info['item_carrying']) : '';
                     $info['gender']        = Obtain::GenderSign($info['gender']);
@@ -205,7 +205,7 @@ switch($_GET['section']) {
 
             if($info['item_carrying']) $iids[] = $info['item_carrying'];
 
-            $info['pkmimgpath']  = Obtain::Sprite('pokemon', 'png', $info['sprite_name']);
+            $info['pkmimgpath']  = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
             $info['pkmimgpathi'] = Obtain::Sprite('pokemon-icon', 'png', 'picon_' . $info['nat_id']);
             $info['itemimgpath'] = $info['item_carrying'] ? Obtain::Sprite('item', 'png', 'item_' . $info['item_carrying']) : '';
             $info['gender']      = Obtain::GenderSign($info['gender']);

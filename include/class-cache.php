@@ -15,9 +15,12 @@
  */
 class Cache {
 
-    public static $extendpre = 'CC';
-    public static $rfscache  = FALSE;
-    public static $param     = [];
+    public static $extendpre  = 'CC';
+    public static $rfscache   = FALSE;
+    public static $param      = [];
+    public static $path_css   = '';
+    public static $path_cache = '';
+    public static $id         = 0;
 
     /**
      * Generate a parsable PHP file with an array.
@@ -52,9 +55,9 @@ class Cache {
     public static function Css($filename, $varfilename = '') {
 
         $file    = '';
-        $frmfile = ROOT_TEMPLATE . '/' . $filename[0] . '.css';
-        $objfile = ROOT_CACHE . '/css_' . TEMPLATEID . '_' . str_replace('/', '_', $filename[0]) . '.css';
-        $varfile = ROOT_TEMPLATE . '/' . $varfilename . '.php';
+        $frmfile = '';
+        $objfile = self::$path_cache . '/css_' . self::$id . '_' . implode('-', $filename) . '.css';
+        $varfile = self::$path_css . '/' . $varfilename . '.php';
         $frmtime = filemtime($frmfile);
 
         // Time cross check, if the file's creation time is still cool then there's no need to re-parse.
@@ -62,7 +65,7 @@ class Cache {
 
         // Save the contents in css file into a variable
         foreach($filename as $val) {
-            $frmfile = ROOT_TEMPLATE . '/' . $val . '.css';
+            $frmfile = self::$path_css . '/' . $val . '.css';
             file_exists($frmfile) && $file .= file_get_contents($frmfile);
         }
 
@@ -81,10 +84,13 @@ class Cache {
 
         // Replace other stuff such as comments, special signs (:;), white spaces and etc.
         $file = preg_replace('/\/\*{1,}[^\*]+\*{1,}\//', '', $file);
-        $file = preg_replace('/([\;\:])[\s]+/', '\\1', $file);
+        $file = preg_replace('/\s*([\;\:,])\s*/', '\\1', $file);
         $file = preg_replace('/[\s]{0,}([\{\}])[\s]+/', '\\1', $file);
         $file = preg_replace('/[\n\r]/', '', $file);
         $file = preg_replace('/;\s*\}/', '}', $file);
+        /*$file = preg_replace_callback('/([0-9]+)px/', function($matches) {
+            return '' . round($matches[1] / 16, 3) . 'rem';
+        }, $file);*/
 
         $fp = fopen($objfile, 'w+');
         if(in_array(FALSE, [flock($fp, LOCK_EX), fwrite($fp, $file), flock($fp, LOCK_UN)], TRUE)) return FALSE;

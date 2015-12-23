@@ -35,7 +35,7 @@ while($info = DB::fetch($query)) {
 	$info['incexp']      = floor(($_SERVER['REQUEST_TIME'] - $info['time_daycare_sent']) / 12);
 	$info['cost']        = (floor(($_SERVER['REQUEST_TIME'] - $info['time_daycare_sent']) / 2400) + 1) * 5;
 	$info['egg_groupn']     = Obtain::EggGroupName($info['egg_group'], $info['egg_group_b']);
-	$info['pkmimgpath']  = Obtain::Sprite('pokemon', 'png', $info['sprite_name']);
+	$info['pkmimgpath']  = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
 	$info['gendersign']  = Obtain::GenderSign($info['gender']);
 	$info['item_captured']     = Obtain::Sprite('item', 'png', 'item_' . $info['item_captured']);
 	$info['itemimgpath'] = ($info['item_carrying']) ? Obtain::Sprite('item', 'png', 'item_' . $info['item_carrying']) : '';
@@ -201,7 +201,7 @@ if($pmcount < 2) {
 	while($info = DB::fetch($query)) {
 
 		$info['egg_group']     = Obtain::EggGroupName($info['egg_group'], $info['egg_group_b']);
-		$info['pkmimgpath'] = Obtain::Sprite('pokemon', 'png', $info['sprite_name']);
+		$info['pkmimgpath'] = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
 		$info['gender']     = Obtain::GenderSign($info['gender']);
 
 		$party[] = $info;

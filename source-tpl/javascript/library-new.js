@@ -22,7 +22,28 @@ app
 
         _fact.asyncTask = _asyncTask;
         return _fact;
-    }]);
+    }])
+    .directive('ngPlaceholder', function() {
+        return {
+            restrict: 'A',
+            link: function($scope, $element, $attr) {
+                $element.attr('placeholder', $attr.ngPlaceholder)
+            }
+        };
+    })
+    .directive('pokemonOverflow', function() {
+        return {
+            restrict: 'A',
+            link: function($scope, $element) {
+                $element.on('load', function() {
+                    $element.css({
+                        'left': (($element.parent().outerWidth() - $element.width()) / 2) + 'px',
+                        'top' : (($element.parent().parent().outerHeight() - $element.parent().prev().outerHeight() - $element.height()) / 2 - 15) + 'px'
+                    }).show();
+                });
+            }
+        };
+    });
 
 /*app.directive('popUp', function($scope) {
     return {

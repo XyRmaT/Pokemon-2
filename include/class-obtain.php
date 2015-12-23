@@ -39,29 +39,17 @@ class Obtain {
         $maxboxnum = $trainer['boxnum'] + $system['initial_box'] + 100;
 
         if(empty(self::$box)) {
-
             $query = DB::query('SELECT location, COUNT(*) total FROM pkm_mypkm WHERE uid = ' . $uid . ' AND (location IN (1, 2, 3, 4, 5, 6) OR location > 100) GROUP BY location');
-
-            while($pokemon = DB::fetch($query)) {
-
+            while($pokemon = DB::fetch($query))
                 self::$box[$pokemon['location']] = $pokemon['total'];
-
-            }
-
         }
 
         for($i = 1; $i <= $maxboxnum; $i++) {
-
             if(empty(self::$box[$i]) || $i > 100 && self::$box[$i] < $system['pkm_per_box']) {
-
                 self::$box[$i] = isset(self::$box[$i]) ? self::$box[$i] + 1 : 1;
-
                 return $i;
-
             }
-
             if($i === 6) $i = 100;
-
         }
 
         return FALSE;
@@ -69,62 +57,44 @@ class Obtain {
     }
 
     public static function TypeName($type, $typeb = 0, $image = FALSE, $appendclass = '') {
-
-        $typearr = ['', '火', '水', '草', '电', '普', '格', '飞', '虫', '毒', '岩', '地', '钢', '冰', '超', '恶', '鬼', '龙', '妖'];
-
-
+        $typearr = $GLOBALS['lang']['data_move_types'];
         if(!$image) $result = !empty($typearr[$type]) ? $typearr[$type] . (!empty($typearr[$typeb]) ? '+' . $typearr[$typeb] : '') : '';
         else        $result = !empty($typearr[$type]) ? '<span class="type t' . $type . $appendclass . '"></span>' . (!empty($typearr[$typeb]) ? '&nbsp;&nbsp;<span class="type t' . $typeb . $appendclass . '"></span>' : '') : '';
-
         return $result;
 
     }
 
     public static function MoveClassName($class) {
-
-        $classarr = ['变化', '物理', '特殊'];
-
-        return ($classarr[$class]) ? $classarr[$class] : '未知';
-
+        $classarr = $GLOBALS['lang']['data_move_classes'];
+        return ($classarr[$class]) ? $classarr[$class] : $GLOBALS['lang']['unknown'];
     }
 
     public static function EggGroupName($group, $groupb = 0) {
-
-        $grouparr = ['', '陆上', '昆虫', '飞行', '怪兽', '妖精', '人形', '矿物', '植物', '水中1', '水中2', '水中3', '飞龙', '不定形', '百变怪', '未发现'];
+        $grouparr = $GLOBALS['lang']['data_egg_groups'];
         $result   = !empty($grouparr[$group]) ? $grouparr[$group] . (!empty($grouparr[$groupb]) ? '+' . $grouparr[$groupb] : '') : '';
-
         return $result;
     }
 
     public static function ItemClassName($class) {
-
-        $classarr = ['', '球类', '进化石', '携带道具', '药物'];
-
+        $classarr = $GLOBALS['lang']['data_item_types'];
         return ($classarr[$class]) ? $classarr[$class] : '未知';
-
     }
 
     public static function GenderSign($gender) {
-
         $genderarr = ['', '<span class=gd-m>♂</span>', '<span class=gd-f>♀</span>'];
-
         return $genderarr[$gender];
-
     }
 
     public static function Devolution($id) {
 
-        $da = DB::result_first('SELECT devolve FROM pkm_pkmextra WHERE id = ' . $id);
+        $da = DB::result_first('SELECT devolution FROM pkm_pkmextra WHERE id = ' . $id);
 
         if(!empty($da)) {
-
-            $db = DB::result_first('SELECT devolve FROM pkm_pkmextra WHERE id = ' . $da);
-
+            $db = DB::result_first('SELECT devolution FROM pkm_pkmextra WHERE id = ' . $da);
             return (!empty($db) ? $db : $da);
-
-        } else
-
+        } else {
             return $id;
+        }
 
     }
 
@@ -212,21 +182,15 @@ class Obtain {
 
                 } else {
 
-                    $extrapath  = (($data[4] == 1) ? '/is_shiny' : '/normal') .
-                        (($side === 1) ? '/back' : '/front') .
-                        (($data[2] == 1) ? '/female' : '/common') .
-                        (($data[3] > 0) ? '/' . $data[1] . '_' . $data[3] : '/' . $data[1] . '.') .
+                    $extrapath  = (($side === 1) ? '/back' : '/front') .
+                        (($data[4] == 1) ? '/shiny' : '/normal') .
+                        (($data[2] == 1) ? '/female' : '') .
+                        (($data[3] > 0) ? '/' . $data[1] . '-' . $data[3] : '/' . $data[1] . '.') .
                         (($type === 'jpeg') ? 'jpg' : $type);
-                    $img        = imagecreatefrompng(ROOT_IMAGE . '/pokemon' . $extrapath);
-                    $translayer = imagecreate(96, 96);
-                    $trans      = imagecolorallocate($translayer, 255, 255, 255);
 
-                    imagecolortransparent($translayer, $trans);
-                    imagecopy($translayer, $img, 0, 0, 0, 0, 96, 96);
-                    imagetruecolortopalette($translayer, TRUE, 256);
-                    imageinterlace($translayer);
+                    copy(ROOT_IMAGE . '/pokemon' . $extrapath, $path);
 
-                    $img = $translayer;
+                    return $path;
 
                 }
 
@@ -267,35 +231,20 @@ class Obtain {
                 break;
             case 'other':
 
-                /*
-                    Other sprites such as hp bar or exp bar
-                    Maybe more in the future
-                */
+                // Other sprites such as hp bar or exp bar, maybe more in the future
 
                 if(in_array($data[0], ['hp', 'exp'])) {
-
                     $img  = imagecreatefromgif(ROOT_IMAGE . '/other/' . $data[0] . '_border.' . $type);
                     $imgb = imagecreatefromgif(ROOT_IMAGE . '/other/' . $data[0] . '_fill.' . $type);
-
                     imagecopy($img, $imgb, 1, 1, 0, 0, $data[2], 4);
-
                 } else {
-
                     $head = 'imagecreatefrom' . $type;
                     $img  = $head(ROOT_IMAGE . '/other/' . $data[0] . '.' . $type);
-
                 }
 
                 break;
             case 'egg':
-
-                /*
-                    This is only for egg
-                    It may be more appearance in the future
-                */
-
                 $img = imagecreatefrompng(ROOT_IMAGE . '/pokemon/0.' . $type);
-
                 break;
             case 'pokemon-icon':
 

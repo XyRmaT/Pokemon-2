@@ -1441,7 +1441,7 @@ class Battle {
 
             if($item['type'] === '4')
 
-                DB::query('UPDATE pkm_mypkm SET hp = ' . $pokemon['hp'] . ', STATUS = ' . $pokemon['status'] . ' WHERE pkm_id = ' . $pokemon['pkm_id']);
+                DB::query('UPDATE pkm_mypkm SET hp = ' . $pokemon['hp'] . ', status = ' . $pokemon['status'] . ' WHERE pkm_id = ' . $pokemon['pkm_id']);
 
             if($item['type'] !== '1')
 
@@ -1493,7 +1493,7 @@ class Battle {
             case '10':                        # 爱心球
 
                 $chain = [];
-                $query = DB::query('SELECT id FROM pkm_pkmextra WHERE devolve = ' . self::$pokemon[0][0]['nat_id']);
+                $query = DB::query('SELECT id FROM pkm_pkmextra WHERE devolution = ' . self::$pokemon[0][0]['nat_id']);
 
                 while($info = DB::fetch($query))
                     $chain[] = $info['nat_id'];
@@ -2135,7 +2135,7 @@ class Battle {
 
                 }
 
-                DB::query('INSERT INTO pkm_mypkm (pkm_id, hp, status, moves) VALUES ' . implode(',', $sql) . ' ON DUPLICATE KEY UPDATE hp = VALUES(hp), STATUS = VALUES(STATUS), moves = VALUES(moves)');
+                DB::query('INSERT INTO pkm_mypkm (pkm_id, hp, status, moves) VALUES ' . implode(',', $sql) . ' ON DUPLICATE KEY UPDATE hp = VALUES(hp), status = VALUES(status), moves = VALUES(moves)');
 
             }
 

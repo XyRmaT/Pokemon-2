@@ -115,9 +115,10 @@ class Kit {
     }
 
     public static function Memory($size) {
-        $i    = 0;
-        $unit = ['b', 'kb', 'mb', 'gb', 'tb', 'pb'];
-        return ($size <= 0 || round($size / pow(1024, ($i = (int)floor(log($size, 1024)))), 2)) . ' ' . $unit[$i];
+        $units = ['b', 'kb', 'mb', 'gb', 'tb', 'pb'];
+        $pow   = $size ? log($size) / log(1024) : 0;
+        $size /= pow(1024, $pow);
+        return round($size, 2) . ' ' . $units[(int)$pow];
     }
 
     public static function SendMessage($title, $content, $from, $to) {
@@ -166,16 +167,16 @@ class App {
 
     public static function Initialize() {
 
-        global $user, $system, $lang, $smarty;
+        global $user, $system, $lang, $start_time;
 
-        $user = $system = $lang = [];
+        $user       = $system = $lang = [];
+        $start_time = microtime(TRUE);
 
         // Include all the required files, including databse, config data, cache and UC
         include_once ROOT . '/include/data-config.php';
         include_once ROOT . '/../bbs/uc_client/client.php';
         include_once ROOT . '/include/class-database.php';
         include_once ROOT . '/include/class-cache.php';
-        include_once ROOT . '/include/unused-function-template.php';
         include_once ROOT . '/include/language-pack/zh.php';
 
         // Connect to the database

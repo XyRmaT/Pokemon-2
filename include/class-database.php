@@ -3,6 +3,7 @@
 class Database {
 
     protected static $db;
+    protected static $query_num;
 
     public static function connect($host, $user, $password, $database, $charset = 'utf8') {
 
@@ -18,11 +19,12 @@ class Database {
         $query = mysqli_query(self::$db, vsprintf($sql, $values));
         if(mysqli_errno(self::$db))
             echo 'Failed to connect to MySQL: (' . mysqli_errno(self::$db) . ') ' . mysqli_error(self::$db);
+        self::$query_num++;
         return $query;
     }
 
     public static function fetch_first($sql, $values = []) {
-        return self::fetch(mysqli_query(self::$db, vsprintf($sql, $values)));
+        return self::fetch(self::query($sql, $values));
     }
 
     public static function fetch($resource, $type = MYSQLI_ASSOC) {
@@ -30,7 +32,7 @@ class Database {
     }
 
     public static function result_first($sql, $values = []) {
-        return self::fetch(mysqli_query(self::$db, vsprintf($sql, $values)), MYSQLI_NUM)[0];
+        return self::fetch(self::query($sql, $values), MYSQLI_NUM)[0];
     }
 
     public static function prepare($statement) {
@@ -39,6 +41,10 @@ class Database {
 
     public static function affected_rows() {
         return mysqli_affected_rows(self::$db);
+    }
+
+    public static function get_query_num() {
+        return self::$query_num;
     }
 
 }

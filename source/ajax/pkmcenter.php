@@ -286,7 +286,7 @@ switch($_GET['process']) {
         while($info = DB::fetch($query)) {
             if($info['nat_id'] > 0) {
                 $info['type']       = Obtain::TypeName($info['type'], $info['type_b']);
-                $info['pkmimgpath'] = Obtain::Sprite('pokemon', 'png', $info['sprite_name']);
+                $info['pkmimgpath'] = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
                 $info['gender']     = Obtain::GenderSign($info['gender']);
                 $info['nature']     = Obtain::NatureName($info['nature']);
             } else {
@@ -307,7 +307,7 @@ switch($_GET['process']) {
 
             while($info = DB::fetch($query)) {
                 $info['egg_group']  = Obtain::EggGroupName($info['egg_group'], $info['egg_group_b']);
-                $info['pkmimgpath'] = empty($info['nat_id']) ? Obtain::Sprite('egg', 'png', 0) : Obtain::Sprite('pokemon', 'png', $info['sprite_name']);
+                $info['pkmimgpath'] = empty($info['nat_id']) ? Obtain::Sprite('egg', 'png', 0) : Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
                 $info['gender']     = Obtain::GenderSign($info['gender']);
                 $party[]            = $info;
             }

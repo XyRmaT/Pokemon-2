@@ -15,7 +15,7 @@ switch($_GET['section']) {
 		while($info = DB::fetch($query)) {
 
 			$info               = array_merge($info, Obtain::Stat($info['level'], $info['base_stat'], $info['ind_value'], $info['eft_value'], $info['nature']));
-			$info['pkmimgpath'] = Obtain::Sprite('pokemon', 'png', $info['sprite_name']);
+			$info['pkmimgpath'] = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
 			$info['needtime']   = ceil(($info['maxhp'] - $info['hp']) * 6.6);
 			$info['rmtime']     = max(0, $info['time_pc_sent'] + $info['needtime'] - $_SERVER['REQUEST_TIME']);
 			$info['hltime']     = [floor($info['rmtime'] / 60 / 24), round($info['rmtime'] / 60)];
@@ -32,7 +32,7 @@ switch($_GET['section']) {
 		$count = count($heal);
 		$blank = abs(($count - 6) + (floor($count / 3) ^ 1) * 3);
 		if($blank < 3) {
-			$heal = array_merge($heal, array_fill($count, $blank, ['pkmimgpath' => Obtain::Sprite('pokemon', 'png', '0')]));
+			$heal = array_merge($heal, array_fill($count, $blank, ['pkmimgpath' => Obtain::Sprite('pokemon', 'gif', '0')]));
 		}
 
 		/*
@@ -50,7 +50,7 @@ switch($_GET['section']) {
 			$info['maxexp']     = Obtain::Exp($info['exp_type'], $info['level'] + 1) - $info['minexp'];
 			$info['exp']        = $info['exp'] - $info['minexp'];
 			$info['expper']     = min(round($info['exp'] / $info['maxexp'] * 100), 100);
-			$info['pkmimgpath'] = Obtain::Sprite('pokemon', 'png', $info['sprite_name']);
+			$info['pkmimgpath'] = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
 			$pokemon[]          = $info;
 
 		}
@@ -58,7 +58,7 @@ switch($_GET['section']) {
 		$count = count($pokemon);
 		$blank = abs(($count - 6) + (floor($count / 3) ^ 1) * 3);
 		if($blank < 3) {
-			$pokemon = array_merge($pokemon, array_fill($count, $blank, ['pkmimgpath' => Obtain::Sprite('pokemon', 'png', '0')]));
+			$pokemon = array_merge($pokemon, array_fill($count, $blank, ['pkmimgpath' => Obtain::Sprite('pokemon', 'gif', '0')]));
 		}
 		break;
 	case 'box':
@@ -107,7 +107,7 @@ switch($_GET['section']) {
 
 			$info['type']       = Obtain::TypeName($info['type'], $info['type_b']);
 			$info['gender']     = Obtain::GenderSign($info['gender']);
-			$info['pkmimgpath'] = Obtain::Sprite('pokemon', 'png', $info['sprite_name']);
+			$info['pkmimgpath'] = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
 			$party[]            = $info;
 
 		}
@@ -135,7 +135,7 @@ switch($_GET['section']) {
 			$info['typeba']      = Obtain::TypeName($info['typeba'], $info['typebb']);
 			$info['gender']      = Obtain::GenderSign($info['gender']);
 			$info['genderb']     = Obtain::GenderSign($info['gender2']);
-			$info['pkmimgpath']  = Obtain::Sprite('pokemon', 'png', $info['sprite_name']);
+			$info['pkmimgpath']  = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
 			$info['pkmimgpathb'] = Obtain::sprite('pokemon', 'png', $info['imgnameb']);
 			$info['time']        = date('Y/m/d H:i', $_SERVER['REQUEST_TIME']);
 			$trade[]             = $info;
@@ -167,11 +167,11 @@ switch($_GET['section']) {
 				$info['type']        = Obtain::TypeName($info['type'], $info['type_b']);
 				$info['gender']      = Obtain::GenderSign($info['gender']);
 				$info['nature']      = Obtain::NatureName($info['nature']);
-				$info['pkmimgpath']  = empty($info['nat_id']) ? Obtain::Sprite('egg', 'png', 0) : Obtain::Sprite('pokemon', 'png', $info['sprite_name']);
+				$info['pkmimgpath']  = empty($info['nat_id']) ? Obtain::Sprite('egg', 'png', 0) : Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
 				$info['otype']       = Obtain::TypeName($info['otype'], $info['otypeb']);
 				$info['ogender']     = Obtain::GenderSign($info['ogender']);
 				$info['onature']     = Obtain::NatureName($info['onature']);
-				$info['opkmimgpath'] = empty($info['oid']) ? Obtain::Sprite('egg', 'png', 0) : Obtain::Sprite('pokemon', 'png', $info['oimgname']);
+				$info['opkmimgpath'] = empty($info['oid']) ? Obtain::Sprite('egg', 'png', 0) : Obtain::Sprite('pokemon', 'gif', $info['oimgname']);
 
 				if($info['uid'] == $trainer['uid'])
 

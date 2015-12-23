@@ -26,6 +26,6 @@ $cssvar = [
     'image-root'      => './../source-img',
     'sub-color'       => '#E63737',
     'border-color'    => '#bcbcbc',
-    'box-bg-color' => '#F8F8F8',
+    'box-bg-color'    => '#F8F8F8',
     'text-color-dark' => '#333333',
 ];

@@ -9,7 +9,7 @@ $pokemon = [];
 while($info = DB::fetch($query)) {
 
 	$info['type']       = Obtain::TypeName($info['type'], $info['type_b']);
-	$info['pkmimgpath'] = Obtain::Sprite('pokemon', 'png', 'pkm_' . $info['nat_id'] . '_0_0_0');
+	$info['pkmimgpath'] = Obtain::Sprite('pokemon', 'gif', 'pkm_' . $info['nat_id'] . '_0_0_0');
 	$info['height'] /= 10;
 	$info['weight'] /= 10;
 	$pokemon[] = $info;

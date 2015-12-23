@@ -85,7 +85,7 @@ if(!$map) {
         exit;
     }
 
-    echo '<pre><img src="' . Obtain::Sprite('pokemon', 'png', Battle::$pokemon[0][0]['sprite_name']) . '"><img src="' . Obtain::Sprite('pokemon', 'png', Battle::$pokemon[1][0]['sprite_name']) . '"><br>Processed in ' . 0 . 'second(s), ' . 0 . ' queries.';
+    echo '<pre><img src="' . Obtain::Sprite('pokemon', 'gif', Battle::$pokemon[0][0]['sprite_name']) . '"><img src="' . Obtain::Sprite('pokemon', 'gif', Battle::$pokemon[1][0]['sprite_name']) . '"><br>Processed in ' . 0 . 'second(s), ' . 0 . ' queries.';
     print_r(Battle::$pokemon[0][0]);
     exit;
 

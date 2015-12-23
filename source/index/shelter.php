@@ -10,7 +10,7 @@ while($info = DB::fetch($query)) {
 		$info['pkmimgpath'] = Obtain::Sprite('egg', 'png', '');
 		$egg[]              = $info;
 	} else {
-		$info['pkmimgpath'] = Obtain::Sprite('pokemon', 'png', $info['sprite_name']);
+		$info['pkmimgpath'] = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
 		$pokemon[]          = $info;
 	}
 }

@@ -30,10 +30,15 @@ class Trainer {
 
     public static function Fetch($uid) {
 
-        $trainer = DB::fetch_first('SELECT uid, trainer_id, exp, level, has_starter, box_quantity, time_happiness_checked, is_battling, has_new_message FROM pkm_trainerdata WHERE uid = ' . $uid);
+        $trainer = DB::fetch_first('SELECT uid, trainer_id, exp, level, has_starter, box_quantity, time_happiness_checked, is_battling, has_new_message, time_last_visit,
+                                    FIND_IN_SET(exp, (SELECT GROUP_CONCAT(exp ORDER BY exp DESC) FROM pkm_trainerdata)) AS rank
+                                    FROM pkm_trainerdata WHERE uid = ' . $uid);
 
-        if(!empty($trainer))
-            $trainer['stat'] = DB::fetch_first('SELECT * FROM pkm_trainerstat WHERE uid = ' . $uid);
+        if(!empty($trainer)) {
+            $trainer['stat']          = DB::fetch_first('SELECT * FROM pkm_trainerstat WHERE uid = ' . $uid);
+            $trainer['dex_collected'] = DB::result_first('SELECT COUNT(*) FROM pkm_mypokedex WHERE uid = ' . $trainer['uid'] . ' AND is_owned = 1');
+            unset($trainer['stat']['uid']);
+        }
 
         return $trainer;
 
@@ -51,7 +56,7 @@ class Trainer {
         // exp will be updated based on this value
         if($exp_adding && !empty($trainer['exp'])) {
             $exp = max(0, $trainer['exp'] + $exp_adding);
-            return DB::query('UPDATE pkm_trainerdata SET exp = ' . $exp . ', level = ' . floor(pow(2 * $exp, 1 / 4)) . ' WHERE uid = ' . $trainer['uid']);
+            return DB::query('UPDATE pkm_trainerdata SET exp = ' . $exp . ', LEVEL = ' . floor(pow(2 * $exp, 1 / 4)) . ' WHERE uid = ' . $trainer['uid']);
         }
 
         return FALSE;
@@ -70,15 +75,15 @@ class Trainer {
 
     /**
      * @param $uid
-     * @param $statNew
+     * @param $stat_new
      * @return bool|mysqli_result
      */
-    public static function SaveTemporaryStat($uid, $statNew) {
+    public static function SaveTemporaryStat($uid, $stat_new) {
 
-        if(array_sum($statNew) === 0) return FALSE;
+        if(array_sum($stat_new) === 0) return FALSE;
 
-        $keys = array_keys($statNew);
-        $vals = array_values($statNew);
+        $keys = array_keys($stat_new);
+        $vals = array_values($stat_new);
         $exts = [];
 
         foreach($keys as $val)
