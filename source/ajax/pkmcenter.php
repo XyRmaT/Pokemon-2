@@ -140,7 +140,7 @@ switch($_GET['process']) {
 
         foreach($pokemon as $key => $val) {
             $return['js'] .= '\'<li class="heal ' . (($key === 0) ? 'lmg-clr' : '') . '"' . (empty($val['pkm_id']) ? ' style="visibility: hidden;"' : '') . '>\' +
-				\'<img src="' . $val['pkmimgpath'] . '"><br>\' + ' .
+				\'<img src="' . $val['pkm_sprite'] . '"><br>\' + ' .
                 '\'' . $val['nickname'] . $val['gender'] . ' Lv.' . $val['level'] . '<br>\' + ' .
                 '\'<div class="bar"><div class="hp" style="width:' . $val['hpper'] . '%"></div><div class="value">' . $val['hp'] . '/' . $val['maxhp'] . '</div></div>\' + ' .
                 '\'<div class="bar"><div class="exp" style="width:' . $val['expper'] . '%"></div><div class="value">' . $val['exp'] . '/' . $val['maxexp'] . '</div></div>\' + ' .
@@ -153,7 +153,7 @@ switch($_GET['process']) {
         }
         foreach($heal as $key => $val) {
             $return['js'] .= '\'<li class="take ' . (($key === 0) ? 'lmg-clr' : '') . '"' . (empty($val['pkm_id']) ? ' style="visibility: hidden;"' : '') . '>\' +
-				\'<img src="' . $val['pkmimgpath'] . '"><br>\' + ' .
+				\'<img src="' . $val['pkm_sprite'] . '"><br>\' + ' .
                 '\'' . $val['nickname'] . $val['gender'] . ' Lv.' . $val['level'] . '<br>\' + ' .
                 '\'' . (($val['fullheal'] === TRUE) ? '已恢复' : '恢复需要' . $val['hltime'][0] . '时' . $val['hltime'][1] . '分') . '\' + ' .
                 '\'<input type="checkbox" name="take[]" value="' . $val['pkm_id'] . '">\' +
@@ -286,11 +286,11 @@ switch($_GET['process']) {
         while($info = DB::fetch($query)) {
             if($info['nat_id'] > 0) {
                 $info['type']       = Obtain::TypeName($info['type'], $info['type_b']);
-                $info['pkmimgpath'] = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
+                $info['pkm_sprite'] = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
                 $info['gender']     = Obtain::GenderSign($info['gender']);
                 $info['nature']     = Obtain::NatureName($info['nature']);
             } else {
-                $info['pkmimgpath'] = Obtain::Sprite('egg', 'png', 0);
+                $info['pkm_sprite'] = Obtain::Sprite('egg', 'png', 0);
             }
             $pokemon[] = $info;
         }
@@ -307,7 +307,7 @@ switch($_GET['process']) {
 
             while($info = DB::fetch($query)) {
                 $info['egg_group']  = Obtain::EggGroupName($info['egg_group'], $info['egg_group_b']);
-                $info['pkmimgpath'] = empty($info['nat_id']) ? Obtain::Sprite('egg', 'png', 0) : Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
+                $info['pkm_sprite'] = empty($info['nat_id']) ? Obtain::Sprite('egg', 'png', 0) : Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
                 $info['gender']     = Obtain::GenderSign($info['gender']);
                 $party[]            = $info;
             }
@@ -393,13 +393,13 @@ switch($_GET['process']) {
         }
 
         /*
-            @ &$info require: evolution_data, item_carrying, level, happiness, beauty, unserialized moves, gender, atk, def, psn_value, [name, nickname]{reversed in battle}, ability, ability_dream, form, pkm_id, id,
+            @ &$info require: evolution_data, item_carrying, level, happiness, beauty, unserialized moves, gender, atk, def, psn_value, [name, nickname]{reversed in battle}, ability, ability_hidden, form, pkm_id, id,
         */
 
 
         Kit::Library('class', ['obtain', 'pokemon']);
 
-        $query   = DB::query('SELECT m.pkm_id, m.location, m.item_carrying, m.level, m.happiness, m.beauty, m.moves, m.gender, m.psn_value, m.ind_value, m.eft_value, m.nickname, m.ability, m.form, m.uid_initial, m.uid, m.nat_id, p.evolution_data, p.name, p.ability_dream, p.base_stat FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON p.nat_id = m.nat_id WHERE m.pkm_id = ' . $tradeinfo['pkm_id_target'] . ' AND m.uid = ' . $trainer['uid'] . ' OR m.pkm_id = ' . $tradeinfo['pkm_id'] . ' AND m.uid = ' . $tradeinfo['uid']);
+        $query   = DB::query('SELECT m.pkm_id, m.location, m.item_carrying, m.level, m.happiness, m.beauty, m.moves, m.gender, m.psn_value, m.ind_value, m.eft_value, m.nickname, m.ability, m.form, m.uid_initial, m.uid, m.nat_id, p.evolution_data, p.name, p.ability_hidden, p.base_stat FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON p.nat_id = m.nat_id WHERE m.pkm_id = ' . $tradeinfo['pkm_id_target'] . ' AND m.uid = ' . $trainer['uid'] . ' OR m.pkm_id = ' . $tradeinfo['pkm_id'] . ' AND m.uid = ' . $tradeinfo['uid']);
         $pokemon = [];
 
         while($info = DB::fetch($query)) {
@@ -428,8 +428,8 @@ switch($_GET['process']) {
             break;
         }
 
-        Pokemon::Register($pokemon[$tradeinfo['pkm_id']]['nat_id'], !0);
-        Pokemon::Register($pokemon[$tradeinfo['pkm_id_target']]['nat_id'], !0, $tradeinfo['uid']);
+        Pokemon::DexRegister($pokemon[$tradeinfo['pkm_id']]['nat_id'], !0);
+        Pokemon::DexRegister($pokemon[$tradeinfo['pkm_id_target']]['nat_id'], !0, $tradeinfo['uid']);
 
         sort($pokemon);
 

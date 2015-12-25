@@ -380,7 +380,7 @@ $(function () {
             for (i in item) {
                 var obj = item[i];
                 if (!type || type > 0 && obj.type == type)
-                    appendTxt += '<li><img src="' + obj.itemimgpath + '" data-item_id="' + obj.item_id + '"></li>';
+                    appendTxt += '<li><img src="' + obj.carry_item_sprite + '" data-item_id="' + obj.item_id + '"></li>';
             }
             $('#my-invt').fadeOut(function () {
                 $(this).empty().append(appendTxt).fadeIn(f);

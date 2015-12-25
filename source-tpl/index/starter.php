@@ -6,7 +6,7 @@
 
 <ul class="st-info">
 	<!--{loop $pokemon $val}-->
-		<li><img src="$val[pkmimgpath]" data-name="$val[name]" data-sid="$val[nat_id]"><br>No.$val[nat_id] $val[name]</li>
+		<li><img src="$val[pkm_sprite]" data-name="$val[name]" data-sid="$val[nat_id]"><br>No.$val[nat_id] $val[name]</li>
 	<!--{/loop}-->
 </ul>
 

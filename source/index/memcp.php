@@ -41,7 +41,7 @@ switch($_GET['section']) {
                     /**
                      * [Abandoned method comment]
                      * Total hatch seconds for an time_hatched, 1275 was multiplied from 255 (variable times in the time_hatched cycle) and 5 (5 sec each step)
-                     * and the part 1275 * (rand(0, 5) + $info['eggcycle'] * 0.666) / 10 is to set a random rate of correcting the taken time.
+                     * and the part 1275 * (rand(0, 5) + $info['egg_cycle'] * 0.666) / 10 is to set a random rate of correcting the taken time.
                      */
                     //$info['maturity'] = round((time() - $info['met_time']) / $info['hatchTime'] * 100, 3);
 
@@ -51,7 +51,7 @@ switch($_GET['section']) {
                         break;
                     }
 
-                    $info['pkmimgpath']    = Obtain::Sprite('egg', 'png', '');
+                    $info['pkm_sprite']    = Obtain::Sprite('egg', 'png', '');
                     $info['maturity']      = min(floor(($_SERVER['REQUEST_TIME'] - $info['met_time']) / ($info['time_hatched'] - $info['met_time']) * 100), 90) + min(floor($info['exp'] / 100), 5) * 2;
                     $info['item_captured'] = Obtain::Sprite('item', 'png', 'item_' . $info['item_captured']);
                     $info['met_location']  = Obtain::MeetPlace($info['met_location']);
@@ -80,9 +80,9 @@ switch($_GET['section']) {
                     Pokemon::$pmtmp = [];
                     unset($info['evolution_data'], $info['exp_type']);
 
-                    $info['pkmimgpath']    = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
+                    $info['pkm_sprite']    = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
                     $info['item_captured'] = Obtain::Sprite('item', 'png', 'item_' . $info['item_captured']);
-                    $info['itemimgpath']   = ($info['item_carrying']) ? Obtain::Sprite('item', 'png', 'item_' . $info['item_carrying']) : '';
+                    $info['carry_item_sprite']   = ($info['item_carrying']) ? Obtain::Sprite('item', 'png', 'item_' . $info['item_carrying']) : '';
                     $info['gender']        = Obtain::GenderSign($info['gender']);
                     $info['type']          = Obtain::TypeName($info['type'], $info['type_b'], TRUE, ' blk-c');
                     $info['met_location']  = Obtain::MeetPlace($info['met_location']);
@@ -205,9 +205,9 @@ switch($_GET['section']) {
 
             if($info['item_carrying']) $iids[] = $info['item_carrying'];
 
-            $info['pkmimgpath']  = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
+            $info['pkm_sprite']  = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
             $info['pkmimgpathi'] = Obtain::Sprite('pokemon-icon', 'png', 'picon_' . $info['nat_id']);
-            $info['itemimgpath'] = $info['item_carrying'] ? Obtain::Sprite('item', 'png', 'item_' . $info['item_carrying']) : '';
+            $info['carry_item_sprite'] = $info['item_carrying'] ? Obtain::Sprite('item', 'png', 'item_' . $info['item_carrying']) : '';
             $info['gender']      = Obtain::GenderSign($info['gender']);
             $pokemon[]           = $info;
 
@@ -225,7 +225,7 @@ switch($_GET['section']) {
 
         while($info = DB::fetch($query)) {
 
-            $info['itemimgpath']    = Obtain::Sprite('item', 'png', 'item_' . $info['item_id']);
+            $info['carry_item_sprite']    = Obtain::Sprite('item', 'png', 'item_' . $info['item_id']);
             $item[$info['item_id']] = $info;
 
         }

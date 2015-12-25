@@ -2,8 +2,8 @@
 
 // Random pokemon showcase
 $count                  = DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE nat_id != 0 AND location IN (1, 2, 3, 4, 5, 6)');
-$rand_pkm               = DB::fetch_first('SELECT m.nickname, m.level, m.gender, m.sprite_name, m.uid, mb.username FROM pkm_mypkm m LEFT JOIN pre_common_member mb ON m.uid = mb.uid WHERE m.nat_id != 0 AND m.location IN (1, 2, 3, 4, 5, 6) AND m.uid = 8 LIMIT ' . rand(0, $count - 1) . ', 1');
-$rand_pkm['pkmimgpath'] = Obtain::Sprite('pokemon', 'gif', $rand_pkm['sprite_name']);
+$rand_pkm               = DB::fetch_first('SELECT m.nickname, m.level, m.gender, m.sprite_name, m.uid, mb.username FROM pkm_mypkm m LEFT JOIN pre_common_member mb ON m.uid = mb.uid WHERE m.nat_id != 0 AND m.location IN (1, 2, 3, 4, 5, 6) LIMIT ' . rand(0, $count - 1) . ', 1');
+$rand_pkm['pkm_sprite'] = Obtain::Sprite('pokemon', 'gif', $rand_pkm['sprite_name']);
 $rand_pkm['gender']     = Obtain::GenderSign($rand_pkm['gender']);
 
 // Top 5 trainer ranking
@@ -26,7 +26,7 @@ if(!empty($trainer['uid'])) {
 $world_stat = [
     'online_total'  => DB::result_first('SELECT COUNT(*) FROM pkm_trainerdata WHERE time_last_visit >= ' . ($_SERVER['REQUEST_TIME'] - 300)),
     'trainer_total' => DB::result_first('SELECT COUNT(*) FROM pkm_trainerdata'),
-    'pokemon_total' => DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE hatch_pkm_id > 0'),
+    'pokemon_total' => DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE hatch_nat_id > 0'),
     'shiny_total'   => DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE is_shiny = 1')
 ];
 

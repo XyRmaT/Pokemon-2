@@ -1,0 +1,11 @@
+table.main {
+    min-height : 488px;
+}
+
+table.main tr:nth-of-type(1) td:last-child {
+    background : #F8F8F8 url(_image-root_/other/daycare-bg.png) bottom no-repeat;
+}
+
+table.main .header {
+    background : #77AC33 url(_image-root_/other/daycare-bitches.png) 88% bottom no-repeat;
+}

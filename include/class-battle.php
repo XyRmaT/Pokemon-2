@@ -1466,7 +1466,7 @@ class Battle {
         $mod  = $smod = 1;
         $heal = $caught = FALSE;
 
-        $catchrate = DB::result_first('SELECT catch_rate FROM pkm_pkmdata WHERE nat_id = ' . self::$pokemon[0][0]['nat_id']);
+        $catchrate = DB::result_first('SELECT capture_rate FROM pkm_pkmdata WHERE nat_id = ' . self::$pokemon[0][0]['nat_id']);
 
         switch($iid) {
             case '2':
@@ -1611,7 +1611,7 @@ class Battle {
 
         DB::query('INSERT INTO pkm_mypkm (' . implode(',', array_keys($info)) . ') VALUES (' . implode(',', array_values($info)) . ')');
 
-        if(in_array(Pokemon::Register($info['nat_id'], TRUE), ['0', FALSE], TRUE))
+        if(in_array(Pokemon::DexRegister($info['nat_id'], TRUE), ['0', FALSE], TRUE))
 
             self::$report .= self::$pokemon[0][0]['name'] . '的信息记录在了图鉴中。<br>';
 

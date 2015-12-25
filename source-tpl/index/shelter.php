@@ -12,7 +12,7 @@
 		<div style="margin-top:61px" class="no">没有可领养的精灵</div>
 	<!--{else}-->
 		<!--{loop $pokemon $val}-->
-			<img data-pkm_id="$val[pkm_id]" title="No.$val[nat_id] $val[name]" src="$val[pkmimgpath]">
+			<img data-pkm_id="$val[pkm_id]" title="No.$val[nat_id] $val[name]" src="$val[pkm_sprite]">
 		<!--{/loop}-->
 	<!--{/if}-->
 </div>
@@ -22,7 +22,7 @@
 		<div style="margin-top:-5px" class="no">没有可领养的精灵蛋</div>
 	<!--{else}-->
 		<!--{loop $egg $val}-->
-			<img data-pkm_id="$val[pkm_id]" title="$val[name]" src="$val[pkmimgpath]">
+			<img data-pkm_id="$val[pkm_id]" title="$val[name]" src="$val[pkm_sprite]">
 		<!--{/loop}-->
 	<!--{/if}-->
 </div>

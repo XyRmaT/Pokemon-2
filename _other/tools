@@ -1,0 +1,78 @@
+
+$p = [];
+$query = DB::query('SELECT name_en, nat_id FROM pkm_pkmdata');
+while($info = DB::fetch($query)) {
+
+$info['name_en'] = strtolower($info['name_en']);
+
+$p[] = [str_replace(['♂', '♀', '-', '_', 'é', '\'', '.', ' '], ['_m', '_f', '', '', 'e', '', '', ''], $info['name_en']), $info['nat_id']];
+
+if($info['name_en'] === 'camerupt') $p[] = ['camperupt', $info['nat_id']];
+if($info['name_en'] === 'pumpkaboo') $p[] = ['pumpkabo', $info['nat_id']];
+
+}
+
+uasort($p, function($a, $b){
+return strlen($b[0]) - strlen($a[0]);
+});
+
+$n = array_column($p, 0);
+$i = array_column($p, 1);
+$files = glob('_other/convert/xy*/*.gif');
+foreach($files as $val) {
+$new_val = str_replace($n, $i, $val);
+rename($val, $new_val);
+echo ($val === $new_val ? '---------------' : '') . $val . ' -> ' . $new_val . PHP_EOL;
+}
+print_r($p);
+
+$p     = [];
+$query = DB::query('SELECT nat_id, name_en FROM pkm_pkmdata WHERE has_female_sprite = 1');
+while($info = DB::fetch($query)) {
+    $from = 'http://www.pkparaiso.com/imagenes/xy/sprites/animados/' . strtolower($info['name_en']) . '-f.gif';
+    $to   = '_other/convert/xyani/female/' . $info['nat_id'] . '.gif';
+    if(!file_exists($to)) copy($from, $to);
+
+
+    $from = 'http://www.pkparaiso.com/imagenes/xy/sprites/animados-shiny/' . strtolower($info['name_en']) . '-f.gif';
+    $to   = '_other/convert/xyani-shiny/female/' . $info['nat_id'] . '.gif';
+    if(!file_exists($to)) copy($from, $to);
+
+    $from = 'http://www.pkparaiso.com/imagenes/xy/sprites/animados-espalda/' . strtolower($info['name_en']) . '-f.gif';
+    $to   = '_other/convert/xyani-back/female/' . $info['nat_id'] . '.gif';
+    if(!file_exists($to)) copy($from, $to);
+    $from = 'http://www.pkparaiso.com/imagenes/xy/sprites/animados-espalda-shiny/' . strtolower($info['name_en']) . '-f.gif';
+    $to   = '_other/convert/xyani-back-shiny/female/' . $info['nat_id'] . '.gif';
+    if(!file_exists($to)) copy($from, $to);
+    echo '<img src="' . $from . '">' . PHP_EOL;
+
+
+
+
+include './_other/moves.php';
+
+$moves = [];
+$query = DB::query('SELECT move_id, name_en FROM pkm_movedata');
+while($info = DB::fetch($query)) {
+    $moves[preg_replace('/[^a-z0-9]/', '', strtolower($info['name_en']))] = $info['move_id'];
+}
+
+$pokemon     = $gen = [];
+$query       = DB::query('SELECT nat_id, name_en FROM pkm_pkmdata ORDER BY nat_id');
+$sql         = 'INSERT INTO pkm_pkmmove (nat_id, move_id, learn_level, approach, generation) VALUES ' . PHP_EOL;
+$learns_from = ['L' => 1, 'M' => 2, 'T' => 3, 'E' => 4, 'S' => 5, 'D' => 6, 'C' => 7];
+while($info = DB::fetch($query)) {
+    $info['name_en'] = preg_replace('/[^a-z0-9]/', '', str_replace('é', 'e', strtolower($info['name_en'])));
+    foreach($moveset[$info['name_en']]['learnset'] as $move_name => $genset) {
+        foreach($genset as $val) {
+            $sql .= '(' . $info['nat_id'] . ', ' . $moves[$move_name] . ', ' . (strlen($val) > 2 ? substr($val, 2) : 0) . ', ' . $learns_from[$val{1}] . ', ' . $val{0} . '),' . PHP_EOL;
+        }
+    }
+}
+$sql = trim(trim($sql), ',');
+DB::query($sql);
+$fp = fopen('./_other/moves_gen_3.txt', 'w+');
+fwrite($fp, $sql);
+fclose($fp);
+
+exit;

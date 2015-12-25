@@ -18,7 +18,7 @@ $query   = DB::query('SELECT item_id, name_zh name, description, price, stock, t
 
 while($info = DB::fetch($query)) {
 
-	$info['itemimgpath'] = Obtain::Sprite('item', 'png', 'item_' . $info['item_id']);
+	$info['carry_item_sprite'] = Obtain::Sprite('item', 'png', 'item_' . $info['item_id']);
 	$info['mthsellper']  = !empty($mthsell) ? round($info['month_sale'] / $mthsell * 100, 2) : '?';
 	$item[]              = $info;
 
@@ -31,7 +31,7 @@ if(INAJAX) {
 	if(!empty($item)) {
 		foreach($item as $val) {
 			$return['js'] .= '<tr id="i' . $val['item_id'] . '" class="item">\' +
-				\'<td><div style="background-image:url(' . $val['itemimgpath'] . ')"></div></td>\' + 
+				\'<td><div style="background-image:url(' . $val['carry_item_sprite'] . ')"></div></td>\' +
 				\'<td>' . $val['name'] . '</td>\' + 
 				\'<td>' . $val['description'] . '</td>\' +
 				\'<td>' . $val['price'] . '</td>\' + 

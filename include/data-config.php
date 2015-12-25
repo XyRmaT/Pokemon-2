@@ -13,6 +13,7 @@ $system = [
         'day'     => range(10, 19),
         'evening' => range(20, 3)
     ],
+    'daycare_check_hour'    => 2,
     'fmPlaceCost'           => 10,
     'currency_name'         => '弹珠',
     'currency_field'        => 'extcredits7',

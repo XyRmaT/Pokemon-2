@@ -7,10 +7,10 @@ $pokemon = $egg = [];
 
 while($info = DB::fetch($query)) {
 	if($info['nat_id'] === '0') {
-		$info['pkmimgpath'] = Obtain::Sprite('egg', 'png', '');
+		$info['pkm_sprite'] = Obtain::Sprite('egg', 'png', '');
 		$egg[]              = $info;
 	} else {
-		$info['pkmimgpath'] = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
+		$info['pkm_sprite'] = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
 		$pokemon[]          = $info;
 	}
 }

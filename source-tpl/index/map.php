@@ -166,10 +166,10 @@
 		});
 		Astar.call(avltile, avltile);
 		
-		/*p = function(tid, username, x, y) {
-			if($('.char#t' + tid).length < 1)
-				$('.map-tile').append('<div class="char" id="t' + tid + '" style="left:0px;top:176px;" title="' + username + '"></div>');
-			$('.char#t' + tid).moveto(x, y);
+		/*p = function(trainer_id, username, x, y) {
+			if($('.char#t' + trainer_id).length < 1)
+				$('.map-tile').append('<div class="char" id="t' + trainer_id + '" style="left:0px;top:176px;" title="' + username + '"></div>');
+			$('.char#t' + trainer_id).moveto(x, y);
 		};*/
 		
 		p = function(data) {
@@ -177,9 +177,9 @@
 			var tids = [], 
 				newtids = [];
 			$('.char').each(function(i) {
-				var tid = $(this).attr('id').substring(1).toString();
-				if(tid === 'e') return;
-				tids[tid] = tid;
+				var trainer_id = $(this).attr('id').substring(1).toString();
+				if(trainer_id === 'e') return;
+				tids[trainer_id] = trainer_id;
 			});
 			$.each(data, function() {
 				if(!tids[this[0]]) {

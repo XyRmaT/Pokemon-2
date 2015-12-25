@@ -61,7 +61,9 @@ if(!empty($user['uid'])) {
     $trainer['gm']        = in_array($trainer['uid'], explode(',', $system['admins']));
     $trainer['currency']  = $trainer['extcredit']['currency'];
     $trainer['avatar']    = Obtain::Avatar($trainer['uid']);
-    $trainer['stat_add']  = array_map(function () { return 0; }, $trainer['stat']);
+    $trainer['stat_add']  = array_map(function () {
+        return 0;
+    }, $trainer['stat']);
 
     // Add EXP gained from forum posts to the party
     if($trainer['extcredit']['exp'] > 0 && $trainer['has_starter']) {
@@ -79,13 +81,13 @@ if(!empty($user['uid'])) {
     // Updating last visit timestamp
     setcookie('last_visit', $_SERVER['REQUEST_TIME']);
     if(empty($_COOKIE['last_visit']) || $_COOKIE['last_visit'] + 300 < $_SERVER['REQUEST_TIME'] ||
-        !$trainer['time_last_visit'] || $trainer['time_last_visit'] + 300 < $_SERVER['REQUEST_TIME'])
+        !$trainer['time_last_visit'] || $trainer['time_last_visit'] + 300 < $_SERVER['REQUEST_TIME']
+    )
         DB::query('UPDATE pkm_trainerdata SET time_last_visit = ' . $_SERVER['REQUEST_TIME'] . ' WHERE uid = ' . $trainer['uid']);
 
     unset($trainer['extcredit']);
 
 }
-
 
 $smarty->assign('trainer', $trainer);
 $smarty->assign('user', $user);

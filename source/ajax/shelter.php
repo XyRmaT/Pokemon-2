@@ -32,7 +32,7 @@ switch($_GET['process']) {
 		DB::query('UPDATE pkm_mypkm SET location = ' . $location . ', uid = ' . $trainer['uid'] . ' WHERE pkm_id = ' . $info['pkm_id']);
 
         App::CreditsUpdate($trainer['uid'], -$cost);
-		Pokemon::Register($info['nat_id'], !0);
+		Pokemon::DexRegister($info['nat_id'], !0);
 
 		if($info['uid_initial'] != $trainer['uid'])
 

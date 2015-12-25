@@ -177,6 +177,7 @@ class App {
         include_once ROOT . '/../bbs/uc_client/client.php';
         include_once ROOT . '/include/class-database.php';
         include_once ROOT . '/include/class-cache.php';
+        include_once ROOT . '/include/data-constant.php';
         include_once ROOT . '/include/language-pack/zh.php';
 
         // Connect to the database
@@ -213,9 +214,9 @@ class App {
     public static function CreditsUpdate($uid, $value, $type = 'CURRENCY', $isFixed = FALSE) {
         $field = $type === 'EXP' ? $GLOBALS['system']['exp_field'] : $GLOBALS['system']['currency_field'];
         if($isFixed)
-            return DB::query('UPDATE pre_common_member_count SET ' . $field . ' = ' . $value . ' WHERE uid = ' . $uid);
+            return DB::query('UPDATE pre_common_member_count SET `' . $field . '` = ' . $value . ' WHERE uid = ' . $uid);
         else
-            return DB::query('UPDATE pre_common_member_count SET ' . $field . ' = ' . $field . ' + ' . $value . ' WHERE uid = ' . $uid);
+            return DB::query('UPDATE pre_common_member_count SET `' . $field . '` = ' . $field . ' + ' . $value . ' WHERE uid = ' . $uid);
     }
 
     private function GetUserIp() {

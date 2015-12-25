@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <head>
-    <title>{$lang['app_name']}</title>
+    <title ng-bind="_LANG.app_name">{$lang['app_name']}</title>
     <meta charset="UTF-8">
     <meta name="description" content="{$lang['app_description']}">
     <meta name="keywords" content="{$lang['app_keywords']}">
@@ -16,22 +16,17 @@
 
 <header>
     <ul id="menu" class="corrected-center">
-        <li><a href="index.tpl" ng-bind="_LANG.home">&nbsp;</a></li>
-        {if $index === 'admincp'}
-            <li><a href="?index=admincp&action=award" ng-bind="_LANG.home"></a></li>
-        {else}
-            <li><a href="?index=my"{if !empty($trainer['has_new_message'])} class="hl"{/if} ng-bind="_LANG.home"></a></li>
-            <li><a href="?index=shop" ng-bind="_LANG.shop"></a></li>
-            <li><a href="?index=pc" ng-bind="_LANG.pc"></a></li>
-            <li><a href="?index=daycare" ng-bind="_LANG.daycare"></a></li>
-            <li><a href="?index=shelter" ng-bind="_LANG.shelter"></a></li>
-            <li><a href="?index=map" ng-bind="_LANG.adventure"></a></li>
-            <li><a href="?index=ranking" ng-bind="_LANG.ranking"></a></li>
-            <li><a href="{if empty($trainer['uid'])}../bbs/member.php?mod=logging&action=login{else}../bbs/forum.php{/if}" target="_blank" ng-bind="_LANG.forum"></a></li>
-        {/if}
+        <li><a href="?index=home" ng-bind="_LANG.home">&nbsp;</a></li>
+        <li><a href="?index=my" ng-bind="_LANG.memcp" ng-class="trainer.has_new_message > 0 && 'highlight'"></a></li>
+        <li><a href="?index=shop" ng-bind="_LANG.shop"></a></li>
+        <li><a href="?index=pc" ng-bind="_LANG.pc"></a></li>
+        <li><a href="?index=daycare" ng-bind="_LANG.daycare"></a></li>
+        <li><a href="?index=shelter" ng-bind="_LANG.shelter"></a></li>
+        <li><a href="?index=map" ng-bind="_LANG.adventure"></a></li>
+        <li><a href="?index=ranking" ng-bind="_LANG.ranking"></a></li>
+        <li ng-if="trainer.uid > 0"><a ng-href="%%trainer.uid > 0 && '../bbs/member.php?mod=logging&action=login' || '../bbs/forum.php'%%" target="_blank" ng-bind="_LANG.forum"></a></li>
     </ul>
     <div class="decoration-bar"></div>
 </header>
 
 <main>
-	

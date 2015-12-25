@@ -52,11 +52,11 @@
                 </span>
                 <span class="flt-r">
                     <img src="$val[item_captured]"><br>
-                    <!--{if !empty($val['itemimgpath'])}--><img src="$val[itemimgpath]"><!--{/if}-->
+                    <!--{if !empty($val['carry_item_sprite'])}--><img src="$val[carry_item_sprite]"><!--{/if}-->
                 </span>
                 <br class="cl">
                 <div class="txt-c">
-                    <img src="$val[pkmimgpath]" alt="点我查看数据"><br>
+                    <img src="$val[pkm_sprite]" alt="点我查看数据"><br>
                     Lv. $val[level] $val[status]
                 </div>
                 <div class="bar" title="$val[hp]/$val[maxhp]">HP<div class="ctn"><div class="hp" style="width:$val[hpper]%"></div></div></div>
@@ -65,7 +65,7 @@
                     <table>
                         <tr>
                             <td class="left">
-                                <img src="$val[pkmimgpath]"><br>
+                                <img src="$val[pkm_sprite]"><br>
                                 <div class="txt-c">
                                     Lv.$val[level]<br>
                                     $val[type]<br>
@@ -125,9 +125,9 @@
                         <li data-pkm_id="$val[pkm_id]" data-nickname="$val[nickname]" class="egg">
                             <span class="float-left">$val[nickname] <a href="javascript:void(0);" class="pmabandon">[丢]</a> <a href="javascript:void(0);" class="pmnickname">[改]</a></span>
                             <span class="flt-r"><img src="$val[item_captured]"></span><br class="cl">
-                            <div class="move_id"><img src="$val[pkmimgpath]" class="egg" alt="点我查看数据"><br>$val[eggstatus]<!--{if $trainer['gm']}--><br>$val[maturity]<!--{/if}--></div>
+                            <div class="move_id"><img src="$val[pkm_sprite]" class="egg" alt="点我查看数据"><br>$val[eggstatus]<!--{if $trainer['gm']}--><br>$val[maturity]<!--{/if}--></div>
                             <div id="info-$val[pkm_id]" class="h txt-c">
-                                <img src="$val[pkmimgpath]"><p>
+                                <img src="$val[pkm_sprite]"><p>
                                 No.$val[nat_id] 蛋<br>
                                 昵称：$val[nickname]<br>
                                 $val[met_location]
@@ -214,7 +214,7 @@
             <!--{loop $pokemon $val}-->
                 <li data-pkm_id="$val[pkm_id]">
                     $val[nickname]<em class="flt-r">$val[gender]&nbsp;</em><br>
-                    <img src="$val[pkmimgpathi]"> <em class="level">Lv.$val[level]</em><span class="item flt-r"><!--{if $val[itemimgpath]}--><img src="$val[itemimgpath]" {if $val['item_carrying']}data-item_id="$val[item_carrying]{/if}"><!--{/if}--></span>
+                    <img src="$val[pkmimgpathi]"> <em class="level">Lv.$val[level]</em><span class="item flt-r"><!--{if $val[carry_item_sprite]}--><img src="$val[carry_item_sprite]" {if $val['item_carrying']}data-item_id="$val[item_carrying]{/if}"><!--{/if}--></span>
                 </li>
             <!--{/loop}-->
         </ul>
@@ -231,7 +231,7 @@
                         <!--{loop $pokemon $key $val}-->
                             <!--{if !empty($val['nat_id'])}-->
                                 <li{if $i !== 0} class="h"{/if} data-index="$i" data-pkm_id="$val[pkm_id]">
-                                    <img src="$val[pkmimgpath]"><br>
+                                    <img src="$val[pkm_sprite]"><br>
                                     $val[nickname]{$val[gender]} Lv.$val[level]
                                 </li>
                                 <!--{eval ++$i;}-->

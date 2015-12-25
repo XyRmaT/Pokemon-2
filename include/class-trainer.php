@@ -46,21 +46,17 @@ class Trainer {
 
     /**
      * Update trainer's exp
-     * @param     $trainer array for trainer's info
-     * @param int $exp_adding
-     * @return bool|mysqli_result
+     * @param array $trainer array for trainer's info
+     * @param int   $exp_adding
+     * @param bool  $is_temporary
      */
-    public static function AddExp($trainer, $exp_adding = 0) {
-
-        // Performing an exp check, if it's non-zero value then the trainer's
-        // exp will be updated based on this value
-        if($exp_adding && !empty($trainer['exp'])) {
+    public static function AddExp(&$trainer, $exp_adding, $is_temporary = FALSE) {
+        if($is_temporary) {
+            $trainer['exp'] += $exp_adding;
+        } elseif($exp_adding && !empty($trainer['exp'])) {
             $exp = max(0, $trainer['exp'] + $exp_adding);
-            return DB::query('UPDATE pkm_trainerdata SET exp = ' . $exp . ', LEVEL = ' . floor(pow(2 * $exp, 1 / 4)) . ' WHERE uid = ' . $trainer['uid']);
+            DB::query('UPDATE pkm_trainerdata SET exp = ' . $exp . ', level = ' . floor(pow(2 * $exp, 1 / 4)) . ' WHERE uid = ' . $trainer['uid']);
         }
-
-        return FALSE;
-
     }
 
     /**

@@ -81,7 +81,7 @@ class Obtain {
     }
 
     public static function GenderSign($gender) {
-        $genderarr = ['', '<span class=gd-m>♂</span>', '<span class=gd-f>♀</span>'];
+        $genderarr = ['', '<span class=gender-m>♂</span>', '<span class=gender-f>♀</span>'];
         return $genderarr[$gender];
     }
 
@@ -182,8 +182,8 @@ class Obtain {
 
                 } else {
 
-                    $extrapath  = (($side === 1) ? '/back' : '/front') .
-                        (($data[4] == 1) ? '/shiny' : '/normal') .
+                    $extrapath = (($side === 1) ? '/back' : '/front') .
+                        (($data[4] == 1) ? '-shiny' : '') .
                         (($data[2] == 1) ? '/female' : '') .
                         (($data[3] > 0) ? '/' . $data[1] . '-' . $data[3] : '/' . $data[1] . '.') .
                         (($type === 'jpeg') ? 'jpg' : $type);
@@ -191,7 +191,6 @@ class Obtain {
                     copy(ROOT_IMAGE . '/pokemon' . $extrapath, $path);
 
                     return $path;
-
                 }
 
                 /*
@@ -206,16 +205,8 @@ class Obtain {
                 break;
             case 'item':
 
-                if(!file_exists(ROOT_IMAGE . '/item/' . $data[1] . '.' . $type)) {
-
-                    /*
-                        Same as pokemon above
-                        If can't find item's sprite, locate it to the unknown item' sprite
-                    */
-
+                if(!file_exists(ROOT_IMAGE . '/item/' . $data[1] . '.' . $type))
                     return ROOT_CACHE . '/image/_unknownitem.png';
-
-                }
 
                 $img        = imagecreatefrompng(ROOT_IMAGE . '/item/' . $data[1] . '.' . $type);
                 $translayer = imagecreate(24, 24);
@@ -461,4 +452,34 @@ class Obtain {
 
     }
 
+    /**
+     * Fetch a certain text from the language pack.
+     * If it's not a dataset and it's an array, then randomize one.
+     * @param string $key     name of the text
+     * @param array  $args    arguments that will be replacing placeholders using vsprintf
+     * @param bool   $is_data if is a dataset, then it doesn't need to check if it's an array or not
+     * @return string
+     */
+    public static function Text($key, $args = [], $is_data = FALSE) {
+
+        if(empty($GLOBALS['lang'][$key])) return $GLOBALS['lang']['inoccupied_text'];
+
+        $text = $GLOBALS['lang'][$key];
+        if(!$is_data && is_array($text)) $text = $text[array_rand($text)];
+        if($args) $text = vsprintf($text, $args);
+
+        return $text;
+
+    }
+
+    public static function DaycareInfo($sent_time) {
+        return [
+            'cost'          => (floor(($_SERVER['REQUEST_TIME'] - $sent_time) / 2400) + 1) * 5,
+            'exp_increased' => floor(($_SERVER['REQUEST_TIME'] - $sent_time) / 12)
+        ];
+    }
+
+    public static function HatchTime($egg_cycle) {
+        return $_SERVER['REQUEST_TIME'] + floor($egg_cycle * 255 * (rand(0, 5) + $egg_cycle * 0.6) / 6);
+    }
 }

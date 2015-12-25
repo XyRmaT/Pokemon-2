@@ -42,7 +42,7 @@ switch($_GET['process']) {
 
             //  Obtaining self pokemon's information
 
-            $query = DB::query('SELECT m.pkm_id, m.nat_id, m.ability, m.exp, m.nickname name_zh name, m.gender, m.psn_value, m.ind_value, m.eft_value, m.nature, m.level, m.item_carrying, m.happiness, m.moves, m.ability, m.hp, m.status, m.uid, m.sprite_name, m.moves_new, m.happiness, m.beauty, m.form, p.name nickname, m.uid_initial, p.base_stat, p.type, p.type_b, p.evolution_data, p.exp_type, p.baseexp, p.ability_dream, p.height, p.weight FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE m.uid = ' . $trainer['uid'] . ' AND m.location IN (1, 2, 3, 4, 5, 6) AND m.nat_id != 0 ORDER BY m.location ASC');
+            $query = DB::query('SELECT m.pkm_id, m.nat_id, m.ability, m.exp, m.nickname name_zh name, m.gender, m.psn_value, m.ind_value, m.eft_value, m.nature, m.level, m.item_carrying, m.happiness, m.moves, m.ability, m.hp, m.status, m.uid, m.sprite_name, m.moves_new, m.happiness, m.beauty, m.form, p.name nickname, m.uid_initial, p.base_stat, p.type, p.type_b, p.evolution_data, p.exp_type, p.baseexp, p.ability_hidden, p.height, p.weight FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE m.uid = ' . $trainer['uid'] . ' AND m.location IN (1, 2, 3, 4, 5, 6) AND m.nat_id != 0 ORDER BY m.location ASC');
 
             $i = 1;
 
@@ -142,7 +142,7 @@ switch($_GET['process']) {
 
             Battle::$report = '野生的' . Battle::$pokemon[0][0]['name'] . '出现了！<br>' . $trainer['username'] . '派出了' . Battle::$pokemon[1][0]['name'] . '！<br>';
 
-            if(Pokemon::Register($appearpkm['nat_id']) === FALSE)
+            if(Pokemon::DexRegister($appearpkm['nat_id']) === FALSE)
 
                 Battle::$report .= Battle::$pokemon[0][0]['name'] . '被登记在了图鉴中。<br>';
 

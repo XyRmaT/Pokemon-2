@@ -1,5 +1,7 @@
 {include file='header.tpl'}
 
+{* Since there's no need to update any data in index page, we don't need to bind any data *}
+
 <section class="index-banner">
     <img src="{ROOT_IMAGE}/other/banner-index.jpg">
 </section>
@@ -10,7 +12,7 @@
             <img class="avatar float-left" src="{$trainer['avatar']}">
             <span class="ranking float-right"># {$trainer['rank']}</span>
             <span class="name">{$user['username']}</span><br>
-            <span class="signature">没有任何签名</span>
+            <span class="signature" ng-bind="_LANG.no_signature"></span>
         </div>
         <div class="other">
             <span class="stat inline-block" ng-bind-html="'{$trainer['level']}<br>' + _LANG.level"></span>
@@ -55,10 +57,10 @@
 </section>
 
 <section class="index-horde box">
-    <div class="title" ng-bind="_LANG.horde_info"></div>
+    <div class="title" ng-bind="_LANG.random_pokemon"></div>
     <div class="content">
-        <img src="{$rand_pkm['pkmimgpath']}" pokemon-overflow>
-        <div>{* TODO *}</div>
+        <img ng-src="{$rand_pkm['pkm_sprite']}" pokemon-overflow>
+        <div>{$rand_pkm['nickname']} {$rand_pkm['gender']} Lv.{$rand_pkm['level']}</div>
     </div>
 </section>
 

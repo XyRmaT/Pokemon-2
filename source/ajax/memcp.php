@@ -203,7 +203,7 @@ switch($_GET['process']) {
 				because they are useless due to no one need them to evolve by using an item
 			*/
 
-			$pokemon = DB::fetch_first('SELECT m.pkm_id, m.nat_id, m.nickname, m.happiness, m.level, m.hp, m.location, m.ind_value, m.eft_value, m.psn_value, m.ability, m.item_carrying, m.gender, m.form, m.status, m.exp, p.base_stat, p.ability_dream, p.evolution_data, p.name, p.exp_type FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE m.pkm_id = ' . $pid);
+			$pokemon = DB::fetch_first('SELECT m.pkm_id, m.nat_id, m.nickname, m.happiness, m.level, m.hp, m.location, m.ind_value, m.eft_value, m.psn_value, m.ability, m.item_carrying, m.gender, m.form, m.status, m.exp, p.base_stat, p.ability_hidden, p.evolution_data, p.name, p.exp_type FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE m.pkm_id = ' . $pid);
 
 			if(empty($pokemon))
 
