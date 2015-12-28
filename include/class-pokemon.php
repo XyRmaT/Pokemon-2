@@ -3,7 +3,7 @@
 class Pokemon {
 
     public static  $count = 0;
-    public static  $pmtmp = [];
+    public static  $temp  = [];
     private static $hex   = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
 
     public static function Generate($nat_id, $uid, $param = []) {
@@ -12,12 +12,15 @@ class Pokemon {
 
         // Compare parameters with the default one and overwrite if existed.
         $default_param = [
-            'wild'              => 0,
             'met_location'      => 0,
             'met_level'         => 1,
-            'is_egg'            => TRUE,
+            'item_carrying'     => 1,
+            'is_wild'           => FALSE,
+            'is_egg'            => FALSE,
+            'is_bad_egg'        => FALSE,
             'is_hidden_ability' => FALSE,
             'is_shiny'          => FALSE,
+            'egg_data'          => '',
             'father_moves'      => [],
             'mother_moves'      => []
         ];
@@ -28,34 +31,44 @@ class Pokemon {
         //  - Equals to TRUE, obtain a random number between 0 and the amount of pokemon which allow trainer to hatch as fakeid
         //  - Equals to 's,x', randomlize an egg from a series of ids (obtain from the database pkm_eggdata)
         // If it's a specified id egg, it passes id straight away to the generator
-        if($nat_id == 0) {
-            if(!empty($param['egg']) && intval($param['egg']) === 0) {
-                $set = explode(':', $param['egg']);
-                if($set[0] === 's') {
-                    $eggset = DB::fetch_first('SELECT eggset, name_zh FROM pkm_eggdata WHERE set_id = ' . $set[1]);
+        $fake_nat_id = 0;
+        if($param['is_egg']) {
+            if($nat_id) {
+                $nat_id = Obtain::Devolution($nat_id);
+            } elseif(!empty($param['egg_data']) && intval($param['egg_data']) === 0) {
+                $set = explode(':', $param['egg_data']);
+                if($set[0] === 'r') {
+                    $fake_nat_id = rand(0, DB::result_first('SELECT COUNT(*) FROM pkm_pkmextra WHERE is_hatchable = 1') - 1);
+                } elseif($set[0] === 's') {
+                    $eggset = DB::fetch_first('SELECT eggset, name_zh name FROM pkm_eggdata WHERE set_id = ' . $set[1]);
                     $nat_id = explode(',', $eggset['eggset']);
                     $nat_id = $nat_id[array_rand($nat_id)];
                 } else {
-                    return 1;
+                    $nat_id = 1;
                 }
-            } elseif($param['is_egg'] === TRUE) {
-                $fake_nat_id = rand(0, DB::result_first('SELECT COUNT(*) FROM pkm_pkmextra WHERE is_hatchable = 1') - 1);
             } else {
-                return 2;
+                $param['is_bad_egg'] = TRUE;
+                $nat_id              = 1;
             }
         }
 
         // Determine the location of where this pokemon will go using the method Obtain::DepositBox().
-        $location = $param['wild'] === 0 ? 0 : Obtain::DepositBox($uid);
+        $location = $param['is_wild'] === 0 ? 0 : Obtain::DepositBox($uid);
         if($location === FALSE) return 3;
 
-        $pokemon = DB::fetch_first('SELECT nat_id, name_zh, gender_rate, ability, ability_b, ability_hidden, happiness_initial,
+        $pokemon = DB::fetch_first('SELECT nat_id, name_zh name, gender_rate, ability, ability_b, ability_hidden, happiness_initial,
                                         height, weight, has_female_sprite, base_stat, exp_type, egg_cycle, type, type_b
                                     FROM pkm_pkmdata
-                                    WHERE form = 0' . (!empty($fake_nat_id) ? ' LIMIT ' . $fake_nat_id . ', 1' : ' AND id = ' . $nat_id));
+                                    WHERE form = 0' . (!empty($fake_nat_id) ? ' LIMIT ' . $fake_nat_id . ', 1' : ' AND nat_id = ' . $nat_id));
+
+        if(!$nat_id && !$fake_nat_id) $name = $GLOBALS['lang']['bad_egg'];
+        elseif(!empty($eggset['name'])) $name = $eggset['name'];
+        elseif(!empty($hatch_nat_id)) $name = $pokemon['name'] . Obtain::Text('part_\'s_egg');
+        else $name = $pokemon['name'];
 
         // Generate trainer id
-        $trainer_id      = $trainer['uid'] != $uid ? DB::result_first('SELECT trainer_id FROM pkm_trainerdata WHERE uid = ' . $uid) : $GLOBALS['user']['trainer_id'];
+        $trainer_id = $trainer['uid'] != $uid ? DB::result_first('SELECT trainer_id FROM pkm_trainerdata WHERE uid = ' . $uid) : $GLOBALS['trainer']['trainer_id'];
+        if(!$trainer_id) return 4;
         $trainer_id_part = str_split($trainer_id, 4);
         $trainer_id_part = [hexdec($trainer_id_part[0]), hexdec($trainer_id_part[1])];
 
@@ -77,7 +90,7 @@ class Pokemon {
             $psn_value_bytes = [];
 
             for($i = 0; $i < 4; $i++) {
-                $psn_value_bytes[$i] = str_pad(dechex(rand(0, ($i === 0 || $i === 1) ? 255 : 254)), 2, '0', STR_PAD_LEFT);
+                $psn_value_bytes[$i] = str_pad(dechex(rand(0, $i === 0 || $i === 1 ? 255 : 254)), 2, '0', STR_PAD_LEFT);
                 $psn_value .= $psn_value_bytes[$i];
             }
         }
@@ -96,18 +109,17 @@ class Pokemon {
         $ability = !$param['is_hidden_ability'] ?
             $pokemon[!(base_convert($psn_value{3}, 16, 10) % 2) || !$pokemon['ability_b'] ? 'ability' : 'ability_b'] :
             $pokemon['ability_hidden'];
-
         // Generate base stat, hp, exp, nature and shiny status
         $base_stat_parts = explode(',', $pokemon['base_stat']);
         $hp              = $base_stat_parts[0] != 1 ? floor(floor($base_stat_parts[0] * 2 + $idv_value_parts[0]) * $param['met_level'] / 100 + $param['met_level'] + 10) : 1;
         $exp             = Obtain::Exp($pokemon['exp_type'], $param['met_level']);
         $nature          = rand(1, 25);
-        $is_shiny        = ($trainer_id_part[0] ^ $trainer_id_part[1] ^
-            base_convert($psn_value_bytes[0] . $psn_value_bytes[1], 16, 10) ^
-            base_convert($psn_value_bytes[2] . $psn_value_bytes[3], 16, 10) <= 16) ? 1 : 0;
+        $is_shiny        = (($trainer_id_part[0] ^ $trainer_id_part[1] ^
+                base_convert($psn_value_bytes[0] . $psn_value_bytes[1], 16, 10) ^
+                base_convert($psn_value_bytes[2] . $psn_value_bytes[3], 16, 10)) <= 16) ? 1 : 0;
 
         // TODO: Other elements such as carry item, form etc which are in process
-        $item_carrying = 0;
+        $item_carrying = $param['item_carrying'];
         $form          = 0;
 
         $hatch_nat_id = $time_hatched = 0;
@@ -124,9 +136,9 @@ class Pokemon {
                             FROM pkm_pkmmove p
                             LEFT JOIN pkm_movedata m ON p.move_id = m.move_id
                             WHERE p.nat_id = ' . ($hatch_nat_id > 0 ? $hatch_nat_id : $nat_id) . ' AND
-                                   p.level <= ' . $param['met_level'] . ' AND
-                                   p.way = ' . MOVE_BY_LEVEL . '
-                            ORDER BY p.level DESC LIMIT 4');
+                                   p.learn_level <= ' . $param['met_level'] . ' AND
+                                   p.approach = ' . MOVE_BY_LEVEL . '
+                            ORDER BY p.learn_level DESC LIMIT 4');
 
         while($info = DB::fetch($query))
             $moves[] = $info;
@@ -140,8 +152,8 @@ class Pokemon {
 
         // Build sprite name
         $sprite_name = 'pkm_' .
-            ($hatch_nat_id || $nat_id) . '_' .
-            ~~($pokemon['has_female_sprite'] == 1 && $gender === 2) . '_' .
+            ($hatch_nat_id ? $hatch_nat_id : $nat_id) . '_' .
+            intval($pokemon['has_female_sprite'] == 1 && $gender === 2) . '_' .
             $form . '_' .
             $is_shiny .
             (in_array(327, [$nat_id, $hatch_nat_id]) ? '_' . $psn_value : '');
@@ -150,46 +162,46 @@ class Pokemon {
         if(!empty($nat_id)) self::DexRegister($nat_id, !$param['is_wild'], $uid);
 
         $data = [
-            'nat_id'        => $nat_id,
-            'gender'        => $gender,
-            'psn_value'     => $psn_value,
-            'ind_value'     => $idv_value,
-            'is_shiny'      => $is_shiny,
+            'nat_id'        => intval($nat_id),
+            'gender'        => intval($gender),
+            'psn_value'     => '\'' . $psn_value . '\'',
+            'ind_value'     => '\'' . $idv_value . '\'',
+            'is_shiny'      => intval($is_shiny),
             'nature'        => $nature,
             'level'         => $param['met_level'],
-            'exp'           => $exp,
-            'item_carrying' => $item_carrying,
+            'exp'           => intval($exp),
+            'item_carrying' => intval($item_carrying),
             'happiness'     => $pokemon['happiness_initial'],
-            'moves'         => $moves,
-            'met_location'  => $param['met_location'],
-            'ability'       => $ability,
-            'uid'           => $uid,
-            'hp'            => $hp,
-            'form'          => $form
+            'moves'         => '\'' . $moves . '\'',
+            'met_location'  => intval($param['met_location']),
+            'ability'       => intval($ability),
+            'uid'           => intval($uid),
+            'hp'            => intval($hp),
+            'form'          => intval($form),
+            'sprite_name'   => '\'' . $sprite_name . '\''
         ];
 
-        if($param['wild'] === 1) {
+        if($param['is_wild']) {
             return array_merge($data, [
-                'eft_value'   => '0,0,0,0,0,0',
-                'type'        => $pokemon['type'],
-                'type_b'      => $pokemon['type_b'],
-                'sprite_name' => $sprite_name,
-                'base_stat'   => $pokemon['base_stat'],
-                'name'        => $pokemon['name'],
-                'height'      => $pokemon['height'] / 10,
-                'weight'      => $pokemon['weight'] / 10,
+                'eft_value' => '0,0,0,0,0,0',
+                'type'      => $pokemon['type'],
+                'type_b'    => $pokemon['type_b'],
+                'base_stat' => '\'' . $pokemon['base_stat'] . '\'',
+                'name'      => '\'' . $pokemon['name'] . '\'',
+                'height'    => $pokemon['height'] / 10,
+                'weight'    => $pokemon['weight'] / 10,
             ]);
         } else {
+            // TODO: name for language pack
             $data = array_merge($data, [
-                'nickname'      => !empty($eggset['name']) ? $eggset['name'] : $pokemon['name'] . (!empty($hatch_nat_id) ? Obtain::Text('part_\'s_egg') : ''),
-                'time_hatched'  => $time_hatched,
-                'hatch_nat_id'  => $hatch_nat_id,
+                'nickname'      => '\'' . $name . '\'',
+                'time_hatched'  => intval($time_hatched),
+                'hatch_nat_id'  => intval($hatch_nat_id),
                 'met_level'     => $param['met_level'],
-                'met_time'      => $_SERVER['REQUEST_TIME'],
-                'uid_initial'   => $uid,
-                'item_captured' => '',
-                'location'      => $location,
-                'sprite_name'   => $sprite_name
+                'met_time'      => intval($_SERVER['REQUEST_TIME']),
+                'uid_initial'   => intval($uid),
+                'item_captured' => 1,
+                'location'      => intval($location)
             ]);
             DB::query('INSERT INTO pkm_mypkm (' . implode(',', array_keys($data)) . ') VALUES (' . implode(',', array_values($data)) . ')');
             return 0;
@@ -205,12 +217,14 @@ class Pokemon {
      */
     public static function DexRegister($id, $catch = FALSE, $uid = 0) {
 
+        global $trainer;
+
         if(!$id) return FALSE;
-        if(!$uid) $uid = $GLOBALS['trainer']['uid'];
+        if(!$uid) $uid = $trainer['uid'];
 
         $caught = DB::result_first('SELECT is_owned FROM pkm_mypokedex WHERE nat_id = ' . $id . ' AND uid = ' . $uid);
         if(!$caught) {
-            DB::query('INSERT INTO pkm_mypokedex (nat_id, uid, is_owned) VALUES (' . $id . ', ' . $uid . ', ' . ~~$catch . ')');
+            DB::query('INSERT INTO pkm_mypokedex (nat_id, uid, is_owned) VALUES (' . $id . ', ' . $uid . ', ' . intval($catch) . ')');
             Trainer::AddExp($trainer, 1, TRUE);
         } elseif($catch) {
             DB::query('UPDATE pkm_mypokedex SET is_owned = 1 WHERE nat_id = ' . $id . ' AND uid = ' . $uid);
@@ -222,111 +236,85 @@ class Pokemon {
     }
 
     /**
+     * This is a rather 'complicated' method, it uses various of jump block, but it's easy to understand.
+     * It separates processes into different parts:
+     * LEVEL_UP - main loop, first line simulates while() to jump out of the loop
+     * CALC_EXP - put outside to reduce code recyclibility, compare between old
+     *            level and new level to jump into the loop.
+     * LEARN_MOVE - goes after the CALC_EXP, check if there's a new move learnable
+     * UPDATE - process after the loop
      * @param array $info (exp_type, level, exp, pkm_id, id, evolution_data, moves_new, moves, uid_initial)
      * @param int   $rarecandy
      * @return array
      */
-    public static function Levelup(&$info, $rarecandy = 0) {
+    public static function Levelup(&$info, $rarecandy = FALSE) {
 
-        $exp_required   = [
-            'current' => Obtain::Exp($info['exp_type'], $info['level']),
-            'next'    => Obtain::Exp($info['exp_type'], $info['level'] + 1)
-        ];
-        $exp_difference = [
-            'current' => $info['exp'] - $exp_required['current'],
-            'next'    => $exp_required['next'] - $exp_required['current']
-        ];
-        $remain         = [
-            'exp'     => $exp_required['next'] - $info['exp'],
-            'percent' => min(round($exp_difference['current'] / $exp_difference['next'] * 100), 100)
-        ];
-        $old_level      = $info['level'];
+        if($info['pkm_id'] || $info['level'] < 100) return;
 
-        // Firstly check the availabitity for the level up operation
-        // Except for empty pokemon id / pokemon with full level / exp under the next level's exp
-        if($info['pkm_id'] && $info['level'] < 100) {
+        $old_level = $info['level'];
 
-            $i           = 0;
-            $check_times = floor($exp_difference['current'] / $exp_difference['next']);
-
-            LEVEL_UP: {
-                ++$i;
-                if($remain['exp'] <= 0 && $info['level'] != 100) {
-
-                    ++$info['level'];
-
-                    LEARN_MOVE: {
-                        if(empty(self::$pmtmp['moves'][$info['nat_id']])) {
-                            $query = DB::query('SELECT p.move_id, m.name_zh, p.learn_level FROM pkm_pkmmove p, pkm_movedata m WHERE m.move_id = p.move_id AND p.nat_id = ' . $info['nat_id'] . ' AND p.way = ' . MOVE_BY_LEVEL);
-                            while($infob = DB::fetch($query)) {
-                                if(Kit::ColumnSearch($info['moves'], 0, $infob['move_id']) === FALSE &&
-                                    Kit::ColumnSearch($info['moves_new'], 0, $infob['move_id']) === FALSE
-                                )
-                                    self::$pmtmp['moves'][$info['nat_id']][$infob['learn_level']][] = [$infob['move_id'], $infob['name']];
-                            }
-                        }
-
-                        if(!empty(self::$pmtmp['moves'][$info['nat_id']][$info['level']]))
-                            $info['moves_new'] = array_merge($info['moves_new'], self::$pmtmp['moves'][$info['nat_id']][$info['level']]);
-
-                    }
-
-                    if(!empty($evolved)) {
-                        $evolved = !1;
-                        goto NEXT_LOOP;
-                    }
-
-                    $exp_required   = [
-                        'current' => Obtain::Exp($info['exp_type'], $info['level']),
-                        'next'    => Obtain::Exp($info['exp_type'], $info['level'] + 1)
-                    ];
-                    $exp_difference = [
-                        'current' => $info['exp'] - $exp_required['current'],
-                        'next'    => $exp_required['next'] - $exp_required['current']
-                    ];
-
-                    $remain = [
-                        'exp'     => $exp_required['next'] - $info['exp'],
-                        'percent' => min(round($exp_difference['current'] / $exp_difference['next'] * 100), 100)
-                    ];
-
-                    if(!empty($info['evolution_data']) && ($evolved = self::Evolve($info)) === !0)
-
-                        goto LEARN_MOVE;
-
-                } else {
-
-                    goto UPDATE;
-
-                }
-
-                NEXT_LOOP:
-
-                if($i < $check_times) goto LEVEL_UP;
-
-            }
-
-            UPDATE: {
-
-                if($old_level !== $info['level']) {
-
-                    $old_level  = Obtain::Stat($info['level'], $info['base_stat'], $info['ind_value'], $info['eft_value'], $info['nature']);
-                    $info['hp'] = ceil($info['hpper'] * $old_level['maxhp'] / 100);
-
-                    DB::query('UPDATE pkm_mypkm SET level = ' . $info['level'] . ', moves_new = \'' . (!empty($info['moves_new']) ? serialize($info['moves_new']) : '') . '\', hp = ' . $info['hp'] . ' WHERE pkm_id = ' . $info['pkm_id'] . ' LIMIT 1');
-
-                    $info = array_merge($info, $old_level);
-
-                    self::$pmtmp['moves'] = [];
-
-                }
-
-            }
-
+        CALC_EXP: {
+            $exp_required = [
+                'current' => Obtain::Exp($info['exp_type'], $info['level']),
+                'next'    => Obtain::Exp($info['exp_type'], $info['level'] + 1)
+            ];
+            if($old_level != $info['level']) goto LEARN_MOVE;
         }
 
-        return [$exp_difference['next'], $exp_difference['current'], $remain['exp'], $remain['percent']];
+        if($rarecandy) $info['exp'] = $exp_required['next'];
 
+        LEVEL_UP: {
+            if($exp_required['next'] < $info['exp']) goto UPDATE;
+
+            $evolved = FALSE;
+            ++$info['level'];
+
+            goto CALC_EXP;
+
+            LEARN_MOVE: {
+                self::LearnMove($info['nat_id'], $info['level'], $info['moves'], $info['moves_new']);
+            }
+
+            if(!empty($evolved)) goto LEVEL_UP;
+            if(!empty($info['evolution_data']) && ($evolved = self::Evolve($info)) === TRUE) goto LEARN_MOVE;
+        }
+
+        UPDATE: {
+            if($old_level !== $info['level']) {
+                $old_stats           = Obtain::Stat($old_level, $info['base_stat'], $info['ind_value'], $info['eft_value'], $info['nature']);
+                $new_stats           = Obtain::Stat($info['level'], $info['base_stat'], $info['ind_value'], $info['eft_value'], $info['nature']);
+                $info['hp']          = ceil($old_stats['hp_percent'] * $new_stats['maxhp'] / 100);
+                $info                = array_merge($info, $new_stats);
+                self::$temp['moves'] = [];
+                self::Update([
+                    'level'     => $info['level'],
+                    'moves_new' => '\'' . (!empty($info['moves_new']) ? serialize($info['moves_new']) : '') . '\'',
+                    'hp'        => $info['hp'],
+                    'exp'       => $info['exp'],
+                ], ['pkm_id' => $info['pkm_id']], FALSE);
+            }
+        }
+
+        self::$temp          = [];
+        $info['exp_max']     = $exp_required['next'] - $exp_required['current'];
+        $info['exp']         = $info['exp'] - $exp_required['current'];
+        $info['exp_remain']  = $exp_required['next'] - $info['exp'];
+        $info['exp_percent'] = min(round($info['exp'] / $info['exp_max'] * 100), 100);
+
+    }
+
+    public static function LearnMove($nat_id, $level, &$moves, &$moves_new) {
+
+        if(empty(self::$temp['moves'][$nat_id])) {
+            $query = DB::query('SELECT move_id, learn_level FROM pkm_pkmmove WHERE generation = 6 AND nat_id = ' . $nat_id . ' AND approach = ' . MOVE_BY_LEVEL);
+            while($info = DB::fetch($query)) {
+                if(Kit::ColumnSearch($moves, 'move_id', $info['move_id']) === FALSE && Kit::ColumnSearch($moves_new, 'move_id', $info['move_id']) === FALSE)
+                    self::$temp['moves'][$nat_id][$info['learn_level']][] = [$info['move_id'], $info['name']];
+            }
+        }
+
+        if(!empty(self::$temp['moves'][$nat_id][$level]))
+            $moves_new = array_merge($moves_new, self::$temp['moves'][$nat_id][$level]);
     }
 
     public static function Evolve(&$info, $param = []) {
@@ -340,9 +328,7 @@ class Pokemon {
         ];
 
         foreach($dftparam as $key => $val) {
-            if(!isset($param[$key])) {
-                $param[$key] = $val;
-            }
+            if(!isset($param[$key])) $param[$key] = $val;
         }
 
         /**
@@ -379,34 +365,18 @@ class Pokemon {
                 $processtotal = $processcount = 0;
 
                 if(!empty($val[11])) {
-
                     //是否通信和是否使用道具进化的判定，如果设置为1并且方式不为这个，则直接跳到下个分支的进化判定
                     if($param['other'] !== 0) {
-
-                        if(!empty($val[12])) {
-
-                            if($val[12] == $param['otherobj'])
-
-                                $processcount += 2;
-
-                        } else
-
-                            $processcount += 1;
-
+                        if(!empty($val[12]) && $val[12] == $param['otherobj']) $processcount += 2;
+                        else $processcount += 1;
                     } else
-
                         continue;
-
                 }
 
                 foreach($val as $key => $valb) {
-
                     if(empty($valb) || $key === 0) continue;
-
                     ++$processtotal;
-
                 }
-
 
                 if($processtotal !== 0) {
 
@@ -420,18 +390,13 @@ class Pokemon {
                         !empty($val[6]) && in_array($val[6], [$info['moves'][0][0], $info['moves'][1][0], $info['moves'][2][0], $info['moves'][3][0]]) && ++$processcount;
 
                         if(!empty($val[7])) {
-
                             $tmp = DB::fetch_first('SELECT id FROM pkm_mypkm WHERE location IN (1, 2, 3, 4, 5, 6) AND uid = ' . $param['uid'] . ' AND id = ' . $val[7]);
-
                             !empty($tmp) && ++$processcount;
-
                         }
-
 
                         if(!empty($val[9]) && ($hour = date('H', $_SERVER['REQUEST_TIME'])) &&
                             ($val[9] < 3 && $hour > 4 && $hour < 19 || $val[9] > 2 && ($hour < 5 || $hour > 18))
                         )
-
                             ++$processcount;
 
                         if($val[10]) {
@@ -482,7 +447,7 @@ class Pokemon {
 
                         if($evoinfo['ability_hidden'] !== $info['ability']) {
                             $tmp = base_convert($info['psn_value']{3}, 16, 2);
-                            $abi = $evoinfo[(substr($tmp, -1, 1) === '1' || empty($evoinfo['ability_b'])) ? 'ability' : 'ability_b'];
+                            $abi = $evoinfo[substr($tmp, -1, 1) === '1' || empty($evoinfo['ability_b']) ? 'ability' : 'ability_b'];
                         } else {
                             $abi = $evoinfo['ability_hidden'];
                         }
@@ -556,15 +521,10 @@ class Pokemon {
     }
 
     public static function Hatch($pid) {
-
         $pokemon = DB::fetch_first('SELECT p.nat_id, p.name_zh name FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON p.nat_id = m.time_hatched WHERE m.pkm_id = ' . $pid);
-
         self::DexRegister($pokemon['nat_id'], !0);
-
         Trainer::AddTemporaryStat('pkm_hatched');
-
         DB::query('UPDATE pkm_mypkm SET nat_id = hatch_nat_id, nickname = \'' . $pokemon['name'] . '\', exp = 0, LEVEL = 1, time_hatched = 0, time_hatched = ' . $_SERVER['REQUEST_TIME'] . ', happiness = 120 WHERE pkm_id = ' . $pid);
-
     }
 
     public static function CorrectAbility($pv, $curabi, $abi, $abib, $dreamabi) {
@@ -573,23 +533,14 @@ class Pokemon {
         $query = DB::query('SELECT m.pkm_id, m.ability curabi, m.psn_value, p.ability, p.ability_b, p.ability_hidden FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON p.nat_id = m.nat_id');
 
         while($info = DB::fetch($query)) {
-
             //if($info['ability_hidden'] !== $info['curabi'])
-
-            $tmp = (substr(base_convert($info['psn_value']{3}, 16, 2), -1, 1) === '1' || empty($info['ability_b'])) ? $info['ability'] : $info['ability_b'];
-
+            $tmp = substr(base_convert($info['psn_value']{3}, 16, 2), -1, 1) === '1' || empty($info['ability_b']) ? $info['ability'] : $info['ability_b'];
             //else
-
             //    $tmp = $info['ability_hidden'];
-
-            if($tmp !== $info['curabi'])
-
-                $sql[] = '(' . $info['pkm_id'] . ', ' . $tmp . ')';
-
+            if($tmp !== $info['curabi']) $sql[] = '(' . $info['pkm_id'] . ', ' . $tmp . ')';
         }
 
         if(!empty($sql))
-
             DB::query('INSERT INTO pkm_mypkm (pkm_id, ability) VALUES ' . implode(',', $sql) . ' ON DUPLICATE KEY UPDATE ability = VALUES(ability)');
 
     }
@@ -606,6 +557,23 @@ class Pokemon {
         if(!empty($sql))
             DB::query('INSERT INTO pkm_mypkm (pkm_id, location) VALUES ' . implode(',', $sql) . ' ON DUPLICATE KEY UPDATE location = VALUES(location)');
 
+    }
+
+    public static function Update($fields, $where_clause, $level_up_check = TRUE, &$info = [], $pkm_id = 0) {
+        if(!empty($where_clause['pkm_id'])) $pkm_id = $where_clause['pkm_id'];
+        array_walk($fields, function (&$value, $key) {
+            $value = $key . ' = ' . $value;
+        });
+        array_walk($where_clause, function (&$value, $key) {
+            $value = $key . ' = ' . $value;
+        });
+        DB::query('UPDATE pkm_mypkm SET ' . implode(',', $fields) . ' WHERE ' . implode(' AND ', $where_clause));
+        // TODO: level up
+        if($level_up_check && (isset($fields['exp']) || isset($fields['level']))) {
+            if(empty($info) && $pkm_id)
+                $info = DB::fetch_first('SELECT ' . Kit::FetchFields([FIELDS_POKEMON_LEVELUP]) . ' FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON p.nat_id = m.nat_id WHERE m.pkm_id = ' . $pkm_id);
+            self::Levelup($info);
+        }
     }
 
 }

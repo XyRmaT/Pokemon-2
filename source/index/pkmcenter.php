@@ -47,9 +47,9 @@ switch($_GET['section']) {
 			$info               = array_merge($info, Obtain::Stat($info['level'], $info['base_stat'], $info['ind_value'], $info['eft_value'], 1, $info['hp']));
 			$info['gender']     = Obtain::GenderSign($info['gender']);
 			$info['minexp']     = Obtain::Exp($info['exp_type'], $info['level']);
-			$info['maxexp']     = Obtain::Exp($info['exp_type'], $info['level'] + 1) - $info['minexp'];
+			$info['exp_max']     = Obtain::Exp($info['exp_type'], $info['level'] + 1) - $info['minexp'];
 			$info['exp']        = $info['exp'] - $info['minexp'];
-			$info['expper']     = min(round($info['exp'] / $info['maxexp'] * 100), 100);
+			$info['exp_percent']     = min(round($info['exp'] / $info['exp_max'] * 100), 100);
 			$info['pkm_sprite'] = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
 			$pokemon[]          = $info;
 
@@ -71,7 +71,7 @@ switch($_GET['section']) {
 
 		$query   = DB::query('SELECT m.pkm_id, m.nat_id, m.location, m.nickname, m.level, m.gender, m.sprite_name, p.name, p.type, p.type_b, a.name ability FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON p.nat_id = m.nat_id LEFT JOIN pkm_abilitydata a ON a.abi_id = m.ability WHERE m.uid = ' . $trainer['uid'] . ' ORDER BY m.location ASC');
 		$pokemon = [];
-		$boxnum  = $system['initial_box'] + $trainer['boxnum'];
+		$boxnum  = $system['initial_box'] + $trainer['box_quantity'];
 
 		for($i = 1; $i <= $boxnum; $i++)
 			$pokemon[$i + 100] = [];

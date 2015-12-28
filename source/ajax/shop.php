@@ -1,6 +1,6 @@
 <?php
 
-switch($_GET['process']) {
+switch($process) {
     case 'itembuy':
 
         $iid = isset($_GET['item_id']) ? intval($_GET['item_id']) : 0;

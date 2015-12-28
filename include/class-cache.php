@@ -70,13 +70,13 @@ class Cache {
         }
 
         // Replace %%variable%% in templates to actual values
+        $pattern = $replacement = [];
         if(!empty($varfilename) && file_exists($varfile)) {
             include_once $varfile;
             if(!empty($cssvar)) {
-                $pattern = $replacement = [];
                 foreach($cssvar as $name => $val) {
-                    $pattern[]     = '/_' . $name . '_/';
-                    $replacement[] = $val;
+                    $pattern[$name]     = '/_' . $name . '_/';
+                    $replacement[$name] = $val;
                 }
                 $file = preg_replace($pattern, $replacement, $file); // variables
             }
@@ -88,9 +88,15 @@ class Cache {
         $file = preg_replace('/[\s]{0,}([\{\}])[\s]+/', '\\1', $file);
         $file = preg_replace('/[\n\r]/', '', $file);
         $file = preg_replace('/;\s*\}/', '}', $file);
-        /*$file = preg_replace_callback('/([0-9]+)px/', function($matches) {
-            return '' . round($matches[1] / 16, 3) . 'rem';
-        }, $file);*/
+
+        // This one is to convert hex color & transparency into rgba values
+        $file = preg_replace_callback('/_([a-zA-Z\-]+?)\-\-([0-9]+?)_/', function ($matches) use ($replacement) {
+            if(empty($replacement[$matches[1]])) return $matches[0];
+            $parts = array_map(function ($str) {
+                return base_convert($str, 16, 10);
+            }, str_split(trim($replacement[$matches[1]], '#'), 2));
+            return 'rgba(' . $parts[0] . ', ' . $parts[1] . ', ' . $parts[2] . ', ' . $matches[2] . ')';
+        }, $file);
 
         $fp = fopen($objfile, 'w+');
         if(in_array(FALSE, [flock($fp, LOCK_EX), fwrite($fp, $file), flock($fp, LOCK_UN)], TRUE)) return FALSE;

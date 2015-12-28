@@ -6,34 +6,31 @@
     <img src="{ROOT_IMAGE}/other/banner-index.jpg">
 </section>
 
-{if !empty($trainer['uid'])}
-    <section class="index-trainer box">
-        <div class="info">
-            <img class="avatar float-left" src="{$trainer['avatar']}">
-            <span class="ranking float-right"># {$trainer['rank']}</span>
-            <span class="name">{$user['username']}</span><br>
-            <span class="signature" ng-bind="_LANG.no_signature"></span>
+<section class="index-trainer box" ng-if="trainer.uid > 0" ng-cloak>
+    <div class="info">
+        <img class="avatar float-left" ng-src="%%trainer.avatar%%">
+        <span class="ranking float-right"># %%trainer.rank%%</span>
+        <span class="name">{$user['username']}</span><br>
+        <span class="signature" ng-bind="_LANG.no_signature"></span>
+    </div>
+    <div class="other">
+        <span class="stat inline-block" ng-bind-html="trainer.level + '<br>' + _LANG.level"></span>
+        <span class="stat inline-block" ng-bind-html="trainer.dex_collected + '<br>' + _LANG.pokedex"></span>
+        <span class="stat inline-block" ng-bind-html="numberFormat(trainer.currency) + '<br>' + _LANG.currency"></span>
+        <div class="party border">
+            {foreach from=$party item=nat_id}<pokemon-icon nat-id="{$nat_id}"></pokemon-icon>{/foreach}
         </div>
-        <div class="other">
-            <span class="stat inline-block" ng-bind-html="'{$trainer['level']}<br>' + _LANG.level"></span>
-            <span class="stat inline-block" ng-bind-html="'{$trainer['dex_collected']}<br>' + _LANG.pokedex"></span>
-            <span class="stat inline-block" ng-bind-html="'{Kit::NumberFormat($trainer['currency'])}<br>' + _LANG.currency"></span>
-            <div class="party border">
-                {foreach from=$party item=nat_id}<img src="{ROOT_IMAGE}/pokemon-icon/{$nat_id}.png">{/foreach}
-            </div>
-        </div>
-    </section>
-{else}
-    <section class="index-login box">
-        <div class="title" ng-bind="_LANG.trainer_entrance"></div>
-        <div class="content">
-            <input type="text" name="username" ng-placeholder="%%_LANG.username%%">
-            <input type="text" name="password" ng-placeholder="%%_LANG.password%%">
-            <button id="sign_in" class="float-left" ng-bind="_LANG.sign_in"></button>
-            <button id="sign_up" class="float-right" ng-bind="_LANG.sign_up"></button>
-        </div>
-    </section>
-{/if}
+    </div>
+</section>
+<section class="index-login box" ng-if="trainer.uid < 1">
+    <div class="title" ng-bind="_LANG.trainer_entrance"></div>
+    <div class="content">
+        <input type="text" name="username" ng-placeholder="%%_LANG.username%%">
+        <input type="text" name="password" ng-placeholder="%%_LANG.password%%">
+        <button id="sign_in" class="float-left" ng-bind="_LANG.sign_in"></button>
+        <button id="sign_up" class="float-right" ng-bind="_LANG.sign_up"></button>
+    </div>
+</section>
 
 <section class="index-log box">
     <div class="title" ng-bind="_LANG.newest_updates"></div>
@@ -59,8 +56,10 @@
 <section class="index-horde box">
     <div class="title" ng-bind="_LANG.random_pokemon"></div>
     <div class="content">
-        <img ng-src="{$rand_pkm['pkm_sprite']}" pokemon-overflow>
-        <div>{$rand_pkm['nickname']} {$rand_pkm['gender']} Lv.{$rand_pkm['level']}</div>
+        {if !empty($rand_pkm)}
+            <img ng-src="{$rand_pkm['pkm_sprite']}" pokemon-overflow>
+            <div>{$rand_pkm['nickname']} {$rand_pkm['gender']} Lv.{$rand_pkm['level']}</div>
+        {/if}
     </div>
 </section>
 

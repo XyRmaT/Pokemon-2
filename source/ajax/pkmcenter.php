@@ -10,7 +10,7 @@
  * 101~200 - 箱子
  */
 
-switch($_GET['process']) {
+switch($process) {
 
     case 'pcheal':
 
@@ -142,8 +142,8 @@ switch($_GET['process']) {
             $return['js'] .= '\'<li class="heal ' . (($key === 0) ? 'lmg-clr' : '') . '"' . (empty($val['pkm_id']) ? ' style="visibility: hidden;"' : '') . '>\' +
 				\'<img src="' . $val['pkm_sprite'] . '"><br>\' + ' .
                 '\'' . $val['nickname'] . $val['gender'] . ' Lv.' . $val['level'] . '<br>\' + ' .
-                '\'<div class="bar"><div class="hp" style="width:' . $val['hpper'] . '%"></div><div class="value">' . $val['hp'] . '/' . $val['maxhp'] . '</div></div>\' + ' .
-                '\'<div class="bar"><div class="exp" style="width:' . $val['expper'] . '%"></div><div class="value">' . $val['exp'] . '/' . $val['maxexp'] . '</div></div>\' + ' .
+                '\'<div class="bar"><div class="hp" style="width:' . $val['hp_percent'] . '%"></div><div class="value">' . $val['hp'] . '/' . $val['maxhp'] . '</div></div>\' + ' .
+                '\'<div class="bar"><div class="exp" style="width:' . $val['exp_percent'] . '%"></div><div class="value">' . $val['exp'] . '/' . $val['exp_max'] . '</div></div>\' + ' .
                 '\'<input type="checkbox" name="heal[]" value="' . $val['pkm_id'] . '">\' +
 				\'</li>\' + ';
         }
@@ -173,7 +173,7 @@ switch($_GET['process']) {
 
         $location  = $pokemon = $curplace = $unable = $sql = [];
         $query  = DB::query('SELECT pkm_id, location FROM pkm_mypkm WHERE uid = ' . $trainer['uid']);
-        $boxnum = $system['initial_box'] + $trainer['boxnum'];
+        $boxnum = $system['initial_box'] + $trainer['box_quantity'];
 
         for($i = 1; $i <= $boxnum; $i++)
             $location[$i + 100] = 0;

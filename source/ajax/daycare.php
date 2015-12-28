@@ -1,7 +1,14 @@
 <?php
 
-switch($_GET['process']) {
-    case 'pokemon-leave':
+switch($process) {
+    case 'pokemon-put':
+
+        $pkm_id = !empty($_GET['pkm_id']) ? intval($_GET['pkm_id']) : 0;
+
+        if(!$pkm_id) {
+            $return['msg'] = Obtain::Text('no_such_pokemon');
+            break;
+        }
 
         $pkm_count = DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE uid = ' . $trainer['uid'] . ' AND location = ' . LOCATION_DAYCARE);
 
@@ -10,24 +17,31 @@ switch($_GET['process']) {
             break;
         }
 
-        $pokemon = DB::fetch_first('SELECT nat_id, pkm_id, nickname, location FROM pkm_mypkm WHERE pkm_id = ' . intval($_GET['pkm_id']));
+        $pokemon = DB::fetch_first('SELECT nat_id, pkm_id, nickname, location FROM pkm_mypkm WHERE pkm_id = ' . $pkm_id);
 
         if(empty($pokemon)) {
             $return['msg'] = Obtain::Text('no_such_pokemon');
-        } elseif(empty($pokemon['nat_id'])) {
+        } elseif(!$pokemon['nat_id']) {
             $return['msg'] = Obtain::Text('daycare_is_egg');
         } elseif($pokemon['location'] > 6) {
             $return['msg'] = Obtain::Text('daycare_not_in_party', [$pokemon['nickname']]);
         } else {
-            DB::query('UPDATE pkm_mypkm SET time_hatched = 0, has_egg = 0, location = ' . LOCATION_DAYCARE . ', time_daycare_sent = ' . $_SERVER['REQUEST_TIME'] . ', time_egg_checked = ' . $_SERVER['REQUEST_TIME'] . ' WHERE pkm_id = ' . $pokemon['pkm_id']);
-            $return['msg'] = Obtain::Text('daycare_leave_succeed', [$pokemon['nickname']]);
+            DB::query('UPDATE pkm_mypkm SET has_egg = 0' . ', time_egg_checked = ' . $_SERVER['REQUEST_TIME'] . ' WHERE location = ' . LOCATION_DAYCARE);
+            DB::query('UPDATE pkm_mypkm SET has_egg = 0, location = ' . LOCATION_DAYCARE . ', time_egg_checked = ' . $_SERVER['REQUEST_TIME'] . ', time_daycare_sent = ' . $_SERVER['REQUEST_TIME'] . ' WHERE pkm_id = ' . $pkm_id);
+            $return['msg'] = Obtain::Text('daycare_put_succeed', [$pokemon['nickname']]);
         }
 
         break;
     case 'pokemon-take':
 
-        $pkm_id  = intval($_GET['pkm_id']);
-        $pokemon = DB::fetch_first('SELECT time_daycare_sent, time_hatched, location, nickname FROM pkm_mypkm WHERE pkm_id = ' . $pkm_id);
+        $pkm_id = !empty($_GET['pkm_id']) ? intval($_GET['pkm_id']) : 0;
+
+        if(!$pkm_id) {
+            $return['msg'] = Obtain::Text('no_such_pokemon');
+            break;
+        }
+
+        $pokemon = DB::fetch_first('SELECT time_daycare_sent, location, nickname, has_egg FROM pkm_mypkm WHERE pkm_id = ' . $pkm_id);
 
         if(empty($pokemon)) {
             $return['msg'] = Obtain::Text('no_such_pokemon');
@@ -48,13 +62,20 @@ switch($_GET['process']) {
                 break;
             }
 
-            DB::query('UPDATE pkm_mypkm SET time_egg_checked = 0 WHERE uid = ' . $trainer['uid'] . ' AND location = ' . LOCATION_DAYCARE);
-            DB::query('UPDATE pkm_mypkm SET time_daycare_sent = 0, location = ' . $location . ', exp = exp + ' . $values['exp_increased'] . ' WHERE pkm_id = ' . $pkm_id);
+            Pokemon::Update(['time_egg_checked' => 0], [
+                'uid'      => $trainer['uid'],
+                'location' => LOCATION_DAYCARE
+            ]);
+            Pokemon::Update([
+                'time_daycare_sent' => 0,
+                'location'          => $location,
+                'exp'               => 'exp + ' . $values['exp_increased']
+            ], ['pkm_id' => $pkm_id]);
 
-            App::CreditsUpdate($trainer['uid'], -$cost);
+            App::CreditsUpdate($trainer['uid'], -$values['cost']);
 
             $return['msg'] = Obtain::Text('daycare_pay_succeed', [$values['cost'], $pokemon['nickname']]) .
-                ($location > 100 ? PHP_EOL . Obtain::Text('daycare_moved_to_box', [$location - 100]) : '');
+                ($location > 100 ? Obtain::Text('daycare_moved_to_box', [$location - 100]) : '');
 
         }
 
@@ -73,31 +94,32 @@ switch($_GET['process']) {
             $return['msg'] = Obtain::Text('daycare_no_egg');
         } else {
 
-            Kit::Library('class', ['obtain', 'pokemon']);
-
-            if(($key_ditto = array_search(132, $nat_id)) !== FALSE) {
-                $nat_id = Obtain::Devolution($key_ditto === 0 ? $nat_id[1] : $nat_id[0]);
-            } else {
-                $key_male = array_search(2, $gender);
-                $nat_id   = Obtain::Devolution($nat_id[$key_male]);
-            }
-
-            $code = Pokemon::Generate($nat_id, $trainer['uid'], ['met_location' => 601, 'time_hatched' => 1]);
+            $key_ditto  = array_search(132, $nat_id);
+            $key_male   = array_search(2, $gender);
+            $is_bad_egg = $key_ditto === FALSE && $key_male === FALSE || count($nat_id) > 2;
+            $nat_id     = $is_bad_egg ? 0 : $nat_id[$key_ditto === FALSE ? intval(!$key_ditto) : $key_male];
+            $code       = Pokemon::Generate($nat_id, $trainer['uid'], [
+                'met_location' => 601,
+                'time_hatched' => 1,
+                'is_egg'       => TRUE,
+                'is_bad_egg'   => $is_bad_egg
+            ]);
 
             if($code === 3) {
-                $return['msg'] = '身上和箱子都满了！';
+                $return['msg'] = Obtain::Text('location_full');
                 break;
             }
 
-            DB::query('UPDATE pkm_mypkm SET time_hatched = 0 WHERE uid = ' . $trainer['uid'] . ' AND location = 7 AND time_hatched = 1 LIMIT 2');
+            DB::query('UPDATE pkm_mypkm
+                        SET has_egg = 0, time_egg_checked = ' . $_SERVER['REQUEST_TIME'] . '
+                        WHERE uid = ' . $trainer['uid'] . ' AND location = ' . LOCATION_DAYCARE);
 
-            $trainer['addexp'] += 6;
-
-            $return['msg'] = '请好好照顾它！';
-
+            Trainer::AddExp($trainer, 6, TRUE);
+            $return['msg'] = Obtain::Text('daycare_take_care');
         }
 
         break;
 }
 
-?>
+include ROOT . '/source/index/daycare.php';
+$return['data'] = ['pokemon' => $pokemon, 'party' => $party, 'egg_chance' => $egg_chance];

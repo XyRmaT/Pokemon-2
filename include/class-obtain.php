@@ -36,14 +36,14 @@ class Obtain {
 
         global $system, $trainer;
 
-        $maxboxnum = $trainer['boxnum'] + $system['initial_box'] + 100;
+        $maxboxnum = $trainer['box_quantity'] + $system['initial_box'] + 100;
+        self::$box = [];
 
         if(empty(self::$box)) {
             $query = DB::query('SELECT location, COUNT(*) total FROM pkm_mypkm WHERE uid = ' . $uid . ' AND (location IN (1, 2, 3, 4, 5, 6) OR location > 100) GROUP BY location');
             while($pokemon = DB::fetch($query))
                 self::$box[$pokemon['location']] = $pokemon['total'];
         }
-
         for($i = 1; $i <= $maxboxnum; $i++) {
             if(empty(self::$box[$i]) || $i > 100 && self::$box[$i] < $system['pkm_per_box']) {
                 self::$box[$i] = isset(self::$box[$i]) ? self::$box[$i] + 1 : 1;
@@ -136,7 +136,7 @@ class Obtain {
 
                     return ROOT_CACHE . '/image/_unknownpokemon.png';
 
-                } elseif($data[1] == 327 && $side === 0) {
+                } elseif($data[1] == 327111 && $side === 0) {
 
                     /*
                         This is for spinda front sprite only
@@ -153,11 +153,12 @@ class Obtain {
                         [$pv[7], $pv[6]],
                         [$pv[5] + 24, $pv[4] + 2],
                         [$pv[3] + 3, $pv[2] + 16],
-                        [$pv[1] + 15, $pv[0] + 18]];
+                        [$pv[1] + 15, $pv[0] + 18]
+                    ];
 
-                    $extrapath = ($data[4] == 1) ? 'is_shiny' : 'normal';
+                    $extrapath = ($data[4] == 1) ? '-shiny' : '';
 
-                    $img  = imagecreatefrompng(ROOT_IMAGE . '/pokemon/' . $extrapath . '/front/common/327.' . $type);
+                    $img  = imagecreatefrompng(ROOT_IMAGE . '/pokemon/front' . $extrapath . '/327.' . $type);
                     $imgb = imagecreatefrompng(ROOT_IMAGE . '/merge/spinda_' . $extrapath . '_spot_1.png');
                     $imgc = imagecreatefrompng(ROOT_IMAGE . '/merge/spinda_' . $extrapath . '_spot_2.png');
                     $imgd = imagecreatefrompng(ROOT_IMAGE . '/merge/spinda_' . $extrapath . '_spot_3.png');
@@ -315,7 +316,7 @@ class Obtain {
 
     }
 
-    public static function Stat($level, $bs, $iv, $ev, $nature = 1, $hp = FALSE) {
+    public static function Stat($level, $bs, $iv, $ev, $nature = 1, $hp = TRUE) {
 
         $bs       = explode(',', $bs);
         $iv       = explode(',', $iv);
@@ -334,9 +335,7 @@ class Obtain {
             }
         }
 
-        if($hp !== FALSE)
-
-            $result['hpper'] = min(ceil($hp / $result['maxhp'] * 100), 100);
+        if($hp !== FALSE) $result['hp_percent'] = min(ceil($hp / $result['maxhp'] * 100), 100);
 
         return $result;
     }
@@ -474,7 +473,7 @@ class Obtain {
 
     public static function DaycareInfo($sent_time) {
         return [
-            'cost'          => (floor(($_SERVER['REQUEST_TIME'] - $sent_time) / 2400) + 1) * 5,
+            'cost'          => (floor(($_SERVER['REQUEST_TIME'] - $sent_time) / 3600) + 1) * 10,
             'exp_increased' => floor(($_SERVER['REQUEST_TIME'] - $sent_time) / 12)
         ];
     }

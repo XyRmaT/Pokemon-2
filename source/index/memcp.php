@@ -76,8 +76,7 @@ switch($_GET['section']) {
                     // Exp
                     $info = array_merge($info, Obtain::Stat($info['level'], $info['base_stat'], $info['ind_value'], $info['eft_value'], $info['nature'], $info['hp']));
 
-                    list($info['maxexp'], $info['exp'], $info['rmexp'], $info['expper']) = Pokemon::Levelup($info);
-                    Pokemon::$pmtmp = [];
+                    Pokemon::Levelup($info);
                     unset($info['evolution_data'], $info['exp_type']);
 
                     $info['pkm_sprite']    = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);

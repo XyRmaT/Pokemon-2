@@ -63,14 +63,9 @@ class Kit {
 
     }
 
-
     public static function JsonConvert($array) {
-
-        //return json_encode(self::ArrayIconv('gbk', 'utf-8//IGNORE', $array));
-        return json_encode($array);
-
+        return json_encode($array, JSON_NUMERIC_CHECK);
     }
-
 
     public static function MultiPage($limit, $count = 0, $ulproperty = '', $tag = 'a') {
 
@@ -130,7 +125,7 @@ class Kit {
         return ($num > 999999) ? round($num / 1000000) . 'm' : (($num > 999) ? round($num / 1000) . 'k' : $num);
     }
 
-    public static function cutstr($string, $length, $dot = ' ...') {
+    public static function Cutstr($string, $length, $dot = ' ...') {
 
         if(strlen($string) <= $length) return $string;
 
@@ -159,6 +154,10 @@ class Kit {
         $strcut = str_replace(['&', '"', '<', '>'], ['&amp;', '&quot;', '&lt;', '&gt;'], $strcut);
 
         return $strcut . $dot;
+    }
+
+    public static function FetchFields($fields) {
+        return implode(',', array_unique(explode(',', implode(',', $fields))));
     }
 
 }
@@ -212,11 +211,16 @@ class App {
     }
 
     public static function CreditsUpdate($uid, $value, $type = 'CURRENCY', $isFixed = FALSE) {
-        $field = $type === 'EXP' ? $GLOBALS['system']['exp_field'] : $GLOBALS['system']['currency_field'];
-        if($isFixed)
-            return DB::query('UPDATE pre_common_member_count SET `' . $field . '` = ' . $value . ' WHERE uid = ' . $uid);
-        else
-            return DB::query('UPDATE pre_common_member_count SET `' . $field . '` = ' . $field . ' + ' . $value . ' WHERE uid = ' . $uid);
+        global $system, $trainer;
+        if($type === 'EXP') {
+            $field = $system['exp_field'];
+            $trainer['exp'] = $isFixed ? $value : $trainer['exp'] + $value;
+        } else {
+            $field = $system['currency_field'];
+            $trainer['currency'] = $isFixed ? $value : $trainer['currency'] + $value;
+        }
+        if($isFixed) return DB::query('UPDATE pre_common_member_count SET `' . $field . '` = ' . $value . ' WHERE uid = ' . $uid);
+        else return DB::query('UPDATE pre_common_member_count SET `' . $field . '` = ' . $field . ' + ' . $value . ' WHERE uid = ' . $uid);
     }
 
     private function GetUserIp() {

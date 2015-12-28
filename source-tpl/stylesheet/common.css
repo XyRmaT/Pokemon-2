@@ -7,8 +7,9 @@ body {
 }
 
 body, html, ul {
-    padding : 0;
-    margin  : 0;
+    padding  : 0;
+    margin   : 0;
+    position : relative;
 }
 
 ul, li {
@@ -30,52 +31,59 @@ td {
 }
 
 input[type=text], input[type=password] {
-    border                : 1px solid _border-color_;
-    -webkit-border-radius : 5px;
-    -moz-border-radius    : 5px;
-    border-radius         : 5px;
-    line-height           : 28px;
-    padding               : 0 10px 0 10px;
+    border        : 1px solid _border-color_;
+    border-radius : 5px;
+    line-height   : 28px;
+    padding       : 0 10px 0 10px;
 }
 
 button {
-    -webkit-border-radius : 5px;
-    -moz-border-radius    : 5px;
-    border-radius         : 5px;
-    border                : 1px solid _border-color_;
-    height                : 28px;
-    line-height           : 28px;
-    text-align            : center;
-    padding               : 0 10px 0 10px;
-    cursor                : pointer;
-    font-size             : 14px;
-    font-weight           : bold;
-    color                 : #323236;
+    border-radius : 5px;
+    border        : 1px solid _border-color_;
+    height        : 28px;
+    line-height   : 28px;
+    text-align    : center;
+    padding       : 0 10px 0 10px;
+    cursor        : pointer;
+    font-size     : 14px;
+    font-weight   : bold;
+    color         : #323236;
+}
+
+.hide:not(#pop-up-mask), span {
+    animation : fadeIn 1s;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity : 0;
+    }
+    to {
+        opacity : 1;
+    }
+}
+
+.hide {
+    display : none;
 }
 
 .box {
-    border                : 1px solid _border-color_;
-    -webkit-border-radius : 5px;
-    -moz-border-radius    : 5px;
-    border-radius         : 5px;
-    background            : _box-bg-color_;
+    border        : 1px solid _border-color_;
+    border-radius : 5px;
+    background    : _box-bg-color_;
 }
 
 .box .title {
-    line-height                     : 40px;
-    height                          : 40px;
-    border-bottom                   : 3px solid _sub-color_;
-    background                      : _box-bg-color_ url(_image-root_/other/ball.png) 10px center no-repeat;
-    padding-left                    : 40px;
-    font-size                       : 14px;
-    font-weight                     : bold;
-    color                           : #4E5774;
-    -webkit-border-top-left-radius  : 5px;
-    -moz-border-top-left-radius     : 5px;
-    border-top-left-radius          : 5px;
-    -webkit-border-top-right-radius : 5px;
-    -moz-border-top-right-radius    : 5px;
-    border-top-right-radius         : 5px;
+    line-height             : 40px;
+    height                  : 40px;
+    border-bottom           : 3px solid _sub-color_;
+    background              : _box-bg-color_ url(_image-root_/other/ball.png) 10px center no-repeat;
+    padding-left            : 40px;
+    font-size               : 14px;
+    font-weight             : bold;
+    color                   : #4E5774;
+    border-top-left-radius  : 5px;
+    border-top-right-radius : 5px;
 }
 
 .box .content {
@@ -109,10 +117,16 @@ button {
 }
 
 .border {
-    border                : 1px solid _border-color_;
-    -webkit-border-radius : 5px;
-    -moz-border-radius    : 5px;
-    border-radius         : 5px;
+    border        : 1px solid _border-color_;
+    border-radius : 5px;
+}
+
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+    display : none !important;
+}
+
+[ng-click] {
+    cursor : pointer;
 }
 
 /*
@@ -125,20 +139,31 @@ button {
 */
 
 header {
-    line-height        : 55px;
-    background         : #323236;
-    -webkit-box-shadow : 0 1px 5px #323236;
-    -moz-box-shadow    : 0 1px 5px #323236;
-    box-shadow         : 0 1px 5px #323236;
-    position           : relative;
+    line-height : 55px;
+    background  : #323236;
+    box-shadow  : 0 1px 5px #323236;
+    position    : relative;
 }
 
+/*noinspection ALL*/
 header .decoration-bar {
-    position   : absolute;
-    height     : 5px;
-    width      : 100%;
-    background : _sub-color_;
-    bottom     : 1px;
+    position                   : absolute;
+    height                     : 5px;
+    width                      : 0;
+    bottom                     : 1px;
+    background                 : linear-gradient(to right, _sub-color--1_ 90%, _sub-color--0_ 100%);
+    border-top-right-radius    : 5px;
+    border-bottom-right-radius : 5px;
+}
+
+header .decoration-bar.loading {
+    transition : width 5s cubic-bezier(0, .79, .73, 1);
+    width      : 60%;
+}
+
+header .decoration-bar.active {
+    transition : width 1s ease-in;
+    width      : 150%;
 }
 
 #menu {
@@ -221,11 +246,13 @@ table.main .header > .currency:before {
 table.main .hint {
     background    : url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAJAgMAAABoAWUzAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAACVBMVEUAAADmQUEAAAAFRV/+AAAAAXRSTlMAQObYZgAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxIAAAsSAdLdfvwAAAASSURBVAjXYxBhCAVDESBkAJEAD+kBZKdQQkYAAAAASUVORK5CYII=) 20px center no-repeat;
     color         : #999;
-    height        : 35px;
-    line-height   : 35px;
     border-bottom : 1px solid _border-color_;
-    margin        : -15px;
-    padding       : 0 15px 0 40px;
+    margin        : 0 -15px 0 -15px;
+    padding       : 10px 15px 10px 40px;
+}
+
+table.main .hint:first-child {
+    margin-top : -15px;
 }
 
 table.main .step {
@@ -253,4 +280,117 @@ table.main .step > .num {
 
 table.main .step > .procedure {
     width : 132px;
+}
+
+div.pokemon {
+    width         : 178px;
+    height        : 173px;
+    border        : 1px solid _border-color_;
+    border-radius : 5px;
+    padding       : 15px;
+    display       : inline-block;
+    position      : relative;
+    background    : #FFF;
+    color         : #8C8C8C;
+    line-height   : 18px;
+}
+
+div.pokemon > img {
+    position : absolute;
+    display  : none;
+}
+
+div.pokemon-b {
+    width         : 168px;
+    height        : 40px;
+    padding       : 10px;
+    border-radius : 5px;
+    border        : 1px solid _border-color_;
+    display       : inline-block;
+}
+
+div.pokemon-b {
+    margin   : 0 10px 10px 0;
+    cursor   : pointer;
+    position : relative;
+}
+
+div.pokemon-b:hover {
+    background : #FFF;
+}
+
+div.pokemon-b.even {
+    margin-right : 0;
+}
+
+div.pokemon-b > hr {
+    position      : absolute;
+    left          : 0;
+    bottom        : 0;
+    width         : 90%;
+    border        : 1px solid #6CB92D;
+    border-radius : 5px;
+    margin        : 0;
+}
+
+div.pokemon .float-right, div.pokemon-b .float-right {
+    margin : -5px -5px 0 0;
+}
+
+button.default {
+    width         : 103px;
+    height        : 38px;
+    font-size     : 16px;
+    color         : #FFF;
+    border-radius : 5px;
+    border        : 1px solid _border-color_;
+    font-family   : '幼圆';
+}
+
+span.pokemon-icon {
+    display    : inline-block;
+    width      : 32px;
+    height     : 32px;
+    background : url(_image-root_/pokemon-icon/sheet-32x32.png);
+}
+
+.pop-up {
+    border     : 1px solid _border-color_;
+    max-width  : 423px;
+    display    : none;
+    position   : absolute;
+    z-index    : 10;
+    background : #F8F8F8;
+}
+
+.pop-up > .title {
+    border-bottom : 1px solid _border-color_;
+    height        : 34px;
+    line-height   : 34px;
+    padding       : 0 20px 0 15px;
+    cursor        : move;
+}
+
+.pop-up > .content {
+    padding : 15px;
+}
+
+.pop-up .close {
+    float       : right;
+    font-size   : 20px;
+    font-weight : bold;
+    cursor      : pointer;
+    margin-left : 10px;
+}
+
+#pop-up-mask {
+    display    : none;
+    opacity    : 0.5;
+    background : #000;
+    position   : fixed;
+    top        : 0;
+    left       : 0;
+    right      : 0;
+    bottom     : 0;
+    cursor     : pointer;
 }

@@ -44,3 +44,6 @@ define('LOCATION_BOX', implode(',', range(101, 200)));
 
 define('MOVE_BY_LEVEL', 1);
 define('MOVE_BY_TMHM', 2);
+
+define('FIELDS_POKEMON_BASIC', 'p.pkm_id, p.nat_id, p.gender, p.sprite_name');
+define('FIELDS_POKEMON_LEVELUP', 'p.exp_type, p.evolution_data, p.base_stat, m.level, m.exp, m.pkm_id, m.nat_id, m.moves, m.moves_new, m.ind_value, m.eft_value');

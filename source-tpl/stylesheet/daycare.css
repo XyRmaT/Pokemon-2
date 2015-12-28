@@ -9,3 +9,43 @@ table.main tr:nth-of-type(1) td:last-child {
 table.main .header {
     background : #77AC33 url(_image-root_/other/daycare-bitches.png) 88% bottom no-repeat;
 }
+
+table.main .info {
+    padding-top : 55px;
+    text-align  : center;
+}
+
+.pokemon, .has_egg {
+    vertical-align : middle;
+}
+
+.pokemon .bottom {
+    text-align : center;
+    width      : inherit;
+    position   : absolute;
+    bottom     : 15px;
+}
+
+.pokemon.no {
+    background : #EFEFEF;
+}
+
+.has_egg {
+    background    : #77AC33 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABcAAAAWCAMAAAAcqPc3AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAM1BMVEUAAADPlR3iqjTmwlf11416YiP///+347gUFBSuYxdtxIf/9t7r3bjcxIVlg1BefUkAAABosDkgAAAAAXRSTlMAQObYZgAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxIAAAsSAdLdfvwAAAC/SURBVCjPZZCLFoMgDEP7QKB14v//7dLi0G054oGbND6IUkz0s/k+/+GlbypaNkhVl8PEWqRstdbWVUVhWBpaVLu3WvdXlxixOSA4bO47hAHV2WSIS2/e9mmISOatRE3C1vYsujh2/UjunkU2sgejdkTPy93iYWYnsQlHxP2AEFJhGxgwlnwJgzh3kxNGw5G8kA58cXxCLM714TBufuHkA8XB83/awjCGLY1xnjeHs24rThSRMZNPfBs/+Op6wDfJuwnvbYGfmAAAAABJRU5ErkJggg==) center center no-repeat;
+    width         : 53px;
+    height        : 53px;
+    border        : 1px solid #4B7318;
+    border-radius : 5px;
+    display       : inline-block;
+    margin        : 0 25px 0 25px;
+    cursor        : pointer;
+}
+
+.has_egg.no {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABcAAAAWBAMAAADZWBo2AAAAHlBMVEUAAABefUmuYxdlg1DPlR3BqGjiqjTmwlfcxIX1140qQT4PAAAAAXRSTlMAQObYZgAAALFJREFUeNo1zNEJwjAQxvFYO4DFBUqq9rV6C5QS6rtQcICQ4Gsp+egAQjYIbuvlrH8I3O8OorieX6m2Sllsmdx/9gkBorJcX4CH7wvWPSGBT0vNGD2khediDRj0CcHVjA/maZpaj4yEc4zxATQMOIGDPqjBYn7GdwvbdKoYIR/AMNTFIcDDDpRhnXXGGUEhsKbJ2OvRWmM0keJI56j6gRq6EVGXsTsSVQwl8XSVg0Tb/gunjjnYtIU3LQAAAABJRU5ErkJggg==);
+}
+
+button.default {
+    margin     : 65px auto;
+    background : linear-gradient(to bottom, #93C03F 0%, #5B9827 100%);
+}

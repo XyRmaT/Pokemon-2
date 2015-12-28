@@ -53,8 +53,8 @@
     background  : #EFEFEF;
 }
 
-.index-trainer .party > img {
-    margin : 5px 12px 8px 12px;
+.index-trainer .party > .pokemon-icon {
+    margin : 8px 12px 8px 12px;
 }
 
 .index-login > .content {
@@ -115,6 +115,7 @@
     font-size    : 13px;
     line-height  : 30px;
     padding-left : 20px;
+    border       : 0;
 }
 
 .index-horde .content {
@@ -123,8 +124,9 @@
 }
 
 .index-horde .content > img {
-    position : absolute;
-    display  : none;
+    position   : absolute;
+    display    : none;
+    margin-top : -15px;
 }
 
 .index-horde .content > div {

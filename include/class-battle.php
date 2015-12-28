@@ -209,7 +209,7 @@ class Battle {
 
                 BATTLEEND: {
 
-                    if(self::$failed === FALSE && $_GET['process'] === 'usemove' && !self::$charged)
+                    if(self::$failed === FALSE && $process === 'usemove' && !self::$charged)
 
                         --$atk[0]['moves'][$atkmove['key']][1];
 
@@ -267,13 +267,13 @@ class Battle {
             $abifunc  = '__' . $atk[0]['ability'];
             $movefunc = '__' . $atkmove['move_id'];
 
-            if($_GET['process'] === 'useitem' && $atkkey === 1) {
+            if($process === 'useitem' && $atkkey === 1) {
 
                 self::UseItem();
 
                 goto BATTLE;
 
-            } elseif($_GET['process'] === 'swappm' && $atkkey === 1) {
+            } elseif($process === 'swappm' && $atkkey === 1) {
 
                 Battle::$swapped = self::ReorderPokemon(intval($_GET['pkm_id']));
 
@@ -300,7 +300,7 @@ class Battle {
                 which allows several ability, field to activate
             */
 
-            if(1 === 2 && $_GET['process'] === 'swappm' && self::$order{1} === '1') {
+            if(1 === 2 && $process === 'swappm' && self::$order{1} === '1') {
 
                 /*
                     because reference variables do not update values after the source has been updated when it's an value of an array
@@ -365,7 +365,7 @@ class Battle {
 
                 $atk[0]['item_carrying'] === '140' && self::$report .= $atk[0]['name'] . '漂浮在了空中。<br>'; # 气球
 
-            } elseif($_GET['process'] === 'usemove' || in_array($_GET['process'], ['useitem', 'swappm']) && $atkkey === 0) {
+            } elseif($process === 'usemove' || in_array($process, ['useitem', 'swappm']) && $atkkey === 0) {
 
                 /*
                     Focus punch in process..
@@ -730,7 +730,7 @@ class Battle {
                     if(in_array('99', [$atk[0]['ability'], $def[0]['ability']]) ||    # 无防御
                         $def[1][2][4] && $atk[0]['pkm_id'] == $def[1][2][4] ||        # 锁定、心眼
                         //$atkmove['battle_effect']{14} !== '1' && $def[1][2][39] ||                                                # 念动力 @ marked: battle_effect
-                        //$atk[0]['item_carrying'] === '神秘果' && $atk[0]['hpper'] < $atk[0]['hpeat'] && self::DropItem($atk) ||    # 神秘果 @ marked: DropItem
+                        //$atk[0]['item_carrying'] === '神秘果' && $atk[0]['hp_percent'] < $atk[0]['hpeat'] && self::DropItem($atk) ||    # 神秘果 @ marked: DropItem
                         $atkmove['acc'] > 100 ||                                                                            # 必中技能
                         in_array($atkmove['move_id'], ['89', '90', '222'], TRUE) && $def[1][2][42] === 3 ||                        # 地震、地裂震级变化
                         in_array($atkmove['move_id'], ['57', '250'], TRUE) && $def[1][2][42] === 2 ||                            # 冲浪、漩涡
@@ -1057,7 +1057,7 @@ class Battle {
 
             $atkmove['type'] = '0';
 
-        if($def[0]['ability'] === '47' && !empty($atkmove['class']) && in_array($atkmove['type'], ['1', '13']) || $atk[0]['ability'] === '129' && $atk[0]['hpper'] < 50) { # 厚脂肪、懦弱
+        if($def[0]['ability'] === '47' && !empty($atkmove['class']) && in_array($atkmove['type'], ['1', '13']) || $atk[0]['ability'] === '129' && $atk[0]['hp_percent'] < 50) { # 厚脂肪、懦弱
 
             $atk[0]['atk'] *= 0.5;
             $atk[0]['spatk'] *= 0.5;
@@ -1065,7 +1065,7 @@ class Battle {
         } elseif(($atk[0]['ability'] === '65' && $atkmove['type'] == '3' ||
                 $atk[0]['ability'] === '66' && $atkmove['type'] == '1' ||
                 $atk[0]['ability'] === '67' && $atkmove['type'] == '2' ||
-                $atk[0]['ability'] === '68' && $atkmove['type'] == '8') && $atk[0]['hpper'] < 33
+                $atk[0]['ability'] === '68' && $atkmove['type'] == '8') && $atk[0]['hp_percent'] < 33
         ) { # 深绿、猛火、激流、虫之预感
 
             $atk[0]['atk'] *= 1.5;
@@ -1211,17 +1211,17 @@ class Battle {
         $spddiff   = self::$pokemon[0][0]['spd'] - self::$pokemon[1][0]['spd'];
         $randorder = (rand(0, 1) === 0) ? '10' : '01';
 
-        if(in_array($_GET['process'], ['useitem', 'swappm'])) { # 捕获、换人
+        if(in_array($process, ['useitem', 'swappm'])) { # 捕获、换人
 
             return TRUE;
 
-        } elseif($_GET['process'] === 'swappm' && self::$move[0]['move_id'] == '228') {
+        } elseif($process === 'swappm' && self::$move[0]['move_id'] == '228') {
 
             # MOVE ACTIVATION - 追击
 
             self::$move[$key]['prio'] = 7;
 
-        } elseif($_GET['process'] === 'swappm') {
+        } elseif($process === 'swappm') {
 
             /*
                 To switch to another pokemon
@@ -1260,7 +1260,7 @@ class Battle {
 
                     self::$movefirst{$key} = '1';
 
-                } elseif($val[0]['item_carrying'] === '番荔果' && $val[0]['hpper'] < $val[0]['hpeat']) { # 番荔果
+                } elseif($val[0]['item_carrying'] === '番荔果' && $val[0]['hp_percent'] < $val[0]['hpeat']) { # 番荔果
 
                     self::$movefirst{$key} = '1';
 

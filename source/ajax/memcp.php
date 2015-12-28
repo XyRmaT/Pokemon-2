@@ -1,6 +1,6 @@
 <?php
 
-switch($_GET['process']) {
+switch($process) {
 
 	case 'pmabandon':
 

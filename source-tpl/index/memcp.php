@@ -59,8 +59,8 @@
                     <img src="$val[pkm_sprite]" alt="点我查看数据"><br>
                     Lv. $val[level] $val[status]
                 </div>
-                <div class="bar" title="$val[hp]/$val[maxhp]">HP<div class="ctn"><div class="hp" style="width:$val[hpper]%"></div></div></div>
-                <div class="bar" title="$val[exp]/$val[maxexp]">EXP<div class="ctn"><div class="exp" style="width:$val[expper]%"></div></div></div>
+                <div class="bar" title="$val[hp]/$val[maxhp]">HP<div class="ctn"><div class="hp" style="width:$val[hp_percent]%"></div></div></div>
+                <div class="bar" title="$val[exp]/$val[exp_max]">EXP<div class="ctn"><div class="exp" style="width:$val[exp_percent]%"></div></div></div>
                 <div id="info-$val[pkm_id]" class="pm-info h">
                     <table>
                         <tr>

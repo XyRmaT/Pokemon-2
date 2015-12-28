@@ -111,8 +111,8 @@
                                 <img src="$val[pkm_sprite]"><br>
                                 $val[nickname]{$val[gender]} Lv.$val[level]<br>
                             </div>
-                            <div class="bar" title="$val[hp]/$val[maxhp]">HP<div class="ctn"><div class="hp" style="width:$val[hpper]%"></div></div></div>
-                            <div class="bar" title="$val[exp]/$val[maxexp]">EXP<div class="ctn"><div class="exp" style="width:$val[expper]%"></div></div></div>
+                            <div class="bar" title="$val[hp]/$val[maxhp]">HP<div class="ctn"><div class="hp" style="width:$val[hp_percent]%"></div></div></div>
+                            <div class="bar" title="$val[exp]/$val[exp_max]">EXP<div class="ctn"><div class="exp" style="width:$val[exp_percent]%"></div></div></div>
                             <input type="checkbox" name="heal[]" value="$val[pkm_id]">
                         </li>
                     <!--{/if}-->

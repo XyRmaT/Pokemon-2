@@ -20,7 +20,8 @@ $smarty->template_dir = ROOT . '/source-tpl/index/';
 $smarty->compile_dir  = ROOT . '/source-tpl/_compile/';
 $smarty->config_dir   = ROOT . '/include/smarty/config/';
 $smarty->cache_dir    = ROOT . '/cache/template/';
-$smarty->debugging    = TRUE;
+$smarty->debugging    = 0;
+// $smarty->loadFilter('output', 'indent_html');
 
 Cache::$path_cache = ROOT_CACHE;
 Cache::$path_css   = ROOT_TEMPLATE . '/stylesheet';
@@ -32,16 +33,18 @@ if($system['system_switch'] === 0 && $user['uid'] != 8)
     exit($system['close_reason']);
 
 // Load up the essential libraries
-Kit::Library('class', ['trainer', 'obtain']);
+Kit::Library('class', ['trainer', 'obtain', 'pokemon']);
 
 
 // Set up some global variables, also keep the minified CSS file up to date
 //$system            = array_merge($system, DB::fetch_first('SELECT shopsell, shopopc FROM pkm_stat'));
 $index       = !empty($user['uid']) && isset($_GET['index']) && in_array($_GET['index'], ['my', 'pc', 'copyright', 'starter', 'shop', 'daycare', 'index', 'battle', 'map', 'tempview', 'tempaward', 'ranking', 'shelter']) ? $_GET['index'] : 'index';
+$process     = !empty($_GET['process']) ? $_GET['process'] : '';
 $path['css'] = Cache::Css(['common', $index], 'cssvar');
 $trainer     = [];
 $synclogin   = '';
-//App::Login('嘟嘟之魂', 'wodaxiayiado');
+$r           = ['_LANG' => $lang];
+App::Login('嘟嘟之魂', 'wodaxiayiado');
 
 // Change the default timezone to +8
 date_default_timezone_set('Asia/Shanghai');
@@ -87,18 +90,34 @@ if(!empty($user['uid'])) {
 
     unset($trainer['extcredit']);
 
-}
+    //DB::query('DELETE FROM pkm_mypkm');
+    for($i = 0; $i < 1000; $i++) {
+        Pokemon::Generate(rand(1, 721), 1 == 2 ? 8 : DB::result_first('SELECT uid FROM pkm_trainerdata ORDER BY rand() LIMIT 1'), ['is_shiny' => rand(0, 1)]);
+    }
 
-$smarty->assign('trainer', $trainer);
+}
+/*
+$query = DB::query('SELECT nat_id, name_zh, evolution_data FROM pkm_pkmdata ORDER BY nat_id');
+while($info = DB::fetch($query)) {
+    $evolution_data = unserialize($info['evolution_data']);
+    if(is_array($evolution_data)) {
+        foreach($evolution_data as $value) {
+            echo $info['nat_id'] . "\t" . $info['name_zh'] . "\t" . implode("\t", $value) . PHP_EOL;
+        }
+    } else {
+        echo $info['nat_id'] . "\t" . $info['name_zh'] . PHP_EOL;
+    }
+}*/
+
 $smarty->assign('user', $user);
 $smarty->assign('index', $index);
 $smarty->assign('system', $system);
 $smarty->assign('synclogin', $synclogin);
-$smarty->assign('lang', $lang);
 $smarty->assign('path', $path);
 $smarty->assign('start_time', $start_time);
+$smarty->assign('lang', $lang);
 
-if(INAJAX && !empty($index) && !empty($_GET['process'])) {
+if(INAJAX && !empty($index) && !empty($process)) {
 
     if(empty($user['uid'])) $index = 'index';
     elseif(empty($trainer['has_starter'])) $index = 'starter';
@@ -112,9 +131,10 @@ if(INAJAX && !empty($index) && !empty($_GET['process'])) {
     if($trainer['is_battling'] === '1' && !in_array($index, ['battle', 'map']))
         DB::query('UPDATE pkm_trainerdata SET is_battling = 0 WHERE uid = ' . $trainer['uid']);
 
-    echo Kit::JsonConvert($return);
+    $return['data']['trainer'] = $trainer;
+    $return['data']['system']  = $system;
 
-    goto END;
+    echo Kit::JsonConvert($return);
 
 } else {
 
@@ -127,6 +147,10 @@ if(INAJAX && !empty($index) && !empty($_GET['process'])) {
 
     include ROOT . '/source/index/' . $index . '.php';
 
+    $r['trainer'] = $trainer;
+    $r['system']  = $system;
+
+    $smarty->assign('r', $r);
     $smarty->display($index . '.tpl');
 
 }
