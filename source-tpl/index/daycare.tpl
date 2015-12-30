@@ -22,7 +22,7 @@
                 </div>
                 <div class="pokemon no" ng-if="!pokemon[0]"><button class="default" ng-bind="_LANG.daycare_put" pop-up="party"></button></div>
 
-                <div class="has_egg" ng-class="{ no: pokemon[0].has_egg < 1 || pokemon[1].has_egg < 1}" ng-click="if(pokemon[0].has_egg > 0 && pokemon[1].has_egg > 0) fnTakeEgg()"></div>
+                <div class="has_egg" ng-class="{ no: !pokemon[0] || !pokemon[1] || pokemon[0].has_egg < 1 || pokemon[1].has_egg < 1}" ng-click="pokemon[0].has_egg > 0 && pokemon[1].has_egg > 0 && fnTakeEgg()"></div>
 
                 <div class="pokemon" ng-if="pokemon[1]">
                     <span class="float-left" ng-bind-html="pokemon[1].nickname + ' ' + pokemon[1].gender_sign + ' Lv.' + pokemon[1].level"></span>

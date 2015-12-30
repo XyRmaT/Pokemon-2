@@ -10,7 +10,7 @@
     <div class="info">
         <img class="avatar float-left" ng-src="%%trainer.avatar%%">
         <span class="ranking float-right"># %%trainer.rank%%</span>
-        <span class="name">{$user['username']}</span><br>
+        <span class="username">{$user['username']}</span><br>
         <span class="signature" ng-bind="_LANG.no_signature"></span>
     </div>
     <div class="other">

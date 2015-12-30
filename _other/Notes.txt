@@ -1,0 +1,44 @@
+----啦啦啦----
+完善交换√
+通信-交换
+成就
+战斗数据
+----其他----
+*地图数据
+*训练师
+*对战
+*道馆
+
+ALTER TABLE `pkm_mypkm`
+ADD COLUMN `eggcheck`  int UNSIGNED NOT NULL AFTER `originuid`;
+
+ALTER TABLE `pkm_encounterdata`
+DROP PRIMARY KEY;
+
+ALTER TABLE `pkm_itemdata`
+MODIFY COLUMN `usable`  tinyint(1) UNSIGNED NOT NULL DEFAULT 0 AFTER `price`;
+
+
+UPDATE pkm_itemdata
+SET usable = usable - 1;
+
+
+halo
+
+
+ALTER TABLE `pkm_trainerdata`
+ADD COLUMN `newmsg`  tinyint(1) UNSIGNED NOT NULL DEFAULT 0 AFTER `hpnschk`;
+ALTER TABLE `pkm_trainerdata`
+ADD COLUMN `lbagnum`  tinyint(2) UNSIGNED NOT NULL AFTER `newmsg`;
+INSERT INTO `pkm_itemdata` (`iid`, `name`, `price`, `dscptn`, `type`) VALUES ('211', '安闲铃', '9999', '使精灵更加亲密的神秘铃铛', '3')
+INSERT INTO `pkm_itemdata` (`iid`, `name`, `price`, `dscptn`, `type`) VALUES ('212', '探测仪', '9999', '暂无描述。', '3')
+
+
+
+抽奖区域的bg色：#9b1303
+展示区域的bg色：#7f0f02
+文字颜色：#eb9500
+Rexxxxxxi  0:41:40
+标题、道具框背景色
+= =  0:42:04
+背景框色：#5d0b01

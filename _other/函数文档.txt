@@ -1,0 +1,31 @@
+类 - Battle
+	# 更改精灵临时状态（害怕等）
+	AlterInstantStatus(&$pokemon, $status, $value, $chance)
+		$pokemon：key(1 => insstatus)	# 单只精灵数据
+		$status: integer				# 副状态id
+		$value: integer					# 值
+		$chance: integer (0 - 100)		# 几率，0 - 100
+		- 无返回值
+	
+	# 增加/降低精灵能力等级
+	AlterStatLevel(&$pokemon, $action, $value = 1, $chance = 100)
+		$pokemon：key(0 => key(name), 1 => key(1))	# 单只精灵数据
+		$action: INC | DEC							# 增加/降低
+		$value: integer (0 - 6)						# 值
+		$chance: integer (0 - 100)					# 几率，0 - 100
+		- 如果$action不在范围之内，返回FALSE
+	
+	# 更改精灵主状态
+	AlterStatus(&$pokemon, $status, $chance = 100, $round = 0, $failreport = FALSE)
+		$pokemon：key(0 => key(name, type, abi, status), 1 => key(5))	# 单只精灵数据
+		$status: BRN | FRZ | PAR | SLP | PSN | TXC						# 主状态id
+		$chance: integer (0 - 100)										# 几率，0 - 100
+		$round: sleep round, fill if it's fixed, otherwise 0			# 睡眠回合
+		$failreport: boolean											# 使用失败提示
+		- 如果技能使用失败，返回FALSE
+	
+	# 生成精灵战斗数据
+	GenerateBattleData($pid = 0, $place = 0)
+		$pid: integer	# 精灵pid，野生为0
+		$place: 0 - 6	# 精灵战斗顺序（非携带顺序），野生为0
+		- 返回生成后的数组

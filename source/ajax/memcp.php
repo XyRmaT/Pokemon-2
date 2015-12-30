@@ -54,32 +54,26 @@ switch($process) {
 
 		break;
 
-	case 'pmreorder':
+	case 'pokemon-reorder':
 
-		if(!is_array($_GET['order'])) break;
+		if(empty($_GET['orders']) || !is_array($_GET['orders'])) break;
 
-		$_GET['order'] = array_values($_GET['order']);
-
-		foreach($_GET['order'] as $key => $val) {
-			$_GET['order'][$key] = $pid = intval($val);
-			if($pid === 0) {
-				unset($_GET['order'][$key]);
-				continue;
-			}
-			$arr[$pid] = $key;
+        $i = 1;
+        $sql = '';
+		foreach($_GET['orders'] as $key => &$val) {
+			if(!($val = intval($val))) {
+                unset($_GET['order'][$key]);
+                continue;
+            }
+            $sql .= (!$sql ? '' : ', ') . '(' . $val . ', ' . $i . ')';
+            ++$i;
 		}
 
-		$dosql = [];
-		$query = DB::query('SELECT pkm_id FROM pkm_mypkm WHERE pkm_id IN (' . implode(',', $_GET['order']) . ') AND location IN (1, 2, 3, 4, 5, 6)');
+		if(empty($_GET['orders'])) break;
 
-		while($info = DB::fetch($query))
-			$dosql[] = '(' . $info['pkm_id'] . ', ' . ($arr[$info['pkm_id']] + 1) . ')';
+		if($sql) DB::query('INSERT INTO pkm_mypkm (pkm_id, location) VALUES ' . $sql . ' ON DUPLICATE KEY UPDATE location = VALUES(location)');
 
-		if(!empty($dosql)) {
-			DB::query('INSERT INTO pkm_mypkm (pkm_id, location) VALUES ' . implode(',', $dosql) . ' ON DUPLICATE KEY UPDATE location = VALUES(location)');
-			$return['console'] = '变更队伍顺序成功。';
-
-		}
+		Pokemon::RefreshPartyOrder();
 
 		break;
 
@@ -448,13 +442,6 @@ switch($process) {
 
 		$return['js'] = '$(\'.del[data-msg_id=' . $msgid . ']\').eq(0).parent().parent().fadeOut(500, function() { $(this).remove(); });';
 		break;
-	case 'avatar-update':
-
-
-		break;
-    case 'login':
-            App::Login(8, 'wodaxiayiado');
-        break;
 	default:
 
 		ob_start();

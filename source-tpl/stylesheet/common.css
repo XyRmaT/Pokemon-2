@@ -6,6 +6,8 @@ body {
     overflow-x  : hidden;
 }
 
+_font-en_
+
 body, html, ul {
     padding  : 0;
     margin   : 0;
@@ -17,7 +19,7 @@ ul, li {
 }
 
 a {
-    color           : #3598DC;
+    color           : inherit;
     text-decoration : none;
 }
 
@@ -38,20 +40,33 @@ input[type=text], input[type=password] {
 }
 
 button {
-    border-radius : 5px;
-    border        : 1px solid _border-color_;
-    height        : 28px;
-    line-height   : 28px;
-    text-align    : center;
-    padding       : 0 10px 0 10px;
-    cursor        : pointer;
-    font-size     : 14px;
-    font-weight   : bold;
-    color         : #323236;
+    border      : 0;
+    height      : 28px;
+    line-height : 28px;
+    text-align  : center;
+    padding     : 0 10px 0 10px;
+    cursor      : pointer;
+    font-size   : 14px;
+    font-weight : bold;
+    color       : #FFF;
+}
+
+textarea {
+    border         : 1px solid _border-color_;
+    padding        : 5px;
+    background     : #F8F8F8;
+    vertical-align : top;
+    overflow       : hidden;
+    resize         : none;
+    word-break     : break-all;
+}
+
+em {
+    font-style : normal;
 }
 
 .hide:not(#pop-up-mask), span {
-    animation : fadeIn 1s;
+    /*animation : fadeIn 1s;*/
 }
 
 @keyframes fadeIn {
@@ -91,6 +106,18 @@ button {
     display : block;
 }
 
+.box-b {
+    padding       : 15px;
+    border        : 1px solid _border-color_;
+    border-radius : 5px;
+    background    : #EFEFEF;
+}
+
+.trainer-card {
+    width  : 386px;
+    height : 100px;
+}
+
 .corrected-center {
     margin : 0 auto;
     width  : 980px;
@@ -121,12 +148,263 @@ button {
     border-radius : 5px;
 }
 
+.border-right {
+    border-right : 1px solid _border-color_ !important;
+}
+
+.border-top {
+    border-top : 1px solid _border-color_ !important;
+}
+
+.text-center {
+    text-align : center;
+}
+
+.block {
+    display : block;
+}
+
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
     display : none !important;
 }
 
 [ng-click] {
     cursor : pointer;
+}
+
+[pokemon-overflow] {
+    position : absolute;
+}
+
+.no-padding {
+    padding : 0 !important;
+}
+
+.no-top-border {
+    border-top : 0 !important;
+}
+
+.no-bottom-border {
+    border-bottom : 0 !important;
+}
+
+.relative {
+    position : relative;
+}
+
+.move {
+    display     : inline-block;
+    width       : 70px;
+    background  : url(_image-root_/other/move-backlayer.png);
+    margin      : 10px 15px 0 0;
+    padding     : 6px 15px 7px 15px;
+    line-height : 18px;
+    color       : #FFF;
+}
+
+.move.t1 {
+    background-color : #F05030;
+}
+
+.move.t2 {
+    background-color : #3898F8;
+}
+
+.move.t3 {
+    background-color : #78C850;
+}
+
+.move.t4 {
+    background-color : #F8C030;
+}
+
+.move.t5 {
+    background-color : #A8A090;
+}
+
+.move.t6 {
+    background-color : #A05038;
+}
+
+.move.t7 {
+    background-color : #98A8F0;
+}
+
+.move.t8 {
+    background-color : #A8B820;
+}
+
+.move.t9 {
+    background-color : #B058A0;
+}
+
+.move.t10 {
+    background-color : #B8A058;
+}
+
+.move.t11 {
+    background-color : #D0B058;
+}
+
+.move.t12 {
+    background-color : #A8A8C0;
+}
+
+.move.t13 {
+    background-color : #58C8E0;
+}
+
+.move.t14 {
+    background-color : #F870A0;
+}
+
+.move.t15 {
+    background-color : #705848;
+}
+
+.move.t16 {
+    background-color : #6060B0;
+}
+
+.move.t17 {
+    background-color : #7860E0;
+}
+
+.move.t18 {
+    background-color : #F1A7F9;
+}
+
+.type {
+    display    : inline-block;
+    width      : 35px;
+    height     : 17px;
+    background : url(_image-root_/other/sprite-pmtype.png);
+}
+
+.type.t1 {
+    background-position : 0 0;
+}
+
+.type.t2 {
+    background-position : -35px 0;
+}
+
+.type.t3 {
+    background-position : -70px 0;
+}
+
+.type.t4 {
+    background-position : -105px 0;
+}
+
+.type.t5 {
+    background-position : -140px 0;
+}
+
+.type.t6 {
+    background-position : -175px 0;
+}
+
+.type.t7 {
+    background-position : 0 -17px;
+}
+
+.type.t8 {
+    background-position : -35px -17px;
+}
+
+.type.t9 {
+    background-position : -70px -17px;
+}
+
+.type.t10 {
+    background-position : -105px -17px;
+}
+
+.type.t11 {
+    background-position : -140px -17px;
+}
+
+.type.t12 {
+    background-position : -175px -17px;
+}
+
+.type.t13 {
+    background-position : 0 -34px;
+}
+
+.type.t14 {
+    background-position : -35px -34px;
+}
+
+.type.t15 {
+    background-position : -70px -34px;
+}
+
+.type.t16 {
+    background-position : -105px -34px;
+}
+
+.type.t17 {
+    background-position : -140px -34px;
+}
+
+.type.t18 {
+    background-position : -175px -34px;
+}
+
+.vbar .outer {
+    width    : 153px;
+    position : relative;
+}
+
+.vbar .inner, .vbar em {
+    position : absolute;
+    top      : 0;
+    left     : 0;
+}
+
+.vbar.hp .inner {
+    background-position : 0 0;
+}
+
+.vbar.exp .inner {
+    background-position : 0 -20px;
+}
+
+.vbar em {
+    z-index     : 1;
+    font-size   : 10px;
+    line-height : 10px;
+    color       : #000;
+    width       : 100%;
+}
+
+.vbar .outer, .vbar .inner {
+    background : url(_image-root_/other/sprite-bar.png) 0 -10px no-repeat;
+    height     : 10px;
+    display    : inline-block;
+}
+
+.star {
+    width          : 14px;
+    height         : 12px;
+    display        : inline-block;
+    margin         : 0 10px 0 10px;
+    vertical-align : middle;
+    background     : url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAwCAMAAAAW5rs+AAACK1BMVEUAAADZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dkPtu0Ptu0Ptu3tDzTZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dkPtu3ttg/ttg8Ptu3Z2dnZ2dntDzTtDzTtDzTtDzTtDzTtDzTtDzTtDzTtDzTtDzTtDzTtDzTtDzTtDzTZ2dntDzTtDzQPtu3tDzTtDzTtDzTtDzTtDzTtDzTtDzTtDzTtDzTtDzTtDzTtDzTtDzTtDzTtDzTtDzTtDzTttg8Ptu0Ptu0Ptu3ttg/tDzTtDzTtDzTtDzTtDzQPtu0Ptu3ttg/ttg/ttg/ttg/ttg/ttg/ttg/ttg/ttg/ttg/ttg8Ptu3ttg/ttg/ttg/Z2dnttg/ttg/ttg/ttg/ttg/ttg/ttg/ttg/ttg/ttg/ttg/ttg/ttg/ttg/ttg/ttg/ttg8Ptu3ttg/ttg/ttg/Z2dkPtu0Ptu3ttg/ttg/ttg/ttg/ttg8Ptu0Ptu0Ptu0Ptu0Ptu0Ptu0Ptu0Ptu0Ptu0Ptu0Ptu3ttg/tDzTZ2dnZ2dnttg8Ptu0Ptu0Ptu0Ptu0Ptu0Ptu0Ptu0Ptu0Ptu0Ptu0Ptu0Ptu0Ptu0Ptu0Ptu0Ptu0Ptu3tDzTtDzTtDzTtDzTtDzTZ2dnZ2dnZ2dkPtu0Ptu3Z2dnZ2dnZ2dntDzTttg8Ptu14yhLZAAAAtXRSTlMAUAUY8XOkGQFI/qgITJjF/NiqfAke3P1kHNlhGups5k4LcS3rhCBXx5UyYjVnUAUY8XOkGQFI/qgITJjF/NiqfAke3P1kHNlhGups5k4LcS3rhCBXx5UyYjVnUAUY8XOkGQFI/qgITJjF/NiqfAke3P1kHNlhGups5k4LcS3rhCBXx5UyYjVnUAUY8XOkGQFI/qgITJjF/NiqfAke3P1kHNlhGups5k4LcS3rhCBXx5UyYjVnRMpbewAAAWRJREFUeF5NzfNzXFEYxvE3ycboxjbrboxuaKPWxmhs1+6GaGPW5sGfl9zz3nvnfH/7zDwzD2A2tiBlZ7CX6UAMjjqcnF0IcXUTyHzz1kCUujy9vH3A149o+QcAQGCQqq5gMQ8JRYYBFo6MQEUSLAoZTWJiH/78RX4jT50Wl//+g9658yB1wZQoM4maknWkpKZRmp4hsJp10USVjNk5uXmQX0C1CosAoLhElbFUzMvKkRWAVSKrUNUU+4L8Sr99/3H5Cr2KvHZdXJ45C3q3boPUHUuDzEZmadLR3NLKWNuKQEfnXQtTWuvu6e2D/gGmNTgEAMMjqtZGxXxsHDkB2CRyCjXNsBrkPXb/waX4BPYE+fSZuHz+AvRevgKp19ZZmXPcOq9jYXGJ8+V2AXePE1auZF7f2NyC7R2utbsHAPsHqsyHYv7uPfIDYB+Rn1CfOTaDrOV19XGPHvOTyD9/xeWNm8c4AnRYxL2MKgrxAAAAAElFTkSuQmCC);
+}
+
+.star.red {
+    background-position : 0 -12px;
+}
+
+.star.yellow {
+    background-position : 0 -24px;
+}
+
+.star.blue {
+    background-position : 0 -36px;
 }
 
 /*
@@ -141,8 +419,9 @@ button {
 header {
     line-height : 55px;
     background  : #323236;
-    box-shadow  : 0 1px 5px #323236;
+    box-shadow  : 0 0 5px #323236;
     position    : relative;
+    font-family : '微软雅黑';
 }
 
 /*noinspection ALL*/
@@ -150,7 +429,7 @@ header .decoration-bar {
     position                   : absolute;
     height                     : 5px;
     width                      : 0;
-    bottom                     : 1px;
+    bottom                     : 2px;
     background                 : linear-gradient(to right, _sub-color--1_ 90%, _sub-color--0_ 100%);
     border-top-right-radius    : 5px;
     border-bottom-right-radius : 5px;
@@ -203,8 +482,9 @@ footer {
 }
 
 img.avatar {
-    width  : 40px;
-    height : 40px;
+    width          : 40px;
+    height         : 40px;
+    vertical-align : top;
 }
 
 span.gender-m {
@@ -282,7 +562,45 @@ table.main .step > .procedure {
     width : 132px;
 }
 
-div.pokemon {
+table.main .info .title {
+    height      : 55px;
+    line-height : 55px;
+    margin      : -15px 0 0 -15px;
+}
+
+table.main .info h3 {
+    margin      : 0 10px 0 20px;
+    font-family : '幼圆';
+    font-size   : 15px;
+    display     : inline-block;
+}
+
+table.main .info .bar {
+    height       : 33px;
+    line-height  : 33px;
+    border       : solid _border-color_;
+    border-width : 1px 0 1px 0;
+    margin       : 0 -15px 10px -15px;
+    padding-left : 15px;
+    background   : #FFF;
+}
+
+table.main .side-menu a {
+    display     : block;
+    cursor      : pointer;
+    height      : 55px;
+    line-height : 55px;
+    font-size   : 16px;
+    font-family : '幼圆';
+    text-align  : center;
+}
+
+table.main .side-menu a:hover, table.main .side-menu a.current {
+    color      : #FFF;
+    background : #E63737;
+}
+
+.pokemon {
     width         : 178px;
     height        : 173px;
     border        : 1px solid _border-color_;
@@ -295,12 +613,19 @@ div.pokemon {
     line-height   : 18px;
 }
 
-div.pokemon > img {
+.pokemon img.pokemon-sprite {
     position : absolute;
     display  : none;
 }
 
-div.pokemon-b {
+.pokemon .bottom {
+    text-align : center;
+    width      : inherit;
+    position   : absolute;
+    bottom     : 15px;
+}
+
+.pokemon-b {
     width         : 168px;
     height        : 40px;
     padding       : 10px;
@@ -309,21 +634,21 @@ div.pokemon-b {
     display       : inline-block;
 }
 
-div.pokemon-b {
+.pokemon-b {
     margin   : 0 10px 10px 0;
     cursor   : pointer;
     position : relative;
 }
 
-div.pokemon-b:hover {
+.pokemon-b:hover {
     background : #FFF;
 }
 
-div.pokemon-b.even {
+.pokemon-b.even {
     margin-right : 0;
 }
 
-div.pokemon-b > hr {
+.pokemon-b > hr {
     position      : absolute;
     left          : 0;
     bottom        : 0;
@@ -333,7 +658,7 @@ div.pokemon-b > hr {
     margin        : 0;
 }
 
-div.pokemon .float-right, div.pokemon-b .float-right {
+.pokemon .float-right, .pokemon-b .float-right {
     margin : -5px -5px 0 0;
 }
 
@@ -371,6 +696,10 @@ span.pokemon-icon {
     cursor        : move;
 }
 
+.pop-up > .title img {
+    vertical-align : middle;
+}
+
 .pop-up > .content {
     padding : 15px;
 }
@@ -393,4 +722,25 @@ span.pokemon-icon {
     right      : 0;
     bottom     : 0;
     cursor     : pointer;
+}
+
+#tooltip {
+    position      : absolute;
+    padding       : 10px 30px 10px 30px;
+    display       : none;
+    background    : #2B2F3B;
+    color         : #FFF;
+    border-radius : 5px;
+    z-index       : 11;
+}
+
+#tooltip > .triangle {
+    position      : absolute;
+    top           : 5px;
+    left          : -5px;
+    width         : 0;
+    height        : 0;
+    border-top    : 3px solid transparent;
+    border-right  : 6px solid #2B2F3B;
+    border-bottom : 3px solid transparent;
 }

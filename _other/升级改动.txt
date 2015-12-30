@@ -1,0 +1,12 @@
+[alter]
+$defaultStyle -> $dftstyle
+$fileRoot -> ROOT
+$tplPath -> ROOTTPL
+
+sysConfig.inc.php -> other_config.php
+global.func.php -> function_global.php
+
+
+[delete]
+$indexArr
+$stime

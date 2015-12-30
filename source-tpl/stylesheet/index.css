@@ -15,7 +15,7 @@
     line-height   : 20px;
 }
 
-.index-trainer .name {
+.index-trainer .username {
     color       : #3092C8;
     margin-left : 10px;
 }
@@ -28,7 +28,6 @@
 .index-trainer .ranking {
     color     : #E63737;
     font-size : 18px;
-    float     : right;
 }
 
 .index-trainer .other {

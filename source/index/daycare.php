@@ -28,7 +28,7 @@ $egg_chance = 0;
 
 if($pkm_count === 2) {
 
-    // If one of the following criterias is met, then there's no possibility of having offsprings:
+    // If one of the following criteria is met, then there's no possibility of having offspring:
     //  - One of them has an egg group of Undiscovered
     //  - Both of them have an egg group of Ditto
     //  - Both of them are same gender, and none of each has an egg group of Ditto
@@ -38,7 +38,7 @@ if($pkm_count === 2) {
         !in_array(EGGGROUP_DITTO, [$pokemon[0]['egg_group'], $pokemon[1]['egg_group']]) &&
         ($pokemon[0]['gender'] == $pokemon[1]['gender'] ||
             !in_array($pokemon[0]['egg_group'], [$pokemon[1]['egg_group'], $pokemon[1]['egg_group_b']]) ||
-            !$pokemon[0]['egg_group_b'] ||
+            $pokemon[0]['egg_group_b'] &&
             !in_array($pokemon[0]['egg_group_b'], [$pokemon[1]['egg_group'], $pokemon[1]['egg_group_b']])
         ));
 

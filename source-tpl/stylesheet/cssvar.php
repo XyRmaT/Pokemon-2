@@ -28,4 +28,5 @@ $cssvar = [
     'border-color'    => '#bcbcbc',
     'box-bg-color'    => '#F8F8F8',
     'text-color-dark' => '#333333',
+    'font-en'         => LANGUAGE === 'en' ? '* { font-family: sans-serif !important; }' : ''
 ];

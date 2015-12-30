@@ -1,8 +1,9 @@
 /* Library based on AngularJS */
 
-var app     = angular.module('pokemon-app', ['ngSanitize']),
-    $       = angular.element,
-    $window = $(window);
+var app               = angular.module('pokemon-app', ['ngSanitize', 'as.sortable']),
+    $                 = angular.element,
+    $window           = $(window),
+    isTooltipDisabled = false;
 
 app
     .config(['$httpProvider', '$interpolateProvider', function ($httpProvider, $interpolateProvider) {
@@ -12,6 +13,8 @@ app
             var timer;
             return {
                 'request' : function (config) {
+                    if (config.pushState) pushState('', config.url);
+                    config.url += '&t=' + Math.random();
                     $('header .decoration-bar').removeClass('loading active');
                     timer = setTimeout(function () {
                         $('header .decoration-bar').addClass('loading');
@@ -38,6 +41,7 @@ app
         for (var i in external)
             $rootScope[i] = external[i];
         $scope.Math         = Math;
+        $scope.location     = window.location;
         $scope.numberFormat = function (num) {
             return (num > 999999) ? Math.round(num / 1000000) + 'm' : ((num > 999) ? Math.round(num / 1000) + 'k' : num);
         };
@@ -69,6 +73,33 @@ app
         };
         $rootScope.fnTakeEgg     = function () {
             confirm($scope._LANG.are_you_sure) && $http.get('?index=daycare&process=egg-take');
+        };
+    }])
+    .controller('page-memcp', ['$rootScope', '$scope', '$http', function ($rootScope, $scope, $http) {
+        var sideMenu = $('.side-menu');
+        sideMenu.find('[data-section="' + $rootScope.section + '"]').addClass('current');
+        sideMenu.find('[data-section]').on('click', function (event) {
+            event.preventDefault();
+            if ($(this).hasClass('current')) return;
+            $http.get('?index=memcp&section=' + $(this).data('section'), {pushState: true});
+            sideMenu.find('.current').removeClass('current');
+            $(this).addClass('current');
+            sideMenu.find('[data-section]');
+        });
+        $scope.orderListener = {
+            dragStart   : function () {
+                isTooltipDisabled = true;
+            },
+            dragEnd     : function () {
+                isTooltipDisabled = false;
+            },
+            orderChanged: function (event) {
+                var orders  = '',
+                    pokemon = event.source.itemScope.pokemon;
+                for (var i in pokemon)
+                    orders += '&orders[]=' + pokemon[i].pkm_id;
+                $http.get('?index=memcp&process=pokemon-reorder' + orders);
+            }
         };
     }])
     .factory('generalQueue', ['$q', '$timeout', function ($q, $timeout) {
@@ -114,14 +145,15 @@ app
                 natId: '='
             },
             link    : function ($scope, $element) {
-                $element.replaceWith('<span class="pokemon-icon" style="background-position:' +
+                $element.replaceWith('<span class="pokemon-icon" ' + ($scope.natId ? 'style="background-position:' +
                     '-' + ((parseInt($scope.natId) % 12) * 32) + 'px ' +
-                    '-' + (Math.floor(parseInt($scope.natId) / 12) * 32) + 'px"></span>');
+                    '-' + (Math.floor(parseInt($scope.natId) / 12) * 32) + 'px"' : '') + '></span>');
             }
         }
     })
     .directive('popUp', function () {
         return {
+            priority: 1001,
             restrict: 'A',
             link    : function ($scope, $element, $attr) {
                 $element.bind('click', function () {
@@ -132,7 +164,7 @@ app
     })
     .directive('draggable', function () {
         return {
-            trstrict: 'A',
+            restrict: 'A',
             link    : function ($scope, $element) {
                 var elem, x_elem, y_elem, x_pos, y_pos = 0;
                 $element
@@ -155,7 +187,68 @@ app
                     });
             }
         };
-    });
+    })
+    .directive('tooltip', ['$rootScope', function ($rootScope) {
+        return {
+            restrict: 'A',
+            link    : function ($scope, $element, $attr) {
+                if (!$attr.tooltip) return;
+                var tooltip         = $('#tooltip'),
+                    decorationWidth = tooltip.find('.triangle').outerWidth();
+                $element.bind('mouseover', function (event) {
+                    if (isTooltipDisabled) return;
+                    var dis = $(this), offset = dis.offset();
+                    event.preventDefault();
+                    $rootScope.tooltipMessage = $attr.tooltip;
+                    $rootScope.$apply();
+                    tooltip.css({
+                        top : (offset.top + dis.outerHeight() / 2 - 7) + 'px',
+                        left: (offset.left + dis.outerWidth() + decorationWidth) + 'px'
+                    }).show();
+                }).bind('mouseout', function (event) {
+                    event.preventDefault();
+                    $('#tooltip').hide();
+                });
+            }
+        }
+    }])
+    .directive('copieable', ['$rootScope', function ($rootScope) {
+        return {
+            restrict: 'A',
+            link    : function ($scope, $element, $attr) {
+                $element.on('click', function (event) {
+                    event.preventDefault();
+                    var clipboard = $('#clipboard-' + $attr.copieable).select(),
+                        content   = clipboard.html();
+                    if (document.execCommand('copy')) console.log('ads');
+                    else if (navigator.userAgent.toLowerCase().match(/(msie|trident)/)) window.clipboardData.setData('Text', content);
+                    else window.prompt($rootScope._LANG.copy_prompt, content);
+                });
+            }
+        };
+    }])
+    .directive('vbar', ['$rootScope', '$parse', '$compile', function ($rootScope, $parse, $compile) {
+        return {
+            restrict: 'E',
+            link    : function ($scope, $element, $attr) {
+                var options = $parse($attr.options)();
+                $element.replaceWith($compile('<div class="vbar ' + options.type + '">' +
+                    '<div class="outer" tooltip="' + options.value + ' / ' + options.max + '">' +
+                    '<div class="inner" style="width:' + (options.value / options.max * 100) + '%"></div>' +
+                    '<em>' + options.value + ' / '+ options.max + '</em></div></div>')($rootScope));
+            }
+        }
+    }])
+    .filter('toAbsoluteLink', function () {
+        return function (input) {
+            return location.origin + location.pathname + input.replace(/^(\.+\/)/, '');
+        }
+    })
+    .filter('semiColumn', ['$rootScope', function ($rootScope) {
+        return function (input) {
+            return input + $rootScope._LANG.semi_column;
+        }
+    }]);
 
 
 window.ondragstart = function () {
@@ -166,14 +259,14 @@ var pop = {
     open    : function (name) {
         this.closeAll();
         var popUp = $('.pop-up.' + name);
-        popUp.show().css({
-            top : (($window.height() - popUp.height()) / 3) + 'px',
+        popUp.fadeIn().css({
+            top : (($window.height() - popUp.height()) / 2.5) + 'px',
             left: (($window.width() - popUp.width()) / 2) + 'px'
         });
-        $('#pop-up-mask').show();
+        $('#pop-up-mask').fadeIn();
     },
     closeAll: function () {
-        $('.pop-up, #pop-up-mask').hide();
+        $('.pop-up, #pop-up-mask').fadeOut();
     }
 };
 

@@ -30,15 +30,28 @@ class Trainer {
 
     public static function Fetch($uid) {
 
-        $trainer = DB::fetch_first('SELECT uid, trainer_id, exp, level, has_starter, box_quantity, time_happiness_checked, is_battling, has_new_message, time_last_visit,
-                                    FIND_IN_SET(exp, (SELECT GROUP_CONCAT(exp ORDER BY exp DESC) FROM pkm_trainerdata)) AS rank
-                                    FROM pkm_trainerdata WHERE uid = ' . $uid);
+        global $system;
 
-        if(!empty($trainer)) {
-            $trainer['stat']          = DB::fetch_first('SELECT * FROM pkm_trainerstat WHERE uid = ' . $uid);
-            $trainer['dex_collected'] = DB::result_first('SELECT COUNT(*) FROM pkm_mypokedex WHERE uid = ' . $trainer['uid'] . ' AND is_owned = 1');
-            unset($trainer['stat']['uid']);
-        }
+        $trainer = DB::fetch_first('SELECT m.uid, username, trainer_id, exp, level, has_starter, box_quantity, time_happiness_checked, is_battling, has_new_message, time_last_visit,
+                                    FIND_IN_SET(exp, (SELECT GROUP_CONCAT(exp ORDER BY exp DESC) FROM pkm_trainerdata)) AS rank
+                                    FROM pkm_trainerdata t
+                                    LEFT JOIN pre_common_member m ON m.uid = t.uid
+                                    WHERE m.uid = ' . $uid);
+
+        if(!$trainer) return FALSE;
+
+        $trainer['extcredit']     = DB::fetch_first('SELECT ' . $system['currency_field'] . ' currency, ' . $system['exp_field'] . ' exp FROM pre_common_member_count WHERE uid = ' . $trainer['uid']);
+        $trainer['gm']            = in_array($trainer['uid'], explode(',', $system['admins']));
+        $trainer['currency']      = $trainer['extcredit']['currency'];
+        $trainer['avatar']        = Obtain::Avatar($trainer['uid']);
+        $trainer['stat']          = DB::fetch_first('SELECT * FROM pkm_trainerstat WHERE uid = ' . $uid);
+        $trainer['dex_collected'] = DB::result_first('SELECT COUNT(*) FROM pkm_mypokedex WHERE uid = ' . $trainer['uid'] . ' AND is_owned = 1');
+        $trainer['exp_required']  = Trainer::GetRequiredExp($trainer['level'] + 1);
+        $trainer['card']          = Obtain::TrainerCard($trainer);
+        $trainer['stat_add']      = array_map(function () {
+            return 0;
+        }, !empty($trainer['stat']) ? $trainer['stat'] : []);
+        unset($trainer['stat']['uid']);
 
         return $trainer;
 
@@ -55,7 +68,7 @@ class Trainer {
             $trainer['exp'] += $exp_adding;
         } elseif($exp_adding && !empty($trainer['exp'])) {
             $exp = max(0, $trainer['exp'] + $exp_adding);
-            DB::query('UPDATE pkm_trainerdata SET exp = ' . $exp . ', level = ' . floor(pow(2 * $exp, 1 / 4)) . ' WHERE uid = ' . $trainer['uid']);
+            DB::query('UPDATE pkm_trainerdata SET exp = ' . $exp . ', LEVEL = ' . floor(pow(2 * $exp, 1 / 4)) . ' WHERE uid = ' . $trainer['uid']);
         }
     }
 
@@ -91,28 +104,27 @@ class Trainer {
 
     public static function Item($action, $uid, $iid, $num, $curnum = 'UNKNOWN', $limit = 0) {
 
-        if($curnum === 'UNKNOWN')
+        if($curnum === 'UNKNOWN') {
             $curnum = DB::result_first('SELECT quantity FROM pkm_myitem WHERE item_id = ' . $iid . ' AND uid = ' . $uid);
+        }
 
-        if($action === 'DROP' && $curnum - $num <= 0)
+        if($action === 'DROP' && $curnum - $num <= 0) {
             DB::query('DELETE FROM pkm_myitem WHERE item_id = ' . $iid . ' AND uid = ' . $uid);
-        elseif($action === 'DROP')
+        } elseif($action === 'DROP') {
             DB::query('UPDATE pkm_myitem SET quantity = ' . ($curnum - $num) . ' WHERE uid = ' . $uid . ' AND item_id = ' . $iid);
-        elseif($action === 'OBTAIN') {
-
+        } elseif($action === 'OBTAIN') {
             if($limit !== 0 && $curnum + $num > $limit) return FALSE;
-
-            if(empty($curnum))
+            if(empty($curnum)) {
                 DB::query('INSERT INTO pkm_myitem (item_id, quantity, uid) VALUES (' . $iid . ', ' . $num . ', ' . $uid . ')');
-            else
-                DB::query('UPDATE pkm_myitem SET quantity = quantity' . ($action === 'DROP' ? '-' : '+') . $num . ' WHERE item_id = ' . $iid . ' AND uid = ' . $uid);
-
+            } else {
+                DB::query('UPDATE pkm_myitem SET quantity = quantity ' . ($action === 'DROP' ? '-' : '+') . $num . ' WHERE item_id = ' . $iid . ' AND uid = ' . $uid);
+            }
         }
 
     }
 
-    public static function LogIn() {
-
+    public static function GetRequiredExp($level) {
+        return ceil(0.5 * pow($level, 4));
     }
 
 }

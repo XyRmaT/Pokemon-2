@@ -1,0 +1,129 @@
+.pokemon {
+    margin : 10px 15px 5px 15px;
+}
+
+table.main .header {
+    line-height : 22px;
+    background  : #323236;
+    font-family : '幼圆';
+}
+
+table.main .header hr {
+    margin : 10px -15px 5px -15px;
+    border : 1px solid #4D4D54;
+}
+
+table.main .header .username {
+    color     : #3092C8;
+    font-size : 12px;
+}
+
+table.main .header .ranking {
+    color     : #E63737;
+    font-size : 16px;
+}
+
+table.main .header .signature {
+    color : #656E89;
+}
+
+table.main .header .stat {
+    height      : 40px;
+    line-height : 20px;
+    width       : 31%;
+    margin      : 10px 0 10px 0;
+    text-align  : center;
+    font-size   : 16px;
+}
+
+table.main .header .stat > span {
+    font-size : 12px;
+}
+
+table.main .info textarea {
+    width       : 268px;
+    height      : 43px;
+    margin-left : 15px;
+}
+
+table.main .info button {
+    background : #E63737;
+    width      : 280px;
+    height     : 35px;
+    margin     : 10px 0 0 15px;
+}
+
+.pokemon-sprite {
+    cursor : pointer;
+}
+
+.pokemon .bottom {
+    bottom : -10px;
+}
+
+.pokedex {
+    height     : 490px;
+    overflow-y : scroll;
+    margin     : 20px auto;
+    width      : 700px;
+}
+
+.pokedex li {
+    display       : inline;
+    width         : 54px;
+    height        : 54px;
+    border        : 1px solid _border-color_;
+    border-radius : 5px;
+    float         : left;
+    background    : #FFF;
+    margin        : 0 12px 12px 0;
+    text-align    : center;
+    cursor        : pointer;
+}
+
+.pokedex li:hover {
+    opacity : 1;
+}
+
+.pokedex .not-collected, .pokedex .not-met {
+    opacity : .5;
+}
+
+.pokedex div {
+    width  : 32px;
+    height : 29px;
+}
+
+.pop-up.party .content {
+    padding     : 0;
+    line-height : 18px;
+}
+
+.pop-up.party .border-right {
+    min-width : 130px;
+}
+
+.pop-up.party td {
+    border : 0;
+}
+
+.pop-up.party .relative {
+    height : 120px;
+}
+
+.pop-up.party .pokemon-info > tbody > tr > td {
+    padding : 15px;
+}
+
+.pop-up.party .info {
+    width         : 240px;
+    margin-bottom : 10px;
+}
+
+.pop-up.party .info tr > td:nth-child(odd):not([colspan]) {
+    width : 20%;
+}
+
+.pop-up.party .info tr > td:nth-child(even):not([colspan]) {
+    width : 30%;
+}

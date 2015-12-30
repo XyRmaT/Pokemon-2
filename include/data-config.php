@@ -13,9 +13,18 @@ $system = [
         'day'     => range(10, 19),
         'evening' => range(20, 3)
     ],
+    'regions'               => [
+        ['unknown', -999, 0],
+        ['kanto', 1, 151],
+        ['johto', 152, 251],
+        ['hoenn', 252, 386],
+        ['sinnoh', 387, 493],
+        ['unova', 494, 649],
+        ['kalos', 650, 721]
+    ],
     'daycare_check_hour'    => 2,
     'fmPlaceCost'           => 10,
-    'currency_name'         => '弹珠',
+    'currency_name'         => $lang['currency_name'],
     'currency_field'        => 'extcredits7',
     'c_1wk'                 => 0,
     'c_1mth'                => 0,

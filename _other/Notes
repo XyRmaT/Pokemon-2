@@ -1,0 +1,31 @@
+- Each 0.5 hour add 1~2 happiness to the entire party
+
+
+Global variables
+$user
+    tid         -> String   -> Trainer ID in hex
+    uid         -> String   -> Forum user ID
+    exp         -> String   -> Trainer's experience point
+    level       -> String   -> Trainer's current level
+    sttchk      -> String   -> Check if the trainer has already received a starter Pokemon
+    boxnum      -> String   -> PC box in possession
+    hpnschk     -> String   -> The last time happinesses have been added to party Pokemon
+    inbtl       -> String   -> Check if the trainer is currently battling
+    style       -> String   -> The template style ID
+    newmsg      -> String   -> Check if the trainer has a new message
+    lbagnum     -> String   -> Lucky bag in possession
+    exist       -> String   -> Check if the trainer's stat data exists
+    pmevolve    -> String   -> How many pokemon evolved
+    itembuy     -> String   -> How many items bought
+    pmtrade     -> String   -> How many times traded
+    pmhatch     -> String   -> How many pokemon hatched
+    extcredit
+        extcredits{1~7} -> String, String (for EXP) -> Credits left
+    gm          -> Boolean  -> Check if the trainer is a moderator
+    money       -> String   -> Money left
+    addexp      -> Integer  -> EXP that will be added to trainer's stat at the end of the execution
+    stat
+        {old|new}
+            pmevolve    -> String   -> Same as above
+            itembuy     -> String   -> Same as above
+            pmhatch     -> String   -> Same as above

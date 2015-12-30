@@ -1,0 +1,5 @@
+<script src="lib.js"></script>
+
+<textarea id="s" cols="50" rows="20"></textarea>
+<button onclick="i=document.getElementById('s');eval('var a='+i.value);i.value=i.value+'\n'+serialize(a);">Submit
+</button>

@@ -15,18 +15,11 @@ table.main .info {
     text-align  : center;
 }
 
-.pokemon, .has_egg {
+div.pokemon, .has_egg {
     vertical-align : middle;
 }
 
-.pokemon .bottom {
-    text-align : center;
-    width      : inherit;
-    position   : absolute;
-    bottom     : 15px;
-}
-
-.pokemon.no {
+div.pokemon.no {
     background : #EFEFEF;
 }
 

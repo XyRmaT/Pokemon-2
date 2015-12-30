@@ -1,0 +1,3 @@
+Ideas
+- using backpack algorithm to stock up shop items (allocating capitals)
+- items will be at wholesale price when stocking up, which is 20% off

@@ -7,6 +7,8 @@
     <div class="content"></div>
 </div>
 
+<div id="tooltip"><span class="triangle"></span><span ng-bind-html="tooltipMessage"></span></div>
+
 <div id="pop-up-mask"></div>
 
 <footer>

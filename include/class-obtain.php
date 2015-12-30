@@ -2,8 +2,9 @@
 
 class Obtain {
 
-    private static $hex = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
-    private static $box = [];
+    private static $hex       = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
+    private static $box       = [];
+    private static $resources = [];
 
     public static function MeetPlace($mtplace) {
 
@@ -323,19 +324,19 @@ class Obtain {
         $ev       = explode(',', $ev);
         $modifier = self::NatureModifier($nature);
 
-        $prefix = ['maxhp', 'atk', 'def', 'spatk', 'spdef', 'spd'];
+        $prefix = ['hp_max', 'atk', 'def', 'spatk', 'spdef', 'spd'];
         foreach($prefix as $key => $val) {
             switch($key) {
                 default:
                     $result[$val] = floor(floor(floor($bs[$key] * 2 + $ev[$key] / 4 + $iv[$key]) * $level / 100 + 5) * $modifier[$key]);
                     break;
                 case 0:
-                    $result['maxhp'] = ($bs[$key] != 1) ? floor(floor($bs[$key] * 2 + $ev[$key] / 4 + $iv[$key]) * $level / 100 + $level + 10) : 1;
+                    $result['hp_max'] = ($bs[$key] != 1) ? floor(floor($bs[$key] * 2 + $ev[$key] / 4 + $iv[$key]) * $level / 100 + $level + 10) : 1;
                     break;
             }
         }
 
-        if($hp !== FALSE) $result['hp_percent'] = min(ceil($hp / $result['maxhp'] * 100), 100);
+        if($hp !== FALSE) $result['hp_percent'] = min(ceil($hp / $result['hp_max'] * 100), 100);
 
         return $result;
     }
@@ -380,12 +381,6 @@ class Obtain {
 
     }
 
-    public static function TrainerRequireExp($level) {
-
-        return ceil(0.5 * pow($level, 4));
-
-    }
-
     public static function TrainerAvatar($uid, $size = 'middle') {
 
         $uid  = sprintf("%09d", abs(intval($uid)));
@@ -399,7 +394,6 @@ class Obtain {
     }
 
     public static function Avatar($uid, $refresh = FALSE) {
-
 
         $filenameh = base_convert(hash('joaat', $uid), 16, 32);
         $path      = ROOT_CACHE . '/avatar/' . $filenameh . '.png';
@@ -481,4 +475,85 @@ class Obtain {
     public static function HatchTime($egg_cycle) {
         return $_SERVER['REQUEST_TIME'] + floor($egg_cycle * 255 * (rand(0, 5) + $egg_cycle * 0.6) / 6);
     }
+
+    public static function TrainerCard($trainer, $force_refresh = FALSE) {
+
+        global $lang;
+
+        $path = ROOT_CACHE . '/image/trainer-card/' . base_convert(hash('joaat', $trainer['uid']), 16, 32) . '.png';
+
+        if(!$force_refresh && file_exists($path) && filemtime($path) + 600 > $_SERVER['REQUEST_TIME']) return $path;
+
+        $background_resource = imagecreatefromjpeg(ROOT_IMAGE . '/trainer-card/background-1.jpg');
+        $avatar_resource     = imagecreatefrompng($trainer['avatar']);
+        if(empty(self::$resources['pokemon_icon']))
+            self::$resources['pokemon_icon'] = imagecreatefrompng(ROOT_IMAGE . '/pokemon-icon/sheet-32x32.png');
+        if(empty(self::$resources['egg_icon']))
+            self::$resources['egg_icon'] = imagecreatefrompng(ROOT_IMAGE . '/pokemon-icon/0.png');
+
+        imagecopy($background_resource, $avatar_resource, 45, 10, 0, 0, 40, 40);
+
+        $font_path       = ROOT . '/include/font/yahei-bold.ttf';
+        $trainer['rank'] = '#' . $trainer['rank'];
+        $text_boxes      = [
+            imagettfbbox(9, 0, $font_path, $trainer['username']),
+            imagettfbbox(9, 0, $font_path, $trainer['rank']),
+            imagettfbbox(9, 0, $font_path, $trainer['level']),
+            imagettfbbox(9, 0, $font_path, $trainer['dex_collected']),
+            imagettfbbox(9, 0, $font_path, 0),
+            imagettfbbox(9, 0, $font_path, $lang['rank']),
+            imagettfbbox(9, 0, $font_path, $lang['level']),
+            imagettfbbox(9, 0, $font_path, $lang['pokedex']),
+            imagettfbbox(9, 0, $font_path, $lang['achievement']),
+        ];
+        $left_offsets    = [
+            (130 - $text_boxes[0][2] + $text_boxes[0][0]) / 2,
+            160 + ($text_boxes[5][2] - $text_boxes[5][0] - $text_boxes[1][2] + $text_boxes[1][0]) / 2,
+            220 + ($text_boxes[6][2] - $text_boxes[6][0] - $text_boxes[2][2] + $text_boxes[2][0]) / 2,
+            280 + ($text_boxes[7][2] - $text_boxes[7][0] - $text_boxes[3][2] + $text_boxes[3][0]) / 2,
+            340 + ($text_boxes[8][2] - $text_boxes[8][0] - $text_boxes[4][2] + $text_boxes[4][0]) / 2,
+        ];
+
+        // TODO: achievement count
+        Kit::imagettftextblur($background_resource, 9, 0, 161, 51, 0x000000, $font_path, $lang['rank']);
+        Kit::imagettftextblur($background_resource, 9, 0, 221, 51, 0x000000, $font_path, $lang['level']);
+        Kit::imagettftextblur($background_resource, 9, 0, 281, 51, 0x000000, $font_path, $lang['pokedex']);
+        Kit::imagettftextblur($background_resource, 9, 0, 341, 51, 0x000000, $font_path, $lang['achievement']);
+        Kit::imagettftextblur($background_resource, 9, 0, $left_offsets[0] + 1, 84, 0x000000, $font_path, $trainer['username']);
+        Kit::imagettftextblur($background_resource, 9, 0, $left_offsets[1] + 1, 31, 0x000000, $font_path, $trainer['rank']);
+        Kit::imagettftextblur($background_resource, 9, 0, $left_offsets[2] + 1, 31, 0x000000, $font_path, $trainer['level']);
+        Kit::imagettftextblur($background_resource, 9, 0, $left_offsets[3] + 1, 31, 0x000000, $font_path, $trainer['dex_collected']);
+        Kit::imagettftextblur($background_resource, 9, 0, $left_offsets[4] + 1, 31, 0x000000, $font_path, 0);
+        imagettftext($background_resource, 9, 0, 160, 50, 0xFFFFFF, $font_path, $lang['rank']);
+        imagettftext($background_resource, 9, 0, 220, 50, 0xFFFFFF, $font_path, $lang['level']);
+        imagettftext($background_resource, 9, 0, 280, 50, 0xFFFFFF, $font_path, $lang['pokedex']);
+        imagettftext($background_resource, 9, 0, 340, 50, 0xFFFFFF, $font_path, $lang['achievement']);
+        imagettftext($background_resource, 9, 0, $left_offsets[0], 83, 0xFFFFFF, $font_path, $trainer['username']);
+        imagettftext($background_resource, 9, 0, $left_offsets[1], 30, 0xFFFFFF, $font_path, $trainer['rank']);
+        imagettftext($background_resource, 9, 0, $left_offsets[2], 30, 0xFFFFFF, $font_path, $trainer['level']);
+        imagettftext($background_resource, 9, 0, $left_offsets[3], 30, 0xFFFFFF, $font_path, $trainer['dex_collected']);
+        imagettftext($background_resource, 9, 0, $left_offsets[4], 30, 0xFFFFFF, $font_path, 0);
+
+        $query = DB::query('SELECT nat_id FROM pkm_mypkm WHERE uid = ' . $trainer['uid'] . ' AND location IN (' . LOCATION_PARTY . ')');
+        $i     = 0;
+        while($info = DB::fetch($query)) {
+            if(!$info['nat_id']) imagecopy($background_resource, self::$resources['egg_icon'], 160 + $i * 36, 63, 0, 0, 32, 32);
+            else imagecopy($background_resource, self::$resources['pokemon_icon'], 160 + $i * 36, 63, ($info['nat_id'] % 12) * 32, floor($info['nat_id'] / 12) * 32, 32, 32);
+            ++$i;
+        }
+
+        ob_start();
+        imagepng($background_resource);
+        imagedestroy($background_resource);
+        imagedestroy($avatar_resource);
+        $content = ob_get_contents();
+        ob_clean();
+        $handle = fopen($path, 'w+');
+        fwrite($handle, $content);
+        fclose($handle);
+
+        return $path;
+    }
+
+
 }

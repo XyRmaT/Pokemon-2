@@ -137,7 +137,8 @@ class Pokemon {
                             LEFT JOIN pkm_movedata m ON p.move_id = m.move_id
                             WHERE p.nat_id = ' . ($hatch_nat_id > 0 ? $hatch_nat_id : $nat_id) . ' AND
                                    p.learn_level <= ' . $param['met_level'] . ' AND
-                                   p.approach = ' . MOVE_BY_LEVEL . '
+                                   p.approach = ' . MOVE_BY_LEVEL . ' AND
+                                   p.generation = 6
                             ORDER BY p.learn_level DESC LIMIT 4');
 
         while($info = DB::fetch($query))
@@ -219,6 +220,8 @@ class Pokemon {
 
         global $trainer;
 
+        // TODO: shiny pokemon register
+
         if(!$id) return FALSE;
         if(!$uid) $uid = $trainer['uid'];
 
@@ -243,8 +246,8 @@ class Pokemon {
      *            level and new level to jump into the loop.
      * LEARN_MOVE - goes after the CALC_EXP, check if there's a new move learnable
      * UPDATE - process after the loop
-     * @param array $info (exp_type, level, exp, pkm_id, id, evolution_data, moves_new, moves, uid_initial)
-     * @param int   $rarecandy
+     * @param array    $info (exp_type, level, exp, pkm_id, id, evolution_data, moves_new, moves, uid_initial)
+     * @param bool|int $rarecandy
      * @return array
      */
     public static function Levelup(&$info, $rarecandy = FALSE) {
@@ -547,12 +550,12 @@ class Pokemon {
 
     public static function RefreshPartyOrder($uid = 0) {
 
-        $query = DB::query('SELECT pkm_id FROM pkm_mypkm WHERE uid = ' . (($uid !== 0) ? $uid : $GLOBALS['user']['uid']) . ' AND location IN (1, 2, 3, 4, 5, 6) ORDER BY location ASC');
+        $query = DB::query('SELECT pkm_id FROM pkm_mypkm WHERE uid = ' . ($uid !== 0 ? $uid : $GLOBALS['user']['uid']) . ' AND location IN (1, 2, 3, 4, 5, 6) ORDER BY location ASC');
         $sql   = [];
         $i     = 0;
 
         while($info = DB::fetch($query))
-            $sql[] = '(' . $info['pkm_id'] . ', ' . (($i < 6) ? ++$i : 0) . ')';
+            $sql[] = '(' . $info['pkm_id'] . ', ' . ($i < 6 ? ++$i : 0) . ')';
 
         if(!empty($sql))
             DB::query('INSERT INTO pkm_mypkm (pkm_id, location) VALUES ' . implode(',', $sql) . ' ON DUPLICATE KEY UPDATE location = VALUES(location)');

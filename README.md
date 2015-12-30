@@ -3,6 +3,7 @@
 * Smarty: v3.1.29
 * jQuery: v2.0.3
 * angularJS: v1.4.7
+* ng-sortable: v1.3.2
 
 ## What's new in V1.0
 * Features
@@ -13,6 +14,20 @@
   * Using AngularJS framework, more easy to deal with JSON updates.
 
 ## Updates
+
+### 2015-12-30
+* Added English language pack.
+* Added tooltip.
+
+### 2015-12-30
+* Implemented trainer card system.
+* Imported ng-sortable v1.3.2.
+* Party Pokemon reorder done.
+
+### 2015-12-28
+* Wrapped up daycare, it's now fully functional. **Awesome point +1.** Started working on member panel now.
+* Finished member panel - pokedex.
+* Everything in `$r` will be pushed to AngularJS's $rootScope.
 
 ### 2015-12-27
 * Implemented AngularJS pop-up, draggable, AJAX and few directives.
@@ -57,7 +72,7 @@
   - [x] index.tpl (Needs final clean up)
   - [x] daycare.tpl
   - [ ] map.tpl
-  - [ ] memcp.tpl
+  - [x] memcp.tpl
   - [ ] pkmcenter.tpl
   - [ ] ranking.tpl
   - [ ] shelter.tpl
@@ -79,6 +94,7 @@
 - [ ] Spinda
 - [ ] Create item sprite sheet, depracate item image caching.
 - [ ] Unset ALL unnecessary variables that will be encoded into JSON.
+- [ ] Improve the performance of `Kit::imagettftextblur()`.
 
 ### Mechanical
 * Daycare
@@ -88,3 +104,4 @@
 ### Notes
 * Will need to figure out a simple way to fetch fields.
 * Planning to upgrade to PHP7.
+* V1.0 code must be clear, easy to understand and maintain.

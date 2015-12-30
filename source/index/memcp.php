@@ -1,116 +1,84 @@
 <?php
 
-Kit::Library('class', ['pokemon', 'obtain']);
-//error_reporting(E_ALL);
-//Pokemon::Generate(rand(1, 649), $trainer['uid'], array('is_shiny' => 1, 'met_level' => 20));
-//if($trainer['gm']) Pokemon::Generate(290, 8, array('met_level' => 1, 'is_shiny' => 0));
-//if($trainer['gm']) Pokemon::Generate(0, 4122, array('time_hatched' => 's:1', 'met_location' => 602));
-//if($trainer['gm']) DB::query('UPDATE pkm_mypkm SET exp = exp + 166566, happiness = 255');
-//if($trainer['gm']) DB::query('INSERT INTO pkm_myitem (item_id, quantity, uid) VALUES (32, 100, 8)');
-//DB::query('UPDATE pre_common_member_count SET extcredits7 = 100000');
-
-/*if($trainer['gm']) {
-	$move = [[162, 6666, 'STABLE', 6666, 0], [47, 6666, 'SLEEP', 6666, 0], [28, 6666, 'USELESS', 6666, 0]];
-	DB::query('UPDATE pkm_mypkm SET moves = \'' . serialize($move) . '\' WHERE pkm_id = 1');
-
-}*/
-
-$_GET['section'] = (!empty($_GET['section']) && in_array($_GET['section'], ['pokedex', 'achievement', 'inbox', 'setting', 'inventory'], TRUE)) ? $_GET['section'] : '';
-
-$rank   = DB::result_first('SELECT COUNT(*) FROM pkm_trainerdata WHERE exp > ' . $trainer['exp']) + 1;
-$reqexp = Obtain::TrainerRequireExp($trainer['level'] + 1);
-$dexclt = DB::result_first('SELECT COUNT(*) FROM pkm_mypokedex WHERE uid = ' . $trainer['uid'] . ' AND is_owned = 1');
+$_GET['section'] = !empty($_GET['section']) && in_array($_GET['section'], ['info', 'pokedex', 'achievement', 'inbox', 'setting', 'inventory'], TRUE) ? $_GET['section'] : 'party';
+$r['section']    = $_GET['section'];
 
 switch($_GET['section']) {
-    case '':
+    case 'party':
 
         // Use for evolve: m.beauty, m.item_carrying, m.happiness, m.psn_value, m.ability, m.form
-        $query   = DB::query('SELECT
-			m.nat_id, m.pkm_id, m.gender, m.hp, m.exp, m.level, m.nature, m.nickname, m.form, m.eft_value, m.ind_value,
-			m.moves_new, m.moves, m.sprite_name, m.item_captured, m.time_hatched, m.met_time, m.met_level, m.met_location,
-			m.beauty, m.item_carrying, m.happiness, m.psn_value, m.form, m.uid_initial, m.status,
-			a.name_zh ability,
-			p.base_stat, p.type, p.type_b, p.exp_type, p.name_zh name, p.evolution_data, mb.username
-			FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id AND m.nat_id != 0 LEFT JOIN pkm_abilitydata a ON m.ability = a.abi_id LEFT JOIN pre_common_member mb ON mb.uid = m.uid_initial WHERE m.location IN (1, 2, 3, 4, 5, 6) AND m.uid = ' . $trainer['uid'] . ' ORDER BY m.location ASC LIMIT 6');
-        $pokemon = $movecriteria = [];
+        $query   = DB::query('SELECT m.nat_id, m.pkm_id, m.gender, m.hp, m.exp, m.level, m.nature,
+                                      m.nickname, m.form, m.eft_value, m.ind_value, m.moves_new, m.moves,
+                                      m.sprite_name, m.item_captured, m.time_hatched, m.met_time, m.met_level,
+                                      m.met_location, m.beauty, m.item_carrying, m.happiness, m.psn_value,
+                                      m.form, m.uid_initial, m.status,
+                                      a.name_zh ability,
+                                      p.base_stat, p.type, p.type_b, p.exp_type, p.name_zh name, p.evolution_data,
+                                      mb.username
+                                FROM pkm_mypkm m
+                                LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id AND m.nat_id != 0
+                                LEFT JOIN pkm_abilitydata a ON m.ability = a.abi_id
+                                LEFT JOIN pre_common_member mb ON mb.uid = m.uid_initial
+                                WHERE m.location IN (1, 2, 3, 4, 5, 6) AND m.uid = ' . $trainer['uid'] . '
+                                ORDER BY m.location');
+        $pokemon = $move_ids = [];
 
         while($info = DB::fetch($query)) {
             switch($info['nat_id']) {
                 case '0':
 
-                    /**
-                     * [Abandoned method comment]
-                     * Total hatch seconds for an time_hatched, 1275 was multiplied from 255 (variable times in the time_hatched cycle) and 5 (5 sec each step)
-                     * and the part 1275 * (rand(0, 5) + $info['egg_cycle'] * 0.666) / 10 is to set a random rate of correcting the taken time.
-                     */
-                    //$info['maturity'] = round((time() - $info['met_time']) / $info['hatchTime'] * 100, 3);
-
-
-                    if($info['time_hatched'] < $info['met_time']) {
-                        $info['eggstatus'] = '这是一颗坏蛋...';
-                        break;
-                    }
-
                     $info['pkm_sprite']    = Obtain::Sprite('egg', 'png', '');
-                    $info['maturity']      = min(floor(($_SERVER['REQUEST_TIME'] - $info['met_time']) / ($info['time_hatched'] - $info['met_time']) * 100), 90) + min(floor($info['exp'] / 100), 5) * 2;
                     $info['item_captured'] = Obtain::Sprite('item', 'png', 'item_' . $info['item_captured']);
                     $info['met_location']  = Obtain::MeetPlace($info['met_location']);
+                    $info['maturity']      = min(floor(($_SERVER['REQUEST_TIME'] - $info['met_time']) / ($info['time_hatched'] - $info['met_time']) * 100), 90) + min(floor($info['exp'] / 100), 5) * 2;
+                    $info['egg_phase']     = array_search(TRUE, [
+                        $info['maturity'] < 27,
+                        $info['maturity'] >= 27 && $info['maturity'] < 51,
+                        $info['maturity'] >= 51 && $info['maturity'] < 93,
+                        $info['maturity'] >= 93 && $info['maturity'] < 100,
+                        $info['maturity'] >= 100
+                    ]);
 
-                    if($info['maturity'] >= 0 && $info['maturity'] < 27) $info['eggstatus'] = '毫无动静……';
-                    elseif($info['maturity'] >= 27 && $info['maturity'] < 51) $info['eggstatus'] = '蛋轻微地摇了摇……';
-                    elseif($info['maturity'] >= 51 && $info['maturity'] < 93) $info['eggstatus'] = '似乎从蛋里传来了声音……';
-                    elseif($info['maturity'] >= 93 && $info['maturity'] < 100) $info['eggstatus'] = '蛋快孵化了！';
-                    elseif($info['maturity'] >= 100) {
-
-                        Pokemon::Hatch($info['pkm_id']);
-
-                        $info['eggstatus'] = '呀！小蛋蛋要孵化了！';
-
-                    }
-
-                    $info['maturity'] .= '（' . $info['maturity'] . '%）<br>' . date('Y-m-d H:i:s', $info['time_hatched']);
+                    if($info['egg_phase'] === 4) Pokemon::Hatch($info['pkm_id']);
 
                     break;
                 default:
 
-                    // Exp
                     $info = array_merge($info, Obtain::Stat($info['level'], $info['base_stat'], $info['ind_value'], $info['eft_value'], $info['nature'], $info['hp']));
 
-                    Pokemon::Levelup($info);
-                    unset($info['evolution_data'], $info['exp_type']);
+                    $info['pkm_sprite']          = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
+                    $info['carry_item_sprite']   = $info['item_carrying'] ? Obtain::Sprite('item', 'png', 'item_' . $info['item_carrying']) : '';
+                    $info['capture_item_sprite'] = Obtain::Sprite('item', 'png', 'item_' . $info['item_captured']);
+                    $info['gender_sign']         = Obtain::GenderSign($info['gender']);
+                    $info['types']               = Obtain::TypeName($info['type'], $info['type_b'], TRUE);
+                    $info['met_location']        = Obtain::MeetPlace($info['met_location']);
+                    $info['nature']              = Obtain::NatureName($info['nature']);
+                    $info['status']              = Obtain::StatusIcon($info['status']);
+                    $info['exp_this_level']      = Obtain::Exp($info['exp_type'], $info['level']);
+                    $info['exp_required']        = Obtain::Exp($info['exp_type'], $info['level'] + 1) - $info['exp_this_level'];
+                    $info['moves_new']           = $info['moves_new'] ? explode(',', $info['moves_new']) : [];
+                    $info['moves']               = $info['moves'] ? unserialize($info['moves']) : [];
+                    $info['happiness_phase']     = array_search(TRUE, [
+                        $info['happiness'] < 50,
+                        $info['happiness'] >= 50 && $info['happiness'] < 90,
+                        $info['happiness'] >= 90 && $info['happiness'] < 150,
+                        $info['happiness'] >= 150 && $info['happiness'] < 220,
+                        $info['happiness'] >= 220
+                    ]);
 
-                    $info['pkm_sprite']    = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
-                    $info['item_captured'] = Obtain::Sprite('item', 'png', 'item_' . $info['item_captured']);
-                    $info['carry_item_sprite']   = ($info['item_carrying']) ? Obtain::Sprite('item', 'png', 'item_' . $info['item_carrying']) : '';
-                    $info['gender']        = Obtain::GenderSign($info['gender']);
-                    $info['type']          = Obtain::TypeName($info['type'], $info['type_b'], TRUE, ' blk-c');
-                    $info['met_location']  = Obtain::MeetPlace($info['met_location']);
-                    $info['nature']        = Obtain::NatureName($info['nature']);
-                    $info['status']        = Obtain::StatusIcon($info['status']);
-                    $info['met_time']      = date('Y年m月d日', $info['met_time']);
-
-                    if($info['happiness'] < 50) $info['hpnsstatus'] = '用陌生而又警惕的眼神望着你。';
-                    elseif($info['happiness'] >= 50 && $info['happiness'] < 90) $info['hpnsstatus'] = '与你的感情还算可以。';
-                    elseif($info['happiness'] >= 90 && $info['happiness'] < 150) $info['hpnsstatus'] = '渐渐开始缠着你了……！';
-                    elseif($info['happiness'] >= 150 && $info['happiness'] < 220) $info['hpnsstatus'] = '你们之间的羁绊越来越深了！';
-                    elseif($info['happiness'] >= 220) $info['hpnsstatus'] = '没有人可以让你们分开了！';
-
-                    $info['moves_new'] = !empty($info['moves_new']) ? explode(',', $info['moves_new']) : [];
-                    $info['moves']     = !empty($info['moves']) ? unserialize($info['moves']) : [];
-
-                    // Creating a query clause string for move data fetching preparation
-                    foreach($info['moves'] as $val) $movecriteria[] = $val['move_id'];
-                    $movecriteria = array_merge($movecriteria, $info['moves_new']);
+                    $move_ids = array_merge($move_ids, array_column($info['moves'], 'move_id'), $info['moves_new']);
 
                     break;
             }
 
+            unset($info['eft_value'], $info['ind_value'], $info['base_stat'], $info['beauty'], $info['happiness'], $info['psn_value'], $info['time_hatched'], $info['evolution_data']);
+
             $pokemon[] = $info;
         }
 
-        if($movecriteria) {
-            $query = DB::query('SELECT move_id, name_zh name, type, power, class FROM pkm_movedata WHERE move_id IN (' . implode(',', $movecriteria) . ')');
-            $moves = [];
+        $moves = [];
+        if($move_ids) {
+            $query = DB::query('SELECT move_id, name_zh name, type, power, class FROM pkm_movedata WHERE move_id IN (' . implode(',', array_unique($move_ids)) . ')');
             while($info = DB::fetch($query))
                 $moves[$info['move_id']] = [
                     'name'       => $info['name'],
@@ -120,6 +88,9 @@ switch($_GET['section']) {
                     'type_name'  => Obtain::TypeName($info['type'])
                 ];
         }
+
+        $r['pokemon'] = $pokemon;
+        $r['moves']   = $moves;
 
         break;
 
@@ -140,14 +111,23 @@ switch($_GET['section']) {
 
         $seen    = 0;
         $count   = DB::result_first('SELECT COUNT(DISTINCT nat_id) FROM pkm_pkmdata');
-        $query   = DB::query('SELECT md.nat_id, md.is_owned, p.name_zh name, p.type, p.type_b FROM pkm_mypokedex md LEFT JOIN pkm_pkmdata p ON p.nat_id = md.nat_id WHERE md.uid = ' . $trainer['uid']);
+        $query   = DB::query('SELECT DISTINCT md.nat_id, md.is_owned, p.name_zh name, p.type, p.type_b FROM pkm_mypokedex md LEFT JOIN pkm_pkmdata p ON p.nat_id = md.nat_id WHERE md.uid = ' . $trainer['uid']);
         $pokemon = array_fill(1, $count, ['is_owned' => 'n']);
 
         while($info = DB::fetch($query)) {
             ++$seen;
-            $info['type']             = Obtain::TypeName($info['type'], $info['type_b']);
+            $info['type']       = Obtain::TypeName($info['type'], $info['type_b']);
+            $info['generation'] = intval(array_search(TRUE, array_map(function ($v) use ($info) {
+                return $info['nat_id'] >= $v[1] && $info['nat_id'] < $v[2];
+            }, $system['regions'])));
+
             $pokemon[$info['nat_id']] = $info;
         }
+
+        $r['pokemon']           = $pokemon;
+        $r['pokemon_total']     = count($pokemon);
+        $r['dex_seen']          = $seen;
+        $r['count_generations'] = array_count_values(array_column($pokemon, 'generation'));
 
         break;
     case 'achievement':
@@ -163,10 +143,6 @@ switch($_GET['section']) {
 
         break;
     case 'inbox':
-
-        /*
-            Making the multipage
-        */
 
         $count  = DB::result_first('SELECT COUNT(*) FROM pkm_myinbox WHERE uid_receiver = ' . $trainer['uid']);
         $multi  = Kit::MultiPage(8, $count);
@@ -204,14 +180,12 @@ switch($_GET['section']) {
 
             if($info['item_carrying']) $iids[] = $info['item_carrying'];
 
-            $info['pkm_sprite']  = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
-            $info['pkmimgpathi'] = Obtain::Sprite('pokemon-icon', 'png', 'picon_' . $info['nat_id']);
+            $info['pkm_sprite']        = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
             $info['carry_item_sprite'] = $info['item_carrying'] ? Obtain::Sprite('item', 'png', 'item_' . $info['item_carrying']) : '';
-            $info['gender']      = Obtain::GenderSign($info['gender']);
-            $pokemon[]           = $info;
+            $info['gender']            = Obtain::GenderSign($info['gender']);
+            $pokemon[]                 = $info;
 
         }
-
 
         $type  = (empty($_GET['type']) || $_GET['type'] < 1 && $_GET['type'] > 4) ? 0 : intval($_GET['type']);
         $query = DB::query('SELECT mi.item_id, mi.quantity, i.name_zh name, i.description, i.type, i.is_usable
@@ -223,13 +197,9 @@ switch($_GET['section']) {
         $types = ['球类', '进化石', '携带道具', '药物'];
 
         while($info = DB::fetch($query)) {
-
-            $info['carry_item_sprite']    = Obtain::Sprite('item', 'png', 'item_' . $info['item_id']);
-            $item[$info['item_id']] = $info;
-
+            $info['carry_item_sprite'] = Obtain::Sprite('item', 'png', 'item_' . $info['item_id']);
+            $item[$info['item_id']]    = $info;
         }
-
-        $item = json_encode($item);
 
         break;
 }

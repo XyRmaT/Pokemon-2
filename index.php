@@ -9,6 +9,7 @@ define('ROOT_IMAGE', './source-img');
 define('ROOT_TEMPLATE', './source-tpl');
 define('ROOT_CACHE', './cache');
 define('ROOT_RELATIVE', '.');
+define('LANGUAGE', 'zh');
 
 include_once ROOT . '/include/class-common.php';
 App::Initialize();
@@ -20,7 +21,7 @@ $smarty->template_dir = ROOT . '/source-tpl/index/';
 $smarty->compile_dir  = ROOT . '/source-tpl/_compile/';
 $smarty->config_dir   = ROOT . '/include/smarty/config/';
 $smarty->cache_dir    = ROOT . '/cache/template/';
-$smarty->debugging    = 0;
+$smarty->debugging    = 1;
 // $smarty->loadFilter('output', 'indent_html');
 
 Cache::$path_cache = ROOT_CACHE;
@@ -38,9 +39,9 @@ Kit::Library('class', ['trainer', 'obtain', 'pokemon']);
 
 // Set up some global variables, also keep the minified CSS file up to date
 //$system            = array_merge($system, DB::fetch_first('SELECT shopsell, shopopc FROM pkm_stat'));
-$index       = !empty($user['uid']) && isset($_GET['index']) && in_array($_GET['index'], ['my', 'pc', 'copyright', 'starter', 'shop', 'daycare', 'index', 'battle', 'map', 'tempview', 'tempaward', 'ranking', 'shelter']) ? $_GET['index'] : 'index';
+$index       = !empty($user['uid']) && isset($_GET['index']) && in_array($_GET['index'], ['memcp', 'pc', 'copyright', 'starter', 'shop', 'daycare', 'index', 'battle', 'map', 'tempview', 'tempaward', 'ranking', 'shelter']) ? $_GET['index'] : 'index';
 $process     = !empty($_GET['process']) ? $_GET['process'] : '';
-$path['css'] = Cache::Css(['common', $index], 'cssvar');
+$path['css'] = Cache::Css(['common', 'angular-sortable', $index], 'cssvar');
 $trainer     = [];
 $synclogin   = '';
 $r           = ['_LANG' => $lang];
@@ -58,15 +59,6 @@ if(!empty($user['uid'])) {
         Trainer::Generate($trainer['uid']);
         $trainer = Trainer::Fetch($user['uid']);
     }
-
-    $trainer['username']  = $user['username'];
-    $trainer['extcredit'] = DB::fetch_first('SELECT ' . $system['currency_field'] . ' currency, ' . $system['exp_field'] . ' exp FROM pre_common_member_count WHERE uid = ' . $trainer['uid']);
-    $trainer['gm']        = in_array($trainer['uid'], explode(',', $system['admins']));
-    $trainer['currency']  = $trainer['extcredit']['currency'];
-    $trainer['avatar']    = Obtain::Avatar($trainer['uid']);
-    $trainer['stat_add']  = array_map(function () {
-        return 0;
-    }, $trainer['stat']);
 
     // Add EXP gained from forum posts to the party
     if($trainer['extcredit']['exp'] > 0 && $trainer['has_starter']) {
@@ -90,10 +82,16 @@ if(!empty($user['uid'])) {
 
     unset($trainer['extcredit']);
 
-    //DB::query('DELETE FROM pkm_mypkm');
-    for($i = 0; $i < 1000; $i++) {
-        Pokemon::Generate(rand(1, 721), 1 == 2 ? 8 : DB::result_first('SELECT uid FROM pkm_trainerdata ORDER BY rand() LIMIT 1'), ['is_shiny' => rand(0, 1)]);
-    }
+    /*DB::query('DELETE FROM pkm_mypkm');
+    DB::query('DELETE FROM pkm_mypokedex');
+    for($i = 0; $i < 3; $i++) {
+        Pokemon::Generate(249 + $i, 1 == 1 ? 8 : DB::result_first('SELECT uid FROM pkm_trainerdata ORDER BY rand() LIMIT 1'), ['is_shiny' => rand(0, 1)]);
+    }*/
+
+    /*$query = DB::query('SELECT uid FROM pkm_trainerdata');
+    while($info = DB::fetch($query)) {
+        Obtain::TrainerCard(Trainer::Fetch($info['uid']), TRUE);
+    }*/
 
 }
 /*
@@ -109,6 +107,8 @@ while($info = DB::fetch($query)) {
     }
 }*/
 
+
+
 $smarty->assign('user', $user);
 $smarty->assign('index', $index);
 $smarty->assign('system', $system);
@@ -121,7 +121,6 @@ if(INAJAX && !empty($index) && !empty($process)) {
 
     if(empty($user['uid'])) $index = 'index';
     elseif(empty($trainer['has_starter'])) $index = 'starter';
-    elseif($index === 'my') $index = 'memcp';
     elseif($index === 'pc') $index = 'pkmcenter';
 
     $return = [];
@@ -142,7 +141,6 @@ if(INAJAX && !empty($index) && !empty($process)) {
 
     if(empty($user['uid'])) $index = 'index';
     elseif(empty($trainer['has_starter'])) $index = 'starter';
-    elseif($index === 'my') $index = 'memcp';
     elseif($index === 'pc') $index = 'pkmcenter';
 
     include ROOT . '/source/index/' . $index . '.php';
@@ -150,8 +148,12 @@ if(INAJAX && !empty($index) && !empty($process)) {
     $r['trainer'] = $trainer;
     $r['system']  = $system;
 
-    $smarty->assign('r', $r);
-    $smarty->display($index . '.tpl');
+    if(!INAJAX) {
+        $smarty->assign('r', $r);
+        $smarty->display($index . '.tpl');
+    } else {
+        echo Kit::JsonConvert(['data' => $r]);
+    }
 
 }
 
