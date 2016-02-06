@@ -83,7 +83,7 @@ class Cache {
         }
 
         // Replace other stuff such as comments, special signs (:;), white spaces and etc.
-        $file = preg_replace('/\/\*{1,}[^\*]+\*{1,}\//', '', $file);
+        $file = preg_replace('/\/\*.+?\*\//', '', $file);
         $file = preg_replace('/\s*([\;\:,])\s*/', '\\1', $file);
         $file = preg_replace('/[\s]{0,}([\{\}])[\s]+/', '\\1', $file);
         $file = preg_replace('/[\n\r]/', '', $file);

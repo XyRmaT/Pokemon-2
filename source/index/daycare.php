@@ -3,7 +3,7 @@
 Kit::Library('class', ['pokemon']);
 
 $query   = DB::query('SELECT m.pkm_id, m.level, m.nickname, m.nat_id, m.time_daycare_sent, m.time_egg_checked,
-                              m.gender, m.uid_initial, m.sprite_name, m.item_carrying, m.item_captured, m.has_egg,
+                              m.gender, m.uid_initial, m.sprite_name, m.item_holding, m.item_captured, m.has_egg,
                               p.egg_group, p.egg_group_b, p.name_zh
                       FROM pkm_mypkm m
                       LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id
@@ -16,7 +16,7 @@ while($info = DB::fetch($query)) {
     $info['gender_sign']         = Obtain::GenderSign($info['gender']);
     $info['pkm_sprite']          = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
     $info['capture_item_sprite'] = Obtain::Sprite('item', 'png', 'item_' . $info['item_captured']);
-    $info['carry_item_sprite']   = Obtain::Sprite('item', 'png', 'item_' . $info['item_carrying']);
+    $info['hold_item_sprite']   = Obtain::Sprite('item', 'png', 'item_' . $info['item_holding']);
     $info                        = array_merge($info, Obtain::DaycareInfo($info['time_daycare_sent']));
 
     $pokemon[] = $info;
@@ -74,14 +74,14 @@ if($pkm_count === 2) {
 
 FETCH_PARTY:
 
-$query = DB::query('SELECT m.nat_id, m.nickname, m.pkm_id, m.sprite_name, m.level, m.gender, m.item_captured, m.item_carrying, p.egg_group, p.egg_group_b FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE m.location IN (1, 2, 3, 4, 5, 6) AND m.nat_id != 0 AND m.uid = ' . $trainer['uid'] . ' LIMIT 6');
+$query = DB::query('SELECT m.nat_id, m.nickname, m.pkm_id, m.sprite_name, m.level, m.gender, m.item_captured, m.item_holding, p.egg_group, p.egg_group_b FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE m.location IN (1, 2, 3, 4, 5, 6) AND m.nat_id != 0 AND m.uid = ' . $trainer['uid'] . ' LIMIT 6');
 $party = [];
 
 while($info = DB::fetch($query)) {
 
     $info['egg_group']         = Obtain::EggGroupName($info['egg_group'], $info['egg_group_b']);
     $info['pkm_sprite']        = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
-    $info['carry_item_sprite'] = Obtain::Sprite('item', 'png', 'item_' . $info['item_carrying']);;
+    $info['hold_item_sprite'] = Obtain::Sprite('item', 'png', 'item_' . $info['item_holding']);;
     $info['capture_item_sprite'] = Obtain::Sprite('item', 'png', 'item_' . $info['item_captured']);
     $info['gender_sign']         = Obtain::GenderSign($info['gender']);
 

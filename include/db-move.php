@@ -769,7 +769,7 @@ class MoveDb extends Battle {
 		elseif($randnum < 204) parent::$m['power'] = 120;
 		else {
 
-			parent::$def[0]['hp']     = min(parent::$def[0]['hp'] + floor(parent::$def[0]['maxhp'] * 0.25), parent::$def[0]['maxhp']);
+			parent::$def[0]['hp']     = min(parent::$def[0]['hp'] + floor(parent::$def[0]['max_hp'] * 0.25), parent::$def[0]['max_hp']);
 			parent::$atkmove['class'] = '0';
 
 		}
@@ -899,7 +899,7 @@ class MoveDb extends Battle {
 
 		} else {
 
-			parent::Hp('INC', parent::$atk[0]['maxhp'], parent::$atk[0]['hp'], 25 / 2 * (pow(parent::$atk[1][2][26], 2) - parent::$atk[1][2][26] + 2));
+			parent::Hp('INC', parent::$atk[0]['max_hp'], parent::$atk[0]['hp'], 25 / 2 * (pow(parent::$atk[1][2][26], 2) - parent::$atk[1][2][26] + 2));
 			parent::AlterStatLevel(parent::$atk, 'DEF-EMP');
 			parent::AlterStatLevel(parent::$atk, 'SPDEF-EMP');
 
@@ -1154,13 +1154,13 @@ class MoveDb extends Battle {
 
 	public static function __363() { # 自然恩惠
 
-		if(empty(parent::$atk[0]['item_carrying']) || !in_array('0', [parent::$field['other']{2}, parent::$def[1][2][7]])) {
+		if(empty(parent::$atk[0]['item_holding']) || !in_array('0', [parent::$field['other']{2}, parent::$def[1][2][7]])) {
 
 			return parent::FailMove();
 
 		} else {
 
-			list(parent::$atkmove['type'], parent::$m['power']) = explode(',', DB::result_first('SELECT ngiftpwr FROM pkm_itemdata WHERE item_id = ' . parent::$atk[0]['item_carrying']));
+			list(parent::$atkmove['type'], parent::$m['power']) = explode(',', DB::result_first('SELECT ngiftpwr FROM pkm_itemdata WHERE item_id = ' . parent::$atk[0]['item_holding']));
 
 		}
 
@@ -1347,7 +1347,7 @@ class MoveDb extends Battle {
 
 	public static function __449() { # 制裁之砾
 
-		switch(parent::$atk[0]['item_carrying']) {
+		switch(parent::$atk[0]['item_holding']) {
 			case '火球石板':
 				parent::$m['type'] = '1';
 				break;
@@ -1566,7 +1566,7 @@ class MoveDb extends Battle {
 
 	public static function __546() { # 科技爆破
 
-		switch(parent::$atk[0]['item_carrying']) {
+		switch(parent::$atk[0]['item_holding']) {
 			case '火焰卡带':
 				parent::$m['type'] = '1';
 				break;

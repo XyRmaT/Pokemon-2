@@ -2,6 +2,14 @@
     margin : 10px 15px 5px 15px;
 }
 
+.pokemon .bottom {
+    bottom : -10px;
+}
+
+table.main {
+    min-height: 600px;
+}
+
 table.main .header {
     line-height : 22px;
     background  : #323236;
@@ -53,12 +61,69 @@ table.main .info button {
     margin     : 10px 0 0 15px;
 }
 
-.pokemon-sprite {
-    cursor : pointer;
+.inventory {
+    position : relative;
 }
 
-.pokemon .bottom {
-    bottom : -10px;
+table.main .inventory-party {
+    width      : 190px;
+    padding    : 15px 10px 20px 20px;
+    background : #EFEFEF;
+}
+
+.item-list li {
+    display       : inline-block;
+    padding       : 12px;
+    border        : 1px solid _border-color_;
+    border-radius : 5px;
+    background    : #EFEFEF;
+    margin        : 15px 15px 0 0;
+    cursor        : pointer;
+}
+
+.item-list li:hover {
+    background : #FFF;
+}
+
+.inbox {
+    margin : -10px -15px 0 -15px;
+}
+
+.inbox li {
+    display       : block;
+    clear         : both;
+    padding       : 15px 30px 15px 30px;
+    line-height   : 20px;
+    border-bottom : 1px solid _border-color_;
+}
+
+.inbox li .avatar {
+    margin-right : 10px;
+}
+
+.inbox li:hover {
+    background : #FFF;
+}
+
+.inbox a {
+    color : #E63737;
+}
+
+.inbox .deletion {
+    background : url(_image-root_/other/sprite-deletion.png);
+    width      : 20px;
+    height     : 20px;
+}
+
+.inbox .deletion:hover {
+    background-position : 0 -20px;
+    cursor              : pointer;
+}
+
+.inbox .dateline, .inbox .deletion {
+    float   : right;
+    display : inline-block;
+    margin  : -10px 0 0 20px;
 }
 
 .pokedex {
@@ -94,36 +159,36 @@ table.main .info button {
     height : 29px;
 }
 
-.pop-up.party .content {
+.pop-up.pokemon-info .content {
     padding     : 0;
     line-height : 18px;
 }
 
-.pop-up.party .border-right {
+.pop-up.pokemon-info .border-right {
     min-width : 130px;
 }
 
-.pop-up.party td {
+.pop-up.pokemon-info td {
     border : 0;
 }
 
-.pop-up.party .relative {
+.pop-up.pokemon-info .relative {
     height : 120px;
 }
 
-.pop-up.party .pokemon-info > tbody > tr > td {
+.pop-up.pokemon-info .pokemon-info > tbody > tr > td {
     padding : 15px;
 }
 
-.pop-up.party .info {
+.pop-up.pokemon-info .info {
     width         : 240px;
     margin-bottom : 10px;
 }
 
-.pop-up.party .info tr > td:nth-child(odd):not([colspan]) {
+.pop-up.pokemon-info .info tr > td:nth-child(odd):not([colspan]) {
     width : 20%;
 }
 
-.pop-up.party .info tr > td:nth-child(even):not([colspan]) {
+.pop-up.pokemon-info .info tr > td:nth-child(even):not([colspan]) {
     width : 30%;
 }

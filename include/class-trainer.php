@@ -33,7 +33,7 @@ class Trainer {
         global $system;
 
         $trainer = DB::fetch_first('SELECT m.uid, username, trainer_id, exp, level, has_starter, box_quantity, time_happiness_checked, is_battling, has_new_message, time_last_visit,
-                                    FIND_IN_SET(exp, (SELECT GROUP_CONCAT(exp ORDER BY exp DESC) FROM pkm_trainerdata)) AS rank
+                                    FIND_IN_SET(exp, (SELECT GROUP_CONCAT(exp ORDER BY exp DESC) FROM pkm_trainerdata)) rank
                                     FROM pkm_trainerdata t
                                     LEFT JOIN pre_common_member m ON m.uid = t.uid
                                     WHERE m.uid = ' . $uid);
@@ -105,10 +105,11 @@ class Trainer {
     public static function Item($action, $uid, $iid, $num, $curnum = 'UNKNOWN', $limit = 0) {
 
         if($curnum === 'UNKNOWN') {
-            $curnum = DB::result_first('SELECT quantity FROM pkm_myitem WHERE item_id = ' . $iid . ' AND uid = ' . $uid);
+            $curnum = intval(DB::result_first('SELECT quantity FROM pkm_myitem WHERE item_id = ' . $iid . ' AND uid = ' . $uid));
         }
 
         if($action === 'DROP' && $curnum - $num <= 0) {
+            if($curnum - $num < 0) return FALSE;
             DB::query('DELETE FROM pkm_myitem WHERE item_id = ' . $iid . ' AND uid = ' . $uid);
         } elseif($action === 'DROP') {
             DB::query('UPDATE pkm_myitem SET quantity = ' . ($curnum - $num) . ' WHERE uid = ' . $uid . ' AND item_id = ' . $iid);
@@ -117,9 +118,11 @@ class Trainer {
             if(empty($curnum)) {
                 DB::query('INSERT INTO pkm_myitem (item_id, quantity, uid) VALUES (' . $iid . ', ' . $num . ', ' . $uid . ')');
             } else {
-                DB::query('UPDATE pkm_myitem SET quantity = quantity ' . ($action === 'DROP' ? '-' : '+') . $num . ' WHERE item_id = ' . $iid . ' AND uid = ' . $uid);
+                DB::query('UPDATE pkm_myitem SET quantity = ' . ($curnum + $num) . ' WHERE item_id = ' . $iid . ' AND uid = ' . $uid);
             }
         }
+
+        return TRUE;
 
     }
 

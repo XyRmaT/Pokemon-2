@@ -1,45 +1,29 @@
 <?php
 
 switch($process) {
-	case 'claim':
+	case 'claim-pokemon':
 
-		$cost = 200;
-
-		Kit::Library('class', ['obtain', 'pokemon']);
-
-		$info = DB::fetch_first('SELECT pkm_id, nat_id, uid_initial FROM pkm_mypkm WHERE pkm_id = ' . intval($_GET['pkm_id']) . ' AND uid = 0 AND location = 9');
+		$info = DB::fetch_first('SELECT pkm_id, nat_id, uid_initial
+                                 FROM pkm_mypkm
+                                 WHERE pkm_id = ' . intval($_GET['pkm_id']) . ' AND location = ' . LOCATION_SHELTER);
 
 		if(empty($info)) {
-
-			$return['msg'] = '已经有好心人领走它了……<br>';
-
-			break;
-
-		} elseif($trainer['currency'] - $cost < 0) {
-
-			$return['msg'] = $system['currency_name'] . '没带够！要知道我们也是得生存的啊！';
-
-			break;
-
+			$return['msg'] = Obtain::Text('shelter_already_claimed');
+		} elseif($trainer['currency'] - $system['costs']['shelter_claim'] < 0) {
+			$return['msg'] = Obtain::Text('unpaid', [$system['currency_name']]);
 		} elseif(($location = Obtain::DepositBox($trainer['uid'])) === FALSE) {
+			$return['msg'] = Obtain::Text('locations_full');
+		} else {
+            App::CreditsUpdate($trainer['uid'], -$system['costs']['shelter_claim']);
+            Pokemon::MoveLocation($info['pkm_id'], $location, ['uid' => $trainer['uid']]);
+            Pokemon::DexRegister($info['nat_id'], TRUE);
 
-			$return['msg'] = '身上和箱子都满了，你没办法携带更多的精灵了！';
-
-			break;
-
-		}
-
-		DB::query('UPDATE pkm_mypkm SET location = ' . $location . ', uid = ' . $trainer['uid'] . ' WHERE pkm_id = ' . $info['pkm_id']);
-
-        App::CreditsUpdate($trainer['uid'], -$cost);
-		Pokemon::DexRegister($info['nat_id'], !0);
-
-		if($info['uid_initial'] != $trainer['uid'])
-
-			$trainer['addexp'] += 4;
-
-		$return['succeed'] = !0;
-		$return['msg']     = '好人一定会有好报的！';
+            Trainer::AddExp($trainer, $info['uid_initial'] != $trainer['uid'] ? $system['adding_exp']['shelter_claim'] : 0, TRUE);
+            $return['msg']     = Obtain::Text('shelter_claimed');
+        }
 
 		break;
 }
+
+include ROOT . '/source/index/shelter.php';
+$return['data'] = ['pokemon' => $pokemon, 'eggs' => $eggs];

@@ -19,22 +19,17 @@ class Kit {
         $vals     = array_keys($firstval);
 
         foreach($vals as $init) {
-
             $keyname  = 'sort' . $init;
             $$keyname = [];
         }
 
         foreach($array as $key => $row) {
-
             foreach($vals as $names) {
-
                 $keyname    = 'sort' . $names;
                 $test       = [];
                 $test[$key] = $row[$names];
                 $$keyname   = array_merge($$keyname, $test);
-
             }
-
         }
 
         array_multisort($$sortby, ($order === 'DESC') ? SORT_DESC : SORT_ASC, ($type === 'quantity') ? SORT_NUMERIC : SORT_STRING, $array);
@@ -43,54 +38,9 @@ class Kit {
     }
 
 
-    public static function ArrayIconv($from, $to, &$array) {
-
-        if(is_array($array)) {
-
-            foreach($array as &$k) {
-
-                self::ArrayIconv($from, $to, $k);
-
-            }
-
-        } else {
-
-            $array = iconv($from, $to, $array);
-
-        }
-
-        return $array;
-
-    }
-
     public static function JsonConvert($array) {
-        return json_encode($array, JSON_NUMERIC_CHECK);
+        return json_encode($array, defined('DEBUG_MODE') ? JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE : JSON_NUMERIC_CHECK);
     }
-
-    public static function MultiPage($limit, $count = 0, $ulproperty = '', $tag = 'a') {
-
-        $pagenum    = !empty($_GET['pagenum']) ? max(intval($_GET['pagenum']), 1) : 1;
-        $start      = ($pagenum - 1) * $limit;
-        $maxpagenum = ($count === 0) ? 9999 : ceil($count / $limit);
-
-        $multipage = '<ul class="flt-r mp"' . ($ulproperty ? ' ' . $ulproperty : '') . '>' . (($pagenum > 1) ? '<li data-pagenum="' . max($pagenum - 1, 1) . '">&lt;&lt;</li>' : '');
-
-        for($i = max($pagenum - 5, 1), $j = min($pagenum + 5, $maxpagenum); $i <= $j; $i++) {
-
-            $multipage .= '<li data-pagenum="' . $i . '"' . (($i == $pagenum) ? ' class="cur"' : '') . '>' . $i . '</li>';
-
-        }
-
-        $multipage .= (($pagenum < $maxpagenum) ? '<li data-pagenum="' . min($pagenum + 1, $maxpagenum) . '">&gt;&gt;</li>' : '') . '</ul>';
-
-        return [
-            'start'   => $start,
-            'limit'   => $limit,
-            'display' => $multipage
-        ];
-
-    }
-
 
     public static function ColumnSearch($array, $column, $value) {
         if(is_array($array)) {
@@ -182,13 +132,15 @@ class Kit {
     public static function imagettftextblur(&$image, $size, $angle, $x, $y, $color, $fontfile, $text) {
         $text_shadow_image   = imagecreatetruecolor($image_x = imagesx($image), $image_y = imagesy($image));
         $text_box            = imagettfbbox(9, 0, $fontfile, $text);
-        $text_shadow_image_x = $x + $text_box[2] - $text_box[0] + 5;
-        $text_shadow_image_y = $y + $text_box[3] - $text_box[1] + 5;
+        $text_shadow_image_x = min($x + $text_box[2] - $text_box[0] + 5, $image_x);
+        $text_shadow_image_y = min($y + $text_box[3] - $text_box[1] + 5, $image_y);
+
         imagefill($text_shadow_image, 0, 0, imagecolorallocate($text_shadow_image, 0x00, 0x00, 0x00));
         imagettftext($text_shadow_image, $size, $angle, $x, $y, imagecolorallocate($text_shadow_image, 0xFF, 0xFF, 0xFF), $fontfile, $text);
         imagefilter($text_shadow_image, IMG_FILTER_GAUSSIAN_BLUR);
-        for($x_offset = 0; $x_offset < $image_x; $x_offset++) {
-            for($y_offset = 0; $y_offset < $image_y; $y_offset++) {
+
+        for($x_offset = $x - 10; $x_offset < $text_shadow_image_x; $x_offset++) {
+            for($y_offset = $y - 10; $y_offset < $text_shadow_image_y; $y_offset++) {
                 $visibility = (imagecolorat($text_shadow_image, $x_offset, $y_offset) & 0xFF) / 255;
                 if($visibility > 0)
                     imagesetpixel($image, $x_offset, $y_offset, imagecolorallocatealpha($image, ($color >> 16) & 0xFF, ($color >> 8) & 0xFF, $color & 0xFF, (1 - $visibility) * 127));

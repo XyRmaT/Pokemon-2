@@ -20,7 +20,7 @@
 </footer>
 
 <script>
-    app.factory('external', function () { return {json_encode($r)}; });
+    app.factory('external', function () { return {Kit::JsonConvert($r)}; });
 
     {literal}
         (function (i, s, o, g, r, a, m) {

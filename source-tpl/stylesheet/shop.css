@@ -1,0 +1,65 @@
+table.main .header {
+    background : #4F95BB url(_image-root_/other/shop-bitch.png) 88% bottom no-repeat;
+}
+
+table.main .step > .num {
+    color : #4F95BB;
+}
+
+.tab-group > div:hover, .tab-group > div.current {
+    background : #4F95BB;
+}
+
+.shop-list li {
+    width      : 323px;
+    height     : 43px;
+    padding    : 10px;
+    background : #EFEFEF;
+    display    : inline-block;
+    margin     : 20px 20px 0 0;
+}
+
+.shop-list li:nth-of-type(2n) {
+    margin-right : 0;
+}
+
+.item-wrapper {
+    display      : inline-block;
+    width        : 24px;
+    height       : 24px;
+    padding      : 8px;
+    margin-right : 8px;
+    background   : #FFF;
+}
+
+.shop-list li > span {
+    display        : inline-block;
+    vertical-align : top;
+    line-height    : 20px;
+}
+
+.shop-list li, .item-wrapper {
+    border        : 1px solid _border-color_;
+    border-radius : 5px;
+}
+
+.shop-list li:hover {
+    background : #4F95BB;
+    cursor     : pointer;
+    color      : #FFF;
+}
+
+.shop-list li:hover .light-text {
+    color : #FFF;
+}
+
+.pop-up.buy-item button {
+    width         : 275px;
+    height        : 40px;
+    line-height   : 40px;
+    background    : #4F95BB;
+    border-radius : 5px;
+    color         : #FFF;
+    margin-top    : 10px;
+    font-size     : 14px;
+}

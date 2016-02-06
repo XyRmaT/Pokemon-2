@@ -125,10 +125,10 @@ BATTLERETURN:
 
 $return['battle'] = [
 		'oppohp'     => Battle::$pokemon[0][0]['hp'],
-		'oppomaxhp'  => Battle::$pokemon[0][0]['maxhp'],
+		'oppomax_hp'  => Battle::$pokemon[0][0]['max_hp'],
 		'oppostatus' => Obtain::StatusIcon(Battle::$pokemon[0][0]['status']),
 		'selfhp'     => Battle::$pokemon[1][0]['hp'],
-		'selfmaxhp'  => Battle::$pokemon[1][0]['maxhp'],
+		'selfmax_hp'  => Battle::$pokemon[1][0]['max_hp'],
 		'selfmove'   => Battle::$pokemon[1][0]['moves'],
 		'selfstatus' => Obtain::StatusIcon(Battle::$pokemon[1][0]['status']),
 		'end'        => Battle::$isend,
@@ -163,7 +163,7 @@ if($process === 'useitem' && !empty($_GET['item_id'])) {
 
 } elseif($process === 'swappm' && Battle::$swapped) {
 
-	$return['js'] = '$(\'#sbj-self\').html(\'' . Battle::$pokemon[1][0]['name'] . Battle::$pokemon[1][0]['gendersign'] . ' Lv. ' . Battle::$pokemon[1][0]['level'] . '<div class="bar"><div class="hp" style="width:' . ceil(Battle::$pokemon[1][0]['hp'] / Battle::$pokemon[1][0]['maxhp'] * 100) . '%"></div><div class="value">' . Battle::$pokemon[1][0]['hp'] . '/' . Battle::$pokemon[1][0]['maxhp'] . '</div></div><div class="sprite"><img src="' . Obtain::Sprite('pokemon', 'gif', Battle::$pokemon[1][0]['sprite_name'], 0, 1) . '"></div>\');';
+	$return['js'] = '$(\'#sbj-self\').html(\'' . Battle::$pokemon[1][0]['name'] . Battle::$pokemon[1][0]['gendersign'] . ' Lv. ' . Battle::$pokemon[1][0]['level'] . '<div class="bar"><div class="hp" style="width:' . ceil(Battle::$pokemon[1][0]['hp'] / Battle::$pokemon[1][0]['max_hp'] * 100) . '%"></div><div class="value">' . Battle::$pokemon[1][0]['hp'] . '/' . Battle::$pokemon[1][0]['max_hp'] . '</div></div><div class="sprite"><img src="' . Obtain::Sprite('pokemon', 'gif', Battle::$pokemon[1][0]['sprite_name'], 0, 1) . '"></div>\');';
 
 	/*
 		Generate pokemon info

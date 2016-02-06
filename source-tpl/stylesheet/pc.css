@@ -1,0 +1,25 @@
+table.main .header {
+    background : #BB4F4F url(_image-root_/other/joey-bitch.png) 95% bottom no-repeat;
+}
+
+table.main .step > .num {
+    color : #BB4F4F;
+}
+
+.pokemon {
+    margin : 10px 15px 5px 15px;
+    float  : left;
+}
+
+.pokemon.blank {
+    background : inherit;
+}
+
+.button-heal {
+    width         : 105px;
+    height        : 40px;
+    margin        : 66px auto;
+    display       : block;
+    background    : #BB4F4F;
+    border-radius : 5px;
+}

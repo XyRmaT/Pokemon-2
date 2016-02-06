@@ -42,7 +42,7 @@ switch($process) {
 
             //  Obtaining self pokemon's information
 
-            $query = DB::query('SELECT m.pkm_id, m.nat_id, m.ability, m.exp, m.nickname name_zh name, m.gender, m.psn_value, m.ind_value, m.eft_value, m.nature, m.level, m.item_carrying, m.happiness, m.moves, m.ability, m.hp, m.status, m.uid, m.sprite_name, m.moves_new, m.happiness, m.beauty, m.form, p.name nickname, m.uid_initial, p.base_stat, p.type, p.type_b, p.evolution_data, p.exp_type, p.baseexp, p.ability_hidden, p.height, p.weight FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE m.uid = ' . $trainer['uid'] . ' AND m.location IN (1, 2, 3, 4, 5, 6) AND m.nat_id != 0 ORDER BY m.location ASC');
+            $query = DB::query('SELECT m.pkm_id, m.nat_id, m.ability, m.exp, m.nickname name_zh name, m.gender, m.psn_value, m.ind_value, m.eft_value, m.nature, m.level, m.item_holding, m.happiness, m.moves, m.ability, m.hp, m.status, m.uid, m.sprite_name, m.new_moves, m.happiness, m.beauty, m.form, p.name nickname, m.uid_initial, p.base_stat, p.type, p.type_b, p.evolution_data, p.exp_type, p.baseexp, p.ability_hidden, p.height, p.weight FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE m.uid = ' . $trainer['uid'] . ' AND m.location IN (1, 2, 3, 4, 5, 6) AND m.nat_id != 0 ORDER BY m.location ASC');
 
             $i = 1;
 
@@ -56,7 +56,7 @@ switch($process) {
                 $info['weight']         = $info['weight'] / 10;
                 $info['gendersign']     = Obtain::GenderSign($info['gender']);
                 $info['moves']           = unserialize($info['moves']);
-                $info['moves_new']        = !empty($info['moves_new']) ? unserialize($info['moves_new']) : [];
+                $info['new_moves']        = !empty($info['new_moves']) ? unserialize($info['new_moves']) : [];
                 Battle::$pokemon[$i]    = [$info, Battle::GenerateBattleData($info['pkm_id'])];
                 Battle::$pokemon[$i][0] = array_merge(Battle::$pokemon[$i][0],
                     Obtain::Stat(
@@ -154,8 +154,8 @@ switch($process) {
                 display pokemon info
             */
 
-            $return['js'] = 'initbattle();$(\'#sbj-oppo\').html(\'' . Battle::$pokemon[0][0]['name'] . Battle::$pokemon[0][0]['gendersign'] . ' Lv. ' . Battle::$pokemon[0][0]['level'] . ' ' . Obtain::StatusIcon(Battle::$pokemon[0][0]['status']) . '<div class="bar"><div class="hp" style="width:' . Battle::$pokemon[0][0]['hp_percent'] . '%"></div><div class="value">' . Battle::$pokemon[0][0]['hp'] . '/' . Battle::$pokemon[0][0]['maxhp'] . '</div></div><div class="sprite"><img src="' . Obtain::Sprite('pokemon', 'gif', Battle::$pokemon[0][0]['sprite_name']) . '"></div>\').show().animate({left:\'750px\'}, 3000);
-            $(\'#sbj-self\').show().html(\'' . Battle::$pokemon[1][0]['name'] . Battle::$pokemon[1][0]['gendersign'] . ' Lv. ' . Battle::$pokemon[1][0]['level'] . ' ' . Obtain::StatusIcon(Battle::$pokemon[1][0]['status']) . '<div class="bar"><div class="hp" style="width:' . Battle::$pokemon[1][0]['hp_percent'] . '%"></div><div class="value">' . Battle::$pokemon[1][0]['hp'] . '/' . Battle::$pokemon[1][0]['maxhp'] . '</div></div><div class="sprite"><img src="' . Obtain::Sprite('pokemon', 'gif', Battle::$pokemon[1][0]['sprite_name'], 0, 1) . '"></div>\').show().animate({left:\'105px\'}, 2000);$(\'#btl-report\').show().html(\'' . Battle::$report . '\');';
+            $return['js'] = 'initbattle();$(\'#sbj-oppo\').html(\'' . Battle::$pokemon[0][0]['name'] . Battle::$pokemon[0][0]['gendersign'] . ' Lv. ' . Battle::$pokemon[0][0]['level'] . ' ' . Obtain::StatusIcon(Battle::$pokemon[0][0]['status']) . '<div class="bar"><div class="hp" style="width:' . Battle::$pokemon[0][0]['hp_percent'] . '%"></div><div class="value">' . Battle::$pokemon[0][0]['hp'] . '/' . Battle::$pokemon[0][0]['max_hp'] . '</div></div><div class="sprite"><img src="' . Obtain::Sprite('pokemon', 'gif', Battle::$pokemon[0][0]['sprite_name']) . '"></div>\').show().animate({left:\'750px\'}, 3000);
+            $(\'#sbj-self\').show().html(\'' . Battle::$pokemon[1][0]['name'] . Battle::$pokemon[1][0]['gendersign'] . ' Lv. ' . Battle::$pokemon[1][0]['level'] . ' ' . Obtain::StatusIcon(Battle::$pokemon[1][0]['status']) . '<div class="bar"><div class="hp" style="width:' . Battle::$pokemon[1][0]['hp_percent'] . '%"></div><div class="value">' . Battle::$pokemon[1][0]['hp'] . '/' . Battle::$pokemon[1][0]['max_hp'] . '</div></div><div class="sprite"><img src="' . Obtain::Sprite('pokemon', 'gif', Battle::$pokemon[1][0]['sprite_name'], 0, 1) . '"></div>\').show().animate({left:\'105px\'}, 2000);$(\'#btl-report\').show().html(\'' . Battle::$report . '\');';
 
 
             /*

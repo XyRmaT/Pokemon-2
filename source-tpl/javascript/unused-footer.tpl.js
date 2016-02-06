@@ -45,7 +45,7 @@ $(function () {
         }
         ajax('?index=shop&process=itembuy&quantity=' + quantity + '&item_id=' + $(this).data('itemid'));
     });
-    {elseif $index === 'pkmcenter'}
+    {elseif $index === 'pc'}
     $('#pc-boxctnr').unselectable();
     makenav('.pc-nav .sec');
     {if $_GET['section'] === 'box'}
@@ -256,7 +256,7 @@ $(function () {
             var parent = $(this).parent().parent(),
                 tmp    = $(this),
                 pkm_id = parent.data('pkm_id');
-            $('#learnmove').html($('.moves_new', parent).html());
+            $('#learnmove').html($('.new_moves', parent).html());
             $('#layer-moves').dialog({
                 modal    : true,
                 title    : '学习技能',
@@ -265,9 +265,9 @@ $(function () {
                         ajax('?index=my&process=pmmove&pkm_id=' + pkm_id + '&' + $('#learnmove').serialize(), function (i) {
                             if (!i.learnmove) return;
                             if (i.learnmove !== '') {
-                                $('.moves_new', parent).html(i.learnmove);
+                                $('.new_moves', parent).html(i.learnmove);
                             } else {
-                                $('.moves_new', parent).remove();
+                                $('.new_moves', parent).remove();
                                 tmp.remove();
                             }
                         });
@@ -380,7 +380,7 @@ $(function () {
             for (i in item) {
                 var obj = item[i];
                 if (!type || type > 0 && obj.type == type)
-                    appendTxt += '<li><img src="' + obj.carry_item_sprite + '" data-item_id="' + obj.item_id + '"></li>';
+                    appendTxt += '<li><img src="' + obj.hold_item_sprite + '" data-item_id="' + obj.item_id + '"></li>';
             }
             $('#my-invt').fadeOut(function () {
                 $(this).empty().append(appendTxt).fadeIn(f);

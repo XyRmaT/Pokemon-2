@@ -30,7 +30,17 @@ $system = [
     'c_1mth'                => 0,
     'happiness_check_cycle' => 30 * 60,
     'happiness_add'         => ['min' => 10, 'max' => 20],
-    'exp_field'             => 'extcredits1'
+    'exp_field'             => 'extcredits1',
+    'shelter_cost'          => 200,
+    'costs'                 => [
+        'shelter_claim' => 200
+    ],
+    'adding_exp'            => [
+        'shelter_claim' => 4
+    ],
+    'pkm_limits'            => [
+        'pc_heal' => 6,
+    ]
 ];
 
 define('UC_CONNECT', 'mysql');

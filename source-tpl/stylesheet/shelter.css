@@ -1,0 +1,53 @@
+table.main tr:nth-of-type(1) td:last-child {
+    background : #F8F8F8 url(_image-root_/other/daycare-bg.png) bottom no-repeat;
+}
+
+table.main .header {
+    background : #AC6333 url(_image-root_/other/daycare-bitch.png) 95% bottom no-repeat;
+}
+
+table.main .info {
+    padding-top : 55px;
+    text-align  : center;
+}
+
+table.main .step > .num {
+    color : #AC6333;
+}
+
+.pokemon-pool, .egg-pool {
+    width         : 698px;
+    border        : 1px solid _border-color_;
+    border-radius : 5px;
+    margin        : 0 auto 30px auto;
+    background    : #EFEFEF;
+    text-align    : center;
+    color         : #999;
+}
+
+.pokemon-pool {
+    height      : 248px;
+    line-height : 248px;
+}
+
+.egg-pool {
+    height      : 98px;
+    line-height : 98px;
+}
+
+.pokemon-pool li, .egg-pool li {
+    display  : inline-block;
+    width    : 20%;
+    height   : 130px;
+    position : relative;
+    float    : left;
+}
+
+.pokemon-pool img, .egg-pool img {
+    cursor : pointer;
+}
+
+.egg-pool li {
+    width  : 12.5%;
+    height : 110px;
+}

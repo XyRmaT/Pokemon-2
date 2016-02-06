@@ -49,7 +49,7 @@ class battle {
         }
         $exp   = nextLevelUp($expType, $level - 1);
         $location = boxCheck($uid);
-        return $db->query("INSERT INTO pkm_mypkm (id, nickname, gender, psn_value, ind_value, eft_value, is_shiny, oOUid, daycTime, time_hatched, time_hatched, nature, level, exp, item_carrying, hlTime, happiness, beauty, moves, mtLevel, mtDate, mtPlace, ability, uid, capItem, hp, form, location, status, newMove) (SELECT id, name_zh name, gender, psn_value, ind_value, eft_value, is_shiny, uid oOUid, 0, 0, 0, nature, level, {$exp}, item_carrying, 0, happiness, 0, moves, level, {$timestamp}, {$map_id}, ability, uid, {$capItem}, hp, form, {$location}, status, '' FROM pkm_mywildpkm WHERE pkm_id = {$pid})");
+        return $db->query("INSERT INTO pkm_mypkm (id, nickname, gender, psn_value, ind_value, eft_value, is_shiny, oOUid, daycTime, time_hatched, time_hatched, nature, level, exp, item_holding, hlTime, happiness, beauty, moves, mtLevel, mtDate, mtPlace, ability, uid, capItem, hp, form, location, status, newMove) (SELECT id, name_zh name, gender, psn_value, ind_value, eft_value, is_shiny, uid oOUid, 0, 0, 0, nature, level, {$exp}, item_holding, 0, happiness, 0, moves, level, {$timestamp}, {$map_id}, ability, uid, {$capItem}, hp, form, {$location}, status, '' FROM pkm_mywildpkm WHERE pkm_id = {$pid})");
     }
 
     function gainExp($baseEXP, $attackerLevel, $oppLevel, $pkmUid, $uid, $crritem, $pkmCount) {

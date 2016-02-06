@@ -1,7 +1,7 @@
 <?php
 
 switch($process) {
-    case 'pokemon-put':
+    case 'put-pokemon':
 
         $pkm_id = !empty($_GET['pkm_id']) ? intval($_GET['pkm_id']) : 0;
 
@@ -32,7 +32,7 @@ switch($process) {
         }
 
         break;
-    case 'pokemon-take':
+    case 'take-pokemon':
 
         $pkm_id = !empty($_GET['pkm_id']) ? intval($_GET['pkm_id']) : 0;
 
@@ -62,6 +62,7 @@ switch($process) {
                 break;
             }
 
+            $info = [];
             Pokemon::Update(['time_egg_checked' => 0], [
                 'uid'      => $trainer['uid'],
                 'location' => LOCATION_DAYCARE
@@ -70,7 +71,7 @@ switch($process) {
                 'time_daycare_sent' => 0,
                 'location'          => $location,
                 'exp'               => 'exp + ' . $values['exp_increased']
-            ], ['pkm_id' => $pkm_id]);
+            ], ['pkm_id' => $pkm_id], TRUE, $info, $pkm_id);
 
             App::CreditsUpdate($trainer['uid'], -$values['cost']);
 
@@ -80,7 +81,7 @@ switch($process) {
         }
 
         break;
-    case 'egg-take':
+    case 'take-egg':
 
         $query  = DB::query('SELECT nat_id, gender FROM pkm_mypkm WHERE uid = ' . $trainer['uid'] . ' AND location = ' . LOCATION_DAYCARE . ' AND has_egg = 1 LIMIT 2');
         $nat_id = $gender = [];

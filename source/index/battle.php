@@ -66,7 +66,7 @@ if(!$map) {
         Battle::GenerateBattleData()
     ];
 
-    $query = DB::query('SELECT m.pkm_id, m.nat_id, m.nickname, m.gender, m.psn_value, m.ind_value, m.eft_value, m.nature, m.level, m.item_carrying, m.happiness, m.moves, m.ability, m.hp, m.status, m.sprite_name, p.base_stat, p.type, p.type_b FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE m.uid = ' . $trainer['uid'] . ' AND m.location IN (1, 2, 3, 4, 5, 6) AND m.nat_id != 0 ORDER BY m.location ASC');
+    $query = DB::query('SELECT m.pkm_id, m.nat_id, m.nickname, m.gender, m.psn_value, m.ind_value, m.eft_value, m.nature, m.level, m.item_holding, m.happiness, m.moves, m.ability, m.hp, m.status, m.sprite_name, p.base_stat, p.type, p.type_b FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE m.uid = ' . $trainer['uid'] . ' AND m.location IN (1, 2, 3, 4, 5, 6) AND m.nat_id != 0 ORDER BY m.location ASC');
 
     $hp = 0;
     $i  = 1;

@@ -1,59 +1,46 @@
 <?php
 
 switch($process) {
-    case 'itembuy':
+    case 'buy-item':
 
-        $iid = isset($_GET['item_id']) ? intval($_GET['item_id']) : 0;
-        $num = isset($_GET['quantity']) ? intval($_GET['quantity']) : 0;
+        $item_id  = isset($_GET['item_id']) ? intval($_GET['item_id']) : 0;
+        $quantity = isset($_GET['quantity']) ? intval($_GET['quantity']) : 0;
 
-        if($iid === 0 || $num === 0) {
-
-            $return['msg'] = '店长：别跟我开玩笑哟～';
-
+        if($quantity <= 0) {
+            $return['msg'] = Obtain::Text('enter_quantity');
+        } elseif($item_id <= 0) {
+            $return['msg'] = Obtain::Text('item_not_available');
         } else {
 
-            $item = DB::fetch_first('SELECT price, name_zh name, stock FROM pkm_itemdata WHERE item_id = ' . $iid . ' AND is_available = 1 AND trainer_level <= ' . $trainer['level'] . ' AND (time_start = 0 AND time_end = 0 OR NOW() > time_start AND NOW() < time_end) LIMIT 1');
-            $cost = $item['price'] * $num;
+            $item = DB::fetch_first('SELECT price, name_zh name, stock
+                                     FROM pkm_itemdata
+                                     WHERE item_id = ' . $item_id . ' AND is_available = 1 AND
+                                            trainer_level <= ' . $trainer['level'] . ' AND
+                                            (time_start = 0 AND time_end = 0 OR
+                                             time_start < ' . $_SERVER['REQUEST_TIME'] . ' AND time_end > ' . $_SERVER['REQUEST_TIME'] . ')');
+            $cost = $item['price'] * $quantity;
 
             if(empty($item)) {
-
-                $return['msg'] = '您无法购买这个道具哟～';
-
-            } elseif($item['stock'] - $num < 0) {
-
-                $return['msg'] = '十分抱歉！我们店里的库存不足了！请隔段时间再光临鄙店！';
-
+                $return['msg'] = Obtain::Text('item_not_available');
+            } elseif($item['stock'] - $quantity < 0) {
+                $return['msg'] = Obtain::Text('item_not_in_stock');
             } elseif($trainer['currency'] - $cost < 0) {
-
-                $return['msg'] = '没钱？这不伤感情么！';
-
+                $return['msg'] = Obtain::Text('unpaid');
             } else {
 
-                $bagnum = DB::result_first('SELECT quantity FROM pkm_myitem WHERE uid = ' . $trainer['uid'] . ' AND item_id = ' . $iid);
-
-                if($bagnum + $num >= $system['per_item_limit']) {
-
-                    $return['msg'] = '唔背包都这么鼓了塞哪里？';
-
-                } else {
-
-                    Trainer::AddTemporaryStat('itembuy', $num);
-
-                    DB::query('UPDATE pkm_itemdata SET stock = stock - ' . $num . ', month_sale = month_sale + ' . $num . ' WHERE item_id = ' . $iid);
-                    DB::query('UPDATE pkm_stat SET shopsell = shopsell + ' . $cost);
-
-                    App::CreditsUpdate($trainer['uid'], -$cost);
-
-                    if(empty($bagnum))
-                        DB::query('INSERT INTO pkm_myitem (uid, item_id, quantity) VALUES (' . $trainer['uid'] . ', ' . $iid . ', ' . $num . ')');
-
-                    else
-
-                        DB::query('UPDATE pkm_myitem SET quantity = quantity + ' . $num . ' WHERE item_id = ' . $iid . ' AND uid = ' . $trainer['uid']);
-
-                    $return['msg'] = '这是您的' . $item['name'] . '*' . $num . '，共耗费' . $cost . $system['currency_name'] . '。谢谢光临！';
-                    $return['js']  = '$(\'#i' . $iid . ' td\').eq(4).html(\'' . ($item['stock'] - $num) . '\');$(\'#currency\').html(' . ($trainer['currency'] - $cost) . ');';
+                if(!Trainer::Item('OBTAIN', $trainer['uid'], $item_id, $quantity)) {
+                    $return['msg'] = Obtain::Text('bag_full');
+                    break;
                 }
+
+                DB::query('UPDATE pkm_itemdata SET stock = stock - ' . $quantity . ', month_sale = month_sale + ' . $quantity . ' WHERE item_id = ' . $item_id);
+                DB::query('UPDATE pkm_stat SET value = value + ' . $cost . ' WHERE `key` = \'shop_sale\'');
+
+                Trainer::AddTemporaryStat('item_bought', $quantity);
+                App::CreditsUpdate($trainer['uid'], -$cost);
+
+                $return['msg'] = Obtain::Text('purchase_succeed');
+
             }
         }
         break;

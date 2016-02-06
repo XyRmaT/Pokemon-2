@@ -57,10 +57,10 @@ class Obtain {
 
     }
 
-    public static function TypeName($type, $typeb = 0, $image = FALSE, $appendclass = '') {
+    public static function TypeName($type, $typeb = 0, $image = FALSE,$appendclass = '') {
         $typearr = $GLOBALS['lang']['data_move_types'];
-        if(!$image) $result = !empty($typearr[$type]) ? $typearr[$type] . (!empty($typearr[$typeb]) ? '+' . $typearr[$typeb] : '') : '';
-        else        $result = !empty($typearr[$type]) ? '<span class="type t' . $type . $appendclass . '"></span>' . (!empty($typearr[$typeb]) ? '&nbsp;&nbsp;<span class="type t' . $typeb . $appendclass . '"></span>' : '') : '';
+        if(!$image) $result = !empty($typearr[$type]) ? $typearr[$type] . ($typeb > 0 && !empty($typearr[$typeb]) ? '+' . $typearr[$typeb] : '') : '';
+        else        $result = !empty($typearr[$type]) ? '<span class="type t' . $type . $appendclass . '"></span>' . ($typeb > 0 && !empty($typearr[$typeb]) ? '&nbsp;&nbsp;<span class="type t' . $typeb . $appendclass . '"></span>' : '') : '';
         return $result;
 
     }
@@ -72,7 +72,7 @@ class Obtain {
 
     public static function EggGroupName($group, $groupb = 0) {
         $grouparr = $GLOBALS['lang']['data_egg_groups'];
-        $result   = !empty($grouparr[$group]) ? $grouparr[$group] . (!empty($grouparr[$groupb]) ? '+' . $grouparr[$groupb] : '') : '';
+        $result   = !empty($grouparr[$group]) ? $grouparr[$group] . ($groupb > 0 && !empty($grouparr[$groupb]) ? '+' . $grouparr[$groupb] : '') : '';
         return $result;
     }
 
@@ -324,19 +324,19 @@ class Obtain {
         $ev       = explode(',', $ev);
         $modifier = self::NatureModifier($nature);
 
-        $prefix = ['hp_max', 'atk', 'def', 'spatk', 'spdef', 'spd'];
+        $prefix = ['max_hp', 'atk', 'def', 'spatk', 'spdef', 'spd'];
         foreach($prefix as $key => $val) {
             switch($key) {
                 default:
                     $result[$val] = floor(floor(floor($bs[$key] * 2 + $ev[$key] / 4 + $iv[$key]) * $level / 100 + 5) * $modifier[$key]);
                     break;
                 case 0:
-                    $result['hp_max'] = ($bs[$key] != 1) ? floor(floor($bs[$key] * 2 + $ev[$key] / 4 + $iv[$key]) * $level / 100 + $level + 10) : 1;
+                    $result['max_hp'] = ($bs[$key] != 1) ? floor(floor($bs[$key] * 2 + $ev[$key] / 4 + $iv[$key]) * $level / 100 + $level + 10) : 1;
                     break;
             }
         }
 
-        if($hp !== FALSE) $result['hp_percent'] = min(ceil($hp / $result['hp_max'] * 100), 100);
+        if($hp !== FALSE) $result['hp_percent'] = min(ceil($hp / $result['max_hp'] * 100), 100);
 
         return $result;
     }
@@ -451,17 +451,19 @@ class Obtain {
      * @param string $key     name of the text
      * @param array  $args    arguments that will be replacing placeholders using vsprintf
      * @param bool   $is_data if is a dataset, then it doesn't need to check if it's an array or not
+     * @param bool   $add_linebreak
      * @return string
      */
-    public static function Text($key, $args = [], $is_data = FALSE) {
+    public static function Text($key, $args = [], $is_data = FALSE, $add_linebreak = FALSE, $data_index = 0) {
 
         if(empty($GLOBALS['lang'][$key])) return $GLOBALS['lang']['inoccupied_text'];
 
         $text = $GLOBALS['lang'][$key];
+        if($is_data) $text = $text[$data_index];
         if(!$is_data && is_array($text)) $text = $text[array_rand($text)];
         if($args) $text = vsprintf($text, $args);
 
-        return $text;
+        return $text . ($add_linebreak ? '<br>' : '');
 
     }
 
@@ -553,6 +555,14 @@ class Obtain {
         fclose($handle);
 
         return $path;
+    }
+
+    public static function HealTime($max_hp, $hp) {
+        return ceil(($max_hp - $hp) * 6.6);
+    }
+
+    public static function HealRemainTime($time_pc_sent, $max_hp, $hp) {
+        return max(0, $time_pc_sent + self::HealTime($max_hp, $hp) - $_SERVER['REQUEST_TIME']);
     }
 
 

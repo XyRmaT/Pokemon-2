@@ -268,7 +268,7 @@
 			}
 		};
 		
-		updatehpbar = function(target, hp, maxhp) {
+		updatehpbar = function(target, hp, max_hp) {
 		
 			var ele	= $('#sbj-' + target);
 
@@ -276,8 +276,8 @@
 				There is a bug on animating width with percentage, 
 				Jquery will treat percent as pixel
 			*/
-			ele.find('.hp').animate({width: Math.ceil(149 * hp / maxhp)}, 1000);
-			ele.find('.value').html(hp + '/' + maxhp);
+			ele.find('.hp').animate({width: Math.ceil(149 * hp / max_hp)}, 1000);
+			ele.find('.value').html(hp + '/' + max_hp);
 			
 		};
 		
@@ -286,8 +286,8 @@
 				$('#btl-report').append(i.report).animate({
 					scrollTop: $('#btl-report').prop('scrollHeight')
 				});
-			if(typeof i.oppohp !== 'undefined') updatehpbar('oppo', i.oppohp, i.oppomaxhp);
-			if(typeof i.selfhp !== 'undefined') updatehpbar('self', i.selfhp, i.selfmaxhp);
+			if(typeof i.oppohp !== 'undefined') updatehpbar('oppo', i.oppohp, i.oppomax_hp);
+			if(typeof i.selfhp !== 'undefined') updatehpbar('self', i.selfhp, i.selfmax_hp);
 			$('#sbj-oppo .status').replaceWith(i.oppostatus);
 			$('#sbj-self .status').replaceWith(i.selfstatus);
 			if(i.selfmove) {

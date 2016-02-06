@@ -1,5 +1,4 @@
 <?php
-
 define('INPOKE', TRUE);
 define('INAJAX', (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest' || !empty($_GET['aaa']) && $_GET['aaa'] === '1') ? TRUE : FALSE);
 define('ROOT', dirname(__FILE__));
@@ -9,7 +8,8 @@ define('ROOT_IMAGE', './source-img');
 define('ROOT_TEMPLATE', './source-tpl');
 define('ROOT_CACHE', './cache');
 define('ROOT_RELATIVE', '.');
-define('LANGUAGE', 'zh');
+define('DEBUG_MODE', TRUE);
+define('LANGUAGE', isset($_GET['lang']) && in_array($_GET['lang'], ['zh', 'en', 'de']) ? $_GET['lang'] : 'zh');
 
 include_once ROOT . '/include/class-common.php';
 App::Initialize();
@@ -21,7 +21,7 @@ $smarty->template_dir = ROOT . '/source-tpl/index/';
 $smarty->compile_dir  = ROOT . '/source-tpl/_compile/';
 $smarty->config_dir   = ROOT . '/include/smarty/config/';
 $smarty->cache_dir    = ROOT . '/cache/template/';
-$smarty->debugging    = 1;
+$smarty->debugging    = 0;
 // $smarty->loadFilter('output', 'indent_html');
 
 Cache::$path_cache = ROOT_CACHE;
@@ -36,10 +36,9 @@ if($system['system_switch'] === 0 && $user['uid'] != 8)
 // Load up the essential libraries
 Kit::Library('class', ['trainer', 'obtain', 'pokemon']);
 
-
 // Set up some global variables, also keep the minified CSS file up to date
 //$system            = array_merge($system, DB::fetch_first('SELECT shopsell, shopopc FROM pkm_stat'));
-$index       = !empty($user['uid']) && isset($_GET['index']) && in_array($_GET['index'], ['memcp', 'pc', 'copyright', 'starter', 'shop', 'daycare', 'index', 'battle', 'map', 'tempview', 'tempaward', 'ranking', 'shelter']) ? $_GET['index'] : 'index';
+$index       = !empty($user['uid']) && isset($_GET['index']) && in_array($_GET['index'], ['memcp', 'pc', 'copyright', 'starter', 'shop', 'daycare', 'index', 'battle', 'map', 'shelter']) ? $_GET['index'] : 'index';
 $process     = !empty($_GET['process']) ? $_GET['process'] : '';
 $path['css'] = Cache::Css(['common', 'angular-sortable', $index], 'cssvar');
 $trainer     = [];
@@ -56,7 +55,7 @@ if(!empty($user['uid'])) {
 
     // Generating trainer's info if not existed
     if(!$trainer) {
-        Trainer::Generate($trainer['uid']);
+        Trainer::Generate($user['uid']);
         $trainer = Trainer::Fetch($user['uid']);
     }
 
@@ -76,17 +75,17 @@ if(!empty($user['uid'])) {
     // Updating last visit timestamp
     setcookie('last_visit', $_SERVER['REQUEST_TIME']);
     if(empty($_COOKIE['last_visit']) || $_COOKIE['last_visit'] + 300 < $_SERVER['REQUEST_TIME'] ||
-        !$trainer['time_last_visit'] || $trainer['time_last_visit'] + 300 < $_SERVER['REQUEST_TIME']
-    )
+        !$trainer['time_last_visit'] || $trainer['time_last_visit'] + 300 < $_SERVER['REQUEST_TIME'])
         DB::query('UPDATE pkm_trainerdata SET time_last_visit = ' . $_SERVER['REQUEST_TIME'] . ' WHERE uid = ' . $trainer['uid']);
 
     unset($trainer['extcredit']);
 
-    /*DB::query('DELETE FROM pkm_mypkm');
-    DB::query('DELETE FROM pkm_mypokedex');
-    for($i = 0; $i < 3; $i++) {
-        Pokemon::Generate(249 + $i, 1 == 1 ? 8 : DB::result_first('SELECT uid FROM pkm_trainerdata ORDER BY rand() LIMIT 1'), ['is_shiny' => rand(0, 1)]);
-    }*/
+
+    //DB::query('DELETE FROM pkm_mypkm');
+    //DB::query('DELETE FROM pkm_mypokedex');
+    //for($i = 0; $i < 666; $i++) {
+    //    Pokemon::Generate(rand(1, 721), 8, ['is_shiny' => rand(0, 1), 'is_egg' =>rand(0, 1), 'met_location' => 9]);
+    //}
 
     /*$query = DB::query('SELECT uid FROM pkm_trainerdata');
     while($info = DB::fetch($query)) {
@@ -94,20 +93,6 @@ if(!empty($user['uid'])) {
     }*/
 
 }
-/*
-$query = DB::query('SELECT nat_id, name_zh, evolution_data FROM pkm_pkmdata ORDER BY nat_id');
-while($info = DB::fetch($query)) {
-    $evolution_data = unserialize($info['evolution_data']);
-    if(is_array($evolution_data)) {
-        foreach($evolution_data as $value) {
-            echo $info['nat_id'] . "\t" . $info['name_zh'] . "\t" . implode("\t", $value) . PHP_EOL;
-        }
-    } else {
-        echo $info['nat_id'] . "\t" . $info['name_zh'] . PHP_EOL;
-    }
-}*/
-
-
 
 $smarty->assign('user', $user);
 $smarty->assign('index', $index);
@@ -119,9 +104,13 @@ $smarty->assign('lang', $lang);
 
 if(INAJAX && !empty($index) && !empty($process)) {
 
-    if(empty($user['uid'])) $index = 'index';
-    elseif(empty($trainer['has_starter'])) $index = 'starter';
-    elseif($index === 'pc') $index = 'pkmcenter';
+    if(empty($user['uid'])) {
+        $index = 'index';
+    } elseif(empty($trainer['has_starter'])) {
+        $index = 'starter';
+    } elseif($index === 'pc') {
+        $index = 'pc';
+    }
 
     $return = [];
 
@@ -139,9 +128,13 @@ if(INAJAX && !empty($index) && !empty($process)) {
 
     empty($_GET['section']) && $_GET['section'] = '';
 
-    if(empty($user['uid'])) $index = 'index';
-    elseif(empty($trainer['has_starter'])) $index = 'starter';
-    elseif($index === 'pc') $index = 'pkmcenter';
+    if(empty($user['uid'])) {
+        $index = 'index';
+    } elseif(empty($trainer['has_starter'])) {
+        $index = 'starter';
+    } elseif($index === 'pc') {
+        $index = 'pc';
+    }
 
     include ROOT . '/source/index/' . $index . '.php';
 

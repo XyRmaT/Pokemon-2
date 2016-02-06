@@ -1,6 +1,8 @@
 /* Library based on AngularJS */
 
-var app               = angular.module('pokemon-app', ['ngSanitize', 'as.sortable']),
+'use strict';
+
+var app               = angular.module('pokemon-app', ['ngSanitize', 'as.sortable', 'ngDragDrop']),
     $                 = angular.element,
     $window           = $(window),
     isTooltipDisabled = false;
@@ -42,6 +44,10 @@ app
             $rootScope[i] = external[i];
         $scope.Math         = Math;
         $scope.location     = window.location;
+        $scope.pop          = pop;
+        $scope.array = function(max) {
+            return new Array(max);
+        }
         $scope.numberFormat = function (num) {
             return (num > 999999) ? Math.round(num / 1000000) + 'm' : ((num > 999) ? Math.round(num / 1000) + 'k' : num);
         };
@@ -60,19 +66,51 @@ app
                 elem.html(oldValue);
             }, 22);
         });
+        $scope.lang = function (text, varriables) {
+            for (var i in varriables) {
+                if (varriables.hasOwnProperty(i)) text = text.replace(/%[a-z]/, varriables[i]);
+            }
+            return text;
+        };
 
         $('#pop-up-mask, .pop-up .close, [pop-up-close]').bind('click', pop.closeAll);
         $('header .decoration-bar').addClass('active');
     }])
     .controller('page-daycare', ['$rootScope', '$scope', '$http', function ($rootScope, $scope, $http) {
-        $rootScope.fnPutPokemon  = function (pkmId) {
-            $http.get('?index=daycare&process=pokemon-put&pkm_id=' + pkmId);
+        $rootScope.putPokemon  = function (pkmId) {
+            $http.get('?index=daycare&process=put-pokemon&pkm_id=' + pkmId);
         };
-        $rootScope.fnTakePokemon = function (pkmId) {
-            confirm($scope._LANG.are_you_sure) && $http.get('?index=daycare&process=pokemon-take&pkm_id=' + pkmId);
+        $rootScope.takePokemon = function (pkmId) {
+            confirm($scope._LANG.are_you_sure) && $http.get('?index=daycare&process=take-pokemon&pkm_id=' + pkmId);
         };
-        $rootScope.fnTakeEgg     = function () {
-            confirm($scope._LANG.are_you_sure) && $http.get('?index=daycare&process=egg-take');
+        $rootScope.takeEgg     = function () {
+            confirm($scope._LANG.are_you_sure) && $http.get('?index=daycare&process=take-egg');
+        };
+    }])
+    .controller('page-shelter', ['$rootScope', '$scope', '$http', function ($rootScope, $scope, $http) {
+        $rootScope.claimPokemon = function (pkmId) {
+            confirm($scope._LANG.are_you_sure) && $http.get('?index=shelter&process=claim-pokemon&pkm_id=' + pkmId);
+        };
+    }])
+    .controller('page-shop', ['$rootScope', '$scope', '$http', function ($rootScope, $scope, $http) {
+        $rootScope.buyItem = function (itemId, quantity) {
+            confirm($scope._LANG.are_you_sure) && $http.get('?index=shop&process=buy-item&item_id=' + itemId + '&quantity=' + quantity);
+            pop.closeAll();
+        };
+    }])
+    .controller('page-pc', ['$rootScope', '$scope', '$http', function ($rootScope, $scope, $http) {
+        var sideMenu = $('.side-menu');
+        sideMenu.find('[data-section="' + $rootScope.section + '"]').addClass('current');
+        sideMenu.find('[data-section]').on('click', function (event) {
+            event.preventDefault();
+            if ($(this).hasClass('current')) return;
+            $http.get('?index=pc&section=' + $(this).data('section'), {pushState: true});
+            sideMenu.find('.current').removeClass('current');
+            $(this).addClass('current');
+            sideMenu.find('[data-section]');
+        });
+        $rootScope.healPokemon = function (pkmId, isTake) {
+            (isTake && confirm($scope._LANG.are_you_sure) || !isTake) && $http.get('?index=pc&process=heal-pokemon&pkm_id=' + pkmId + '&action=' + (isTake ? 'take' : ''));
         };
     }])
     .controller('page-memcp', ['$rootScope', '$scope', '$http', function ($rootScope, $scope, $http) {
@@ -100,6 +138,35 @@ app
                     orders += '&orders[]=' + pokemon[i].pkm_id;
                 $http.get('?index=memcp&process=pokemon-reorder' + orders);
             }
+        };
+        $scope.giveItem      = function (event, ui) {
+            var target       = $(event.target),
+                pokemon      = $rootScope.party[target.data('key')],
+                itemId       = ui.helper.data('item-id'),
+                targetItemId = target.find('img.to').attr('data-item-id');
+            /* Be careful here, data() generates a cached id */
+            pokemon.item_holding     = ui.helper.data('item-id');
+            pokemon.hold_item_sprite = ui.helper.attr('src');
+            ui.helper.remove();
+            $rootScope.items[itemId].quantity--;
+            if (targetItemId) $rootScope.items[targetItemId].quantity = parseInt($rootScope.items[targetItemId].quantity) + 1;
+            $http.get('?index=memcp&process=give-item&pkm_id=' + pokemon.pkm_id + '&item_id=' + itemId);
+        };
+        $scope.returnItem    = function (event, ui) {
+            var pokemon          = $rootScope.party[ui.draggable.parentsUntil('[data-key]').parent().data('key')];
+            pokemon.item_holding = 0;
+            ui.helper.remove();
+            $rootScope.items[ui.helper.data('item-id')].quantity++;
+            $http.get('?index=memcp&process=give-item&pkm_id=' + pokemon.pkm_id);
+        };
+        $rootScope.useItem   = function (itemId, pkmId) {
+            if (!confirm($rootScope._LANG.are_you_sure)) return;
+            $http.get('?index=memcp&process=use-item&pkm_id=' + pkmId + '&item_id=' + itemId);
+        };
+        $scope.deleteMessage = function (msg_id) {
+            event.preventDefault();
+            if (!confirm($scope._LANG.are_you_sure)) return;
+            $http.get('?index=memcp&process=delete-message&msg_id=' + msg_id);
         };
     }])
     .factory('generalQueue', ['$q', '$timeout', function ($q, $timeout) {
@@ -220,9 +287,12 @@ app
                     event.preventDefault();
                     var clipboard = $('#clipboard-' + $attr.copieable).select(),
                         content   = clipboard.html();
-                    if (document.execCommand('copy')) console.log('ads');
-                    else if (navigator.userAgent.toLowerCase().match(/(msie|trident)/)) window.clipboardData.setData('Text', content);
-                    else window.prompt($rootScope._LANG.copy_prompt, content);
+                    try {
+                        document.execCommand('copy');
+                    } catch (e) {
+                        if (navigator.userAgent.toLowerCase().match(/(msie|trident)/)) window.clipboardData.setData('Text', content);
+                        else window.prompt($rootScope._LANG.copy_prompt, content);
+                    }
                 });
             }
         };
@@ -235,7 +305,7 @@ app
                 $element.replaceWith($compile('<div class="vbar ' + options.type + '">' +
                     '<div class="outer" tooltip="' + options.value + ' / ' + options.max + '">' +
                     '<div class="inner" style="width:' + (options.value / options.max * 100) + '%"></div>' +
-                    '<em>' + options.value + ' / '+ options.max + '</em></div></div>')($rootScope));
+                    '<em>' + options.value + ' / ' + options.max + '</em></div></div>')($rootScope));
             }
         }
     }])
@@ -249,11 +319,6 @@ app
             return input + $rootScope._LANG.semi_column;
         }
     }]);
-
-
-window.ondragstart = function () {
-    return false;
-};
 
 var pop = {
     open    : function (name) {
@@ -270,13 +335,25 @@ var pop = {
     }
 };
 
+window.ondrag = function () {
+    $('#tooltip').hide();
+};
+
+window.ondragstart = function () {
+    isTooltipDisabled = true;
+};
+
+window.ondragstop = function () {
+    isTooltipDisabled = false;
+};
+
 function pushState(title, href) {
     history.pushState({}, title, href);
     document.title = title;
 }
 
 /* Developer controller display message */
-if (typeof console == "object") {
+if (typeof console == 'object') {
     console.log('%cI\'m new to AngularJS, please don\'t punch me.\n\n', 'font-size: 14px; ');
     console.log('%cSam Ye ♂', 'font-size: 15px; font-weight: bold; font-family: monospace,monospace;');
     console.log('%c    Pokémon Researcher, Protector of the Realm at ANU\n', 'font-weight: bold; font-family: monospace,monospace;');

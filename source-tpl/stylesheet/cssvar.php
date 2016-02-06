@@ -23,10 +23,11 @@ $cssvar = [
 ];
 
 $cssvar = [
-    'image-root'      => './../source-img',
-    'sub-color'       => '#E63737',
-    'border-color'    => '#bcbcbc',
-    'box-bg-color'    => '#F8F8F8',
-    'text-color-dark' => '#333333',
-    'font-en'         => LANGUAGE === 'en' ? '* { font-family: sans-serif !important; }' : ''
+    'image-root'       => './../source-img',
+    'sub-color'        => '#E63737',
+    'border-color'     => '#bcbcbc',
+    'box-bg-color'     => '#F8F8F8',
+    'text-color-dark'  => '#333333',
+    'text-color-light' => '#999999',
+    'font-en'          => LANGUAGE === 'en' ? '* { font-family: sans-serif !important; }' : ''
 ];

@@ -7,7 +7,6 @@ body {
 }
 
 _font-en_
-
 body, html, ul {
     padding  : 0;
     margin   : 0;
@@ -61,6 +60,12 @@ textarea {
     word-break     : break-all;
 }
 
+input {
+    border        : 1px solid _border-color_;
+    border-radius : 5px;
+    padding       : 5px;
+}
+
 em {
     font-style : normal;
 }
@@ -76,6 +81,14 @@ em {
     to {
         opacity : 1;
     }
+}
+
+.middle {
+    vertical-align : middle;
+}
+
+.content-center {
+    text-align : center;
 }
 
 .hide {
@@ -141,6 +154,10 @@ em {
 
 .inline-block {
     display : inline-block;
+}
+
+.clear {
+    clear : both;
 }
 
 .border {
@@ -407,14 +424,32 @@ em {
     background-position : 0 -36px;
 }
 
-/*
-    页面背景：#efefef
-    导航条背景：#2d2d30
-    风格红色：#e63737（导航已经红色线条）
-    板块边框：#bcbcbc
-    板块背景：#f8f8f8
-    目前普通色用#333333 浅色用#999999 有连接可以点的用#3598dc
-*/
+.tab-group > div {
+    height       : 35px;
+    line-height  : 35px;
+    padding      : 0 30px 0 30px;
+    border       : 1px solid _border-color_;
+    border-right : 0;
+    float        : left;
+    background   : #FFF;
+}
+
+.tab-group > div:first-child {
+    border-top-left-radius    : 5px;
+    border-bottom-left-radius : 5px;
+}
+
+.tab-group > div:last-child {
+    border-right               : 1px solid _border-color_;
+    border-top-right-radius    : 5px;
+    border-bottom-right-radius : 5px;
+}
+
+.tab-group > div:hover, .tab-group > div.current {
+    background : #E63737;
+    cursor     : pointer;
+    color      : #FFF;
+}
 
 header {
     line-height : 55px;
@@ -495,8 +530,13 @@ span.gender-f {
     color : #CC6598;
 }
 
+.light-text {
+    color : _text-color-light_;
+}
+
 table.main {
-    width : 100%;
+    width      : 100%;
+    min-height : 488px;
 }
 
 table.main > tbody > tr > td {
@@ -552,7 +592,6 @@ table.main .step > .num {
     background    : #EFEFEF;
     font-size     : 28px;
     font-weight   : bold;
-    color         : #77AC33;
     text-align    : center;
     line-height   : 40px;
     margin-right  : 15px;
@@ -613,9 +652,10 @@ table.main .side-menu a:hover, table.main .side-menu a.current {
     line-height   : 18px;
 }
 
-.pokemon img.pokemon-sprite {
+img.pokemon-sprite {
     position : absolute;
     display  : none;
+    cursor   : pointer;
 }
 
 .pokemon .bottom {
@@ -679,6 +719,11 @@ span.pokemon-icon {
     background : url(_image-root_/pokemon-icon/sheet-32x32.png);
 }
 
+span.shiny:after {
+    content : "★";
+    color   : #EDB60F;
+}
+
 .pop-up {
     border     : 1px solid _border-color_;
     max-width  : 423px;
@@ -722,6 +767,7 @@ span.pokemon-icon {
     right      : 0;
     bottom     : 0;
     cursor     : pointer;
+    z-index    : 9
 }
 
 #tooltip {
@@ -732,6 +778,7 @@ span.pokemon-icon {
     color         : #FFF;
     border-radius : 5px;
     z-index       : 11;
+    line-height   : 18px;
 }
 
 #tooltip > .triangle {

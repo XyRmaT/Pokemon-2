@@ -15,6 +15,9 @@
 
 ## Updates
 
+### 2016-01-19
+* Finished inventory.
+
 ### 2015-12-30
 * Added English language pack.
 * Added tooltip.
@@ -72,13 +75,19 @@
   - [x] index.tpl (Needs final clean up)
   - [x] daycare.tpl
   - [ ] map.tpl
-  - [x] memcp.tpl
-  - [ ] pkmcenter.tpl
-  - [ ] ranking.tpl
-  - [ ] shelter.tpl
-  - [ ] shop.tpl
+  - [x] memcp.tpl (Main features done)
+    - [x] Info (Currently only trainer details)
+    - [x] Party
+    - [x] Inventory
+    - [x] Inbox
+    - [x] Pokedex
+    - [ ] Achievement (Awaiting for next update)
+    - [ ] Setting (Awaiting for next update)
+  - [ ] pc.tpl
+  - [ ] ranking.tpl (Awaiting for next update)
+  - [x] shelter.tpl
+  - [x] shop.tpl
   - [ ] starter.tpl
-  - [ ] userinfo.tpl
 - Implement
   - [ ] Horde feature
   - [ ] Signature feature
@@ -88,13 +97,15 @@
   - [ ] Changing of sub-color depends on which page the user's at
   - [ ] PHP queue class
 - Test
-  - [ ] Daycare take egg
+  - [x] Daycare take egg
   - [ ] Bad egg
 - [ ] Remove jQuery library
 - [ ] Spinda
 - [ ] Create item sprite sheet, depracate item image caching.
 - [ ] Unset ALL unnecessary variables that will be encoded into JSON.
-- [ ] Improve the performance of `Kit::imagettftextblur()`.
+- [x] Improve the performance of `Kit::imagettftextblur()`.
+- [ ] All other stuff marked as TODO in the code.
+- [ ] Rewrite DB class, add methods such as where()/select() to build queries, chainable.
 
 ### Mechanical
 * Daycare

@@ -12,9 +12,9 @@
                     <span class="float-left" ng-bind-html="pokemon[0].nickname + ' ' + pokemon[0].gender_sign + ' Lv.' + pokemon[0].level"></span>
                     <span class="float-right">
                         <img ng-src="%%pokemon[0].capture_item_sprite%%"><br>
-                        <img ng-if="pokemon[0].item_carrying" ng-src="%%pokemon[0].carry_item_sprite%%">
+                        <img ng-if="pokemon[0].item_holding" ng-src="%%pokemon[0].hold_item_sprite%%">
                     </span>
-                    <img ng-src="%%pokemon[0].pkm_sprite%%" ng-click="fnTakePokemon(pokemon[0].pkm_id)" pokemon-overflow>
+                    <img ng-src="%%pokemon[0].pkm_sprite%%" ng-click="takePokemon(pokemon[0].pkm_id)" pokemon-overflow>
                     <div class="bottom">
                         %%_LANG.daycare_take_cost.replace('%d', pokemon[0].cost)%%<br>
                         %%_LANG.daycare_take_gain.replace('%d', pokemon[0].exp_increased)%%
@@ -22,15 +22,15 @@
                 </div>
                 <div class="pokemon no" ng-if="!pokemon[0]"><button class="default" ng-bind="_LANG.daycare_put" pop-up="party"></button></div>
 
-                <div class="has_egg" ng-class="{ no: !pokemon[0] || !pokemon[1] || pokemon[0].has_egg < 1 || pokemon[1].has_egg < 1}" ng-click="pokemon[0].has_egg > 0 && pokemon[1].has_egg > 0 && fnTakeEgg()"></div>
+                <div class="has_egg" ng-class="{ no: !pokemon[0] || !pokemon[1] || pokemon[0].has_egg < 1 || pokemon[1].has_egg < 1}" ng-click="pokemon[0].has_egg > 0 && pokemon[1].has_egg > 0 && takeEgg()"></div>
 
                 <div class="pokemon" ng-if="pokemon[1]">
                     <span class="float-left" ng-bind-html="pokemon[1].nickname + ' ' + pokemon[1].gender_sign + ' Lv.' + pokemon[1].level"></span>
                     <span class="float-right">
                         <img ng-src="%%pokemon[1].capture_item_sprite%%"><br>
-                        <img ng-if="pokemon[1].item_carrying" ng-src="%%pokemon[1].carry_item_sprite%%">
+                        <img ng-if="pokemon[1].item_holding" ng-src="%%pokemon[1].hold_item_sprite%%">
                     </span>
-                    <img ng-src="%%pokemon[1].pkm_sprite%%" ng-click="fnTakePokemon(pokemon[1].pkm_id)" pokemon-overflow>
+                    <img ng-src="%%pokemon[1].pkm_sprite%%" ng-click="takePokemon(pokemon[1].pkm_id)" pokemon-overflow>
                     <div class="bottom">
                         %%_LANG.daycare_take_cost.replace('%d', pokemon[1].cost)%%<br>
                         %%_LANG.daycare_take_gain.replace('%d', pokemon[1].exp_increased)%%
@@ -51,14 +51,14 @@
     </tr>
 </table>
 
-<div class="pop-up party" class="hide">
+<div class="pop-up party hide">
     <div class="title" draggable><span>%%_LANG.daycare_which_to_put%%</span><span class="close">×</span></div>
     <div class="content">
-        <div ng-repeat="(k, p) in party" class="pokemon-b" ng-class="{literal}{even: k % 2 !== 0}{/literal}" ng-click="fnPutPokemon(p.pkm_id)" pop-up-close>
+        <div ng-repeat="(k, p) in party" class="pokemon-b" ng-class="{ even: k % 2 !== 0 }" ng-click="putPokemon(p.pkm_id)" pop-up-close>
             %%p.nickname%% <span ng-bind-html="p.gender_sign"></span> Lv.%%p.level%%
             <span class="float-right">
                 <img ng-src="%%p.capture_item_sprite%%"><br>
-                <img ng-if="p.item_carrying" ng-src="%%p.carry_item_sprite%%">
+                <img ng-if="p.item_holding" ng-src="%%p.hold_item_sprite%%">
             </span><br>
             <pokemon-icon nat-id="p.nat_id"></pokemon-icon>
             <hr>
