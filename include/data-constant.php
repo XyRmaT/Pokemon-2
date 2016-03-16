@@ -1,54 +1,66 @@
 <?php
 
-define('TYPE_FIRE', 1);
-define('TYPE_WATER', 2);
-define('TYPE_GRASS', 3);
-define('TYPE_ELECTRIC', 4);
-define('TYPE_NORMAL', 5);
-define('TYPE_FIGHTING', 6);
-define('TYPE_FLYING', 7);
-define('TYPE_BUG', 8);
-define('TYPE_POISON', 9);
-define('TYPE_ROCK', 10);
-define('TYPE_GROUND', 11);
-define('TYPE_STEEL', 12);
-define('TYPE_ICE', 13);
-define('TYPE_PSYCHIC', 14);
-define('TYPE_DARK', 15);
-define('TYPE_GHOST', 16);
-define('TYPE_DRAGON', 17);
-define('TYPE_FAIRY', 18);
+const TYPE_FIRE     = 1;
+const TYPE_WATER    = 2;
+const TYPE_GRASS    = 3;
+const TYPE_ELECTRIC = 4;
+const TYPE_NORMAL   = 5;
+const TYPE_FIGHTING = 6;
+const TYPE_FLYING   = 7;
+const TYPE_BUG      = 8;
+const TYPE_POISON   = 9;
+const TYPE_ROCK     = 10;
+const TYPE_GROUND   = 11;
+const TYPE_STEEL    = 12;
+const TYPE_ICE      = 13;
+const TYPE_PSYCHIC  = 14;
+const TYPE_DARK     = 15;
+const TYPE_GHOST    = 16;
+const TYPE_DRAGON   = 17;
+const TYPE_FAIRY    = 18;
 
-define('EGGGROUP_FIELD', 1);
-define('EGGGROUP_BUG', 2);
-define('EGGGROUP_FLYING', 3);
-define('EGGGROUP_MONSTER', 4);
-define('EGGGROUP_FAIRY', 5);
-define('EGGGROUP_HUMANLIKE', 6);
-define('EGGGROUP_MINERAL', 7);
-define('EGGGROUP_GRASS', 8);
-define('EGGGROUP_WATER1', 9);
-define('EGGGROUP_WATER2', 10);
-define('EGGGROUP_WATER3', 11);
-define('EGGGROUP_DRAGON', 12);
-define('EGGGROUP_AMORPHOUS', 13);
-define('EGGGROUP_DITTO', 14);
-define('EGGGROUP_UNDISCOVERED', 15);
+const EGGGROUP_FIELD        = 1;
+const EGGGROUP_BUG          = 2;
+const EGGGROUP_FLYING       = 3;
+const EGGGROUP_MONSTER      = 4;
+const EGGGROUP_FAIRY        = 5;
+const EGGGROUP_HUMANLIKE    = 6;
+const EGGGROUP_MINERAL      = 7;
+const EGGGROUP_GRASS        = 8;
+const EGGGROUP_WATER1       = 9;
+const EGGGROUP_WATER2       = 10;
+const EGGGROUP_WATER3       = 11;
+const EGGGROUP_DRAGON       = 12;
+const EGGGROUP_AMORPHOUS    = 13;
+const EGGGROUP_DITTO        = 14;
+const EGGGROUP_UNDISCOVERED = 15;
 
-define('ITEM_TYPE_POKEBALL', 1);
-define('ITEM_TYPE_EVOSTONE', 2);
-define('ITEM_TYPE_HOLD', 3);
-define('ITEM_TYPE_MEDICINE', 4);
+const STATUS_BURN      = 1;
+const STATUS_FREEZE    = 2;
+const STATUS_PARALYSIS = 3;
+const STATUS_SLEEP     = 4;
+const STATUS_POISON    = 5;
+const STATUS_TOXIC     = 6;
 
-define('LOCATION_PARTY', '1, 2, 3, 4, 5, 6');
-define('LOCATION_DAYCARE', 7);
-define('LOCATION_PCHEAL', 8);
-define('LOCATION_SHELTER', 9);
-define('LOCATION_TRADE', 10);
+const ITEM_TYPE_POKEBALL = 1;
+const ITEM_TYPE_EVOSTONE = 2;
+const ITEM_TYPE_HOLD     = 3;
+const ITEM_TYPE_MEDICINE = 4;
+
+const LOCATION_PARTY   = '1, 2, 3, 4, 5, 6';
+const LOCATION_DAYCARE = 7;
+const LOCATION_PCHEAL  = 8;
+const LOCATION_SHELTER = 9;
+const LOCATION_TRADE   = 10;
 define('LOCATION_BOX', implode(',', range(101, 200)));
 
-define('MOVE_BY_LEVEL', 1);
-define('MOVE_BY_TMHM', 2);
+const MOVE_BY_LEVEL = 1;
+const MOVE_BY_TMHM  = 2;
+
+
+const MOVECLASS_STATUS   = 0;
+const MOVECLASS_PHYSICAL = 1;
+const MOVECLASS_SPECIAL  = 2;
 
 define('FIELDS_POKEMON_BASIC',
     'm.pkm_id, m.nat_id, m.gender, m.sprite_name, m.nickname, m.level, m.item_holding, ' .

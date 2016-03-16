@@ -1,0 +1,26 @@
+<?php
+
+const SUBSTATUS_CONFUSE     = 0;
+const SUBSTATUS_TORMENT     = 1;
+const SUBSTATUS_DESTINYBOND = 2;
+const SUBSTATUS_GRUDGE      = 3;
+const SUBSTATUS_RAGE        = 4;
+const SUBSTATUS_ENCORE      = 5;
+const SUBSTATUS_RECHARGE    = 6;
+const SUBSTATUS_TRUANT      = 7;
+const SUBSTATUS_DISABLE     = 8;
+const SUBSTATUS_IMPRISON    = 9;
+const SUBSTATUS_HEALBLOCK   = 10;
+const SUBSTATUS_FLINCH      = 11;
+const SUBSTATUS_TAUNT       = 12;
+const SUBSTATUS_ATTRACT     = 13;
+
+const COUNTER_SLEEP = 0;
+
+const FLAG_HEALING    = NULL;
+const FLAG_LEVITATING = NULL;
+
+const SPECIAL_CONFUSED_MOVE_ID = -1;
+const SPECIAL_STRUGGLE_MOVE_ID = -2;
+
+const FIELD_GRAVITY = 0;

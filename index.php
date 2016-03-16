@@ -8,7 +8,7 @@ define('ROOT_IMAGE', './source-img');
 define('ROOT_TEMPLATE', './source-tpl');
 define('ROOT_CACHE', './cache');
 define('ROOT_RELATIVE', '.');
-define('DEBUG_MODE', TRUE);
+define('DEBUG_MODE', FALSE);
 define('LANGUAGE', isset($_GET['lang']) && in_array($_GET['lang'], ['zh', 'en', 'de']) ? $_GET['lang'] : 'zh');
 
 include_once ROOT . '/include/class-common.php';
@@ -34,7 +34,7 @@ if($system['system_switch'] === 0 && $user['uid'] != 8)
     exit($system['close_reason']);
 
 // Load up the essential libraries
-Kit::Library('class', ['trainer', 'obtain', 'pokemon']);
+Kit::Library('class', ['trainer', 'obtain', 'pokemon', 'encounter']);
 
 // Set up some global variables, also keep the minified CSS file up to date
 //$system            = array_merge($system, DB::fetch_first('SELECT shopsell, shopopc FROM pkm_stat'));

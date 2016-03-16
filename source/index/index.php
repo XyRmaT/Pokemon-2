@@ -21,7 +21,7 @@ if(!empty($trainer['uid'])) {
     $query = DB::query('SELECT nat_id FROM pkm_mypkm WHERE uid = ' . $trainer['uid'] . ' AND location IN (1, 2, 3, 4, 5, 6) AND nat_id != 0');
     while($info = DB::fetch($query))
         $party[] = $info['nat_id'];
-    $smarty->assign('party', $party);
+    $r['party'] = $party;
 }
 
 $world_stat = [
@@ -31,6 +31,6 @@ $world_stat = [
     'shiny_total'   => DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE is_shiny = 1')
 ];
 
-$smarty->assign('rand_pkm', $rand_pkm);
-$smarty->assign('top_trainers', $top_trainers);
-$smarty->assign('world_stat', $world_stat);
+$r['top_trainers'] = $top_trainers;
+$r['world_stat']   = $world_stat;
+$r['rand_pkm']     = $rand_pkm;

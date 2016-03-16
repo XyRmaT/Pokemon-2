@@ -174,5 +174,7 @@ $lang = [
     'pc_illegal_pokemon'      => '无法选择这只精灵哟！',
     'heal_need_time'          => '恢复所需 %s 分钟',
     'recovered'               => '已恢复',
-    'pokemon_not_recovered'   => '精灵还未恢复哦！'
+    'pokemon_not_recovered'   => '精灵还未恢复哦！',
+
+    'battle_recharging' => ''
 ];

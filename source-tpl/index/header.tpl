@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<html>
 <head>
     <title ng-bind="_LANG.app_name">{$lang['app_name']}</title>
     <meta charset="UTF-8">
@@ -8,12 +9,12 @@
     <link rel="icon" href="favicon.ico" mce_href="favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="favicon.ico" mce_href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="{$path['css']}?{rand(1, 222)}" type="text/css">
-    <script src="{$smarty.const.ROOT_RELATIVE}/source-tpl/javascript/library.js"></script>
-    <script src="{$smarty.const.ROOT_RELATIVE}/source-tpl/javascript/angular.min.js"></script>
-    <script src="{$smarty.const.ROOT_RELATIVE}/source-tpl/javascript/angular-sanitize.min.js"></script>
-    <script src="{$smarty.const.ROOT_RELATIVE}/source-tpl/javascript/angular-sortable.js"></script>
-    <script src="{$smarty.const.ROOT_RELATIVE}/source-tpl/javascript/angular-dragdrop.js"></script>
-    <script src="{$smarty.const.ROOT_RELATIVE}/source-tpl/javascript/library-new.js"></script>
+    <script src="{ROOT_RELATIVE}/source-tpl/javascript/library.js"></script>
+    <script src="{ROOT_RELATIVE}/source-tpl/javascript/angular.min.js"></script>
+    <script src="{ROOT_RELATIVE}/source-tpl/javascript/angular-sanitize.min.js"></script>
+    <script src="{ROOT_RELATIVE}/source-tpl/javascript/angular-sortable.js"></script>
+    <script src="{ROOT_RELATIVE}/source-tpl/javascript/angular-dragdrop.js"></script>
+    <script src="{ROOT_RELATIVE}/source-tpl/javascript/library-new.js"></script>
 </head>
 <body ng-app="pokemon-app" ng-controller="main">
 

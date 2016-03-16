@@ -39,7 +39,7 @@ class Kit {
 
 
     public static function JsonConvert($array) {
-        return json_encode($array, defined('DEBUG_MODE') ? JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE : JSON_NUMERIC_CHECK);
+        return json_encode($array, defined('DEBUG_MODE') && DEBUG_MODE ? JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE : JSON_NUMERIC_CHECK);
     }
 
     public static function ColumnSearch($array, $column, $value) {

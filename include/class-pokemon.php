@@ -168,21 +168,21 @@ class Pokemon {
         $data = [
             'nat_id'       => intval($nat_id),
             'gender'       => intval($gender),
-            'psn_value'    => '\'' . $psn_value . '\'',
-            'ind_value'    => '\'' . $idv_value . '\'',
+            'psn_value'    => $psn_value,
+            'ind_value'    => $idv_value,
             'is_shiny'     => intval($is_shiny),
             'nature'       => $nature,
             'level'        => $param['met_level'],
             'exp'          => intval($exp),
             'item_holding' => intval($item_holding),
             'happiness'    => $pokemon['happiness_initial'],
-            'moves'        => '\'' . $moves . '\'',
+            'moves'        => $moves,
             'met_location' => intval($param['met_location']),
             'ability'      => intval($ability),
             'uid'          => intval($uid),
             'hp'           => intval($hp),
             'form'         => intval($form),
-            'sprite_name'  => '\'' . $sprite_name . '\''
+            'sprite_name'  => $sprite_name
         ];
 
         if($param['is_wild']) {
@@ -190,8 +190,8 @@ class Pokemon {
                 'eft_value' => '0,0,0,0,0,0',
                 'type'      => $pokemon['type'],
                 'type_b'    => $pokemon['type_b'],
-                'base_stat' => '\'' . $pokemon['base_stat'] . '\'',
-                'name'      => '\'' . $pokemon['name'] . '\'',
+                'base_stat' => $pokemon['base_stat'],
+                'name'      => $pokemon['name'],
                 'height'    => $pokemon['height'] / 10,
                 'weight'    => $pokemon['weight'] / 10,
             ]);
@@ -199,13 +199,17 @@ class Pokemon {
             // TODO: name for language pack
             $data = array_merge($data, [
                 'nickname'      => '\'' . $name . '\'',
+                'psn_value'     => '\'' . $data['psn_value'] . '\'',
+                'ind_value'     => '\'' . $data['idv_value'] . '\'',
+                'moves'         => '\'' . $data['moves'] . '\'',
+                'sprite_name'   => '\'' . $data['sprite_name'] . '\'',
                 'time_hatched'  => intval($time_hatched),
                 'hatch_nat_id'  => intval($hatch_nat_id),
                 'met_level'     => $param['met_level'],
                 'met_time'      => intval($_SERVER['REQUEST_TIME']),
                 'uid_initial'   => intval($uid),
                 'item_captured' => 1,
-                'location'      => intval($location)
+                'location'      => intval($location),
             ]);
             DB::query('INSERT INTO pkm_mypkm (' . implode(',', array_keys($data)) . ') VALUES (' . implode(',', array_values($data)) . ')');
             return 0;

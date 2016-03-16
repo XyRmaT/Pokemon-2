@@ -1,11 +1,6 @@
 <?php
 
 /**
- * Basic parent cache class.
- * All rights reserved by Doduo (PokeUniv). This is NOT a free ware.
- */
-
-/**
  * Main usage explain
  * - N/A
  * Data explain

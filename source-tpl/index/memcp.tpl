@@ -131,8 +131,8 @@
                         <div class="text-center relative"><img ng-src="%%p.pkm_sprite%%" class="pokemon-sprite" pokemon-overflow></div>
                         <div class="text-center" ng-bind-html="p.types"></div><br>
                         <table class="center">
-                            <tr><td width="30">%%_LANG.nature%%</td><td>%%p.nature && p.nature || '-'%%</td></tr>
-                            <tr><td>%%_LANG.ability%%</td><td>%%p.ability && p.ability || '-'%%</td></tr>
+                            <tr><td width="30">%%_LANG.nature%%</td><td>%%p.nature || '-'%%</td></tr>
+                            <tr><td>%%_LANG.ability%%</td><td>%%p.ability || '-'%%</td></tr>
                         </table>
                     </td>
                     <td>

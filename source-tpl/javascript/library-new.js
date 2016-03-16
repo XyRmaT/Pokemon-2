@@ -45,7 +45,7 @@ app
         $scope.Math         = Math;
         $scope.location     = window.location;
         $scope.pop          = pop;
-        $scope.array = function(max) {
+        $scope.array        = function (max) {
             return new Array(max);
         }
         $scope.numberFormat = function (num) {
@@ -53,11 +53,13 @@ app
         };
         $scope.$watch('trainer.currency', function (newValue, oldValue) {
             if (newValue == oldValue) return;
+
             var timer       = null,
                 changeValue = Math.ceil(Math.abs(newValue - oldValue) / 10) * (newValue > oldValue ? 1 : -1),
                 elem        = $('table.main .header .currency');
-            oldValue        = parseInt(oldValue);
-            timer           = setInterval(function () {
+
+            oldValue = parseInt(oldValue);
+            timer    = setInterval(function () {
                 if (newValue == oldValue) {
                     clearInterval(timer);
                     return;
@@ -68,7 +70,7 @@ app
         });
         $scope.lang = function (text, varriables) {
             for (var i in varriables) {
-                if (varriables.hasOwnProperty(i)) text = text.replace(/%[a-z]/, varriables[i]);
+                text = text.replace(/%[a-z]/, varriables[i]);
             }
             return text;
         };
