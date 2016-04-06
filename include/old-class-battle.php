@@ -11,7 +11,7 @@
 define('INBATTLE', TRUE);
 define('ROOTBATTLE', ROOT . '/cache/battle');
 
-class Battle {
+class Battle2 {
 
     public static $report    = '';
     public static $item      = '';

@@ -42,6 +42,10 @@ const STATUS_SLEEP     = 4;
 const STATUS_POISON    = 5;
 const STATUS_TOXIC     = 6;
 
+const GENDERLESS    = 0;
+const GENDER_MALE   = 1;
+const GENDER_FEMALE = 2;
+
 const ITEM_TYPE_POKEBALL = 1;
 const ITEM_TYPE_EVOSTONE = 2;
 const ITEM_TYPE_HOLD     = 3;

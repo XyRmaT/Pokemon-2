@@ -1,13 +1,14 @@
 <?php
 define('INPOKE', TRUE);
 define('INAJAX', (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest' || !empty($_GET['aaa']) && $_GET['aaa'] === '1') ? TRUE : FALSE);
-define('ROOT', dirname(__FILE__));
+define('ROOT', __DIR__);
 define('YEAR', date('Y', $_SERVER['REQUEST_TIME']));
 define('TEMPLATEID', 1);
-define('ROOT_IMAGE', './source-img');
-define('ROOT_TEMPLATE', './source-tpl');
-define('ROOT_CACHE', './cache');
-define('ROOT_RELATIVE', '.');
+const ROOT_IMAGE    = './source-img';
+const ROOT_TEMPLATE = './source-tpl';
+const ROOT_CACHE    = './cache';
+const ROOT_RELATIVE = '.';
+const ROOT_DATA     = './data';
 define('DEBUG_MODE', FALSE);
 define('LANGUAGE', isset($_GET['lang']) && in_array($_GET['lang'], ['zh', 'en', 'de']) ? $_GET['lang'] : 'zh');
 
@@ -74,8 +75,7 @@ if(!empty($user['uid'])) {
 
     // Updating last visit timestamp
     setcookie('last_visit', $_SERVER['REQUEST_TIME']);
-    if(empty($_COOKIE['last_visit']) || $_COOKIE['last_visit'] + 300 < $_SERVER['REQUEST_TIME'] ||
-        !$trainer['time_last_visit'] || $trainer['time_last_visit'] + 300 < $_SERVER['REQUEST_TIME'])
+    if(empty($_COOKIE['last_visit']) || $_COOKIE['last_visit'] + 300 < $_SERVER['REQUEST_TIME'] || !$trainer['time_last_visit'] || $trainer['time_last_visit'] + 300 < $_SERVER['REQUEST_TIME'])
         DB::query('UPDATE pkm_trainerdata SET time_last_visit = ' . $_SERVER['REQUEST_TIME'] . ' WHERE uid = ' . $trainer['uid']);
 
     unset($trainer['extcredit']);
@@ -151,5 +151,6 @@ if(INAJAX && !empty($index) && !empty($process)) {
 }
 
 END: {
-    if(!empty($trainer['uid'])) Trainer::SaveTemporaryStat($trainer['uid'], $trainer['stat_add']);
+    if(!empty($trainer['uid']))
+        Trainer::SaveTemporaryStat($trainer['uid'], $trainer['stat_add']);
 }

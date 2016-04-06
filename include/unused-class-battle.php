@@ -10,7 +10,7 @@
 
 define('INBATTLE', TRUE);
 
-class battle {
+class battle1 {
 
     /**
      * boolean savaData()

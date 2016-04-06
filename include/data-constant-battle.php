@@ -14,13 +14,45 @@ const SUBSTATUS_HEALBLOCK   = 10;
 const SUBSTATUS_FLINCH      = 11;
 const SUBSTATUS_TAUNT       = 12;
 const SUBSTATUS_ATTRACT     = 13;
+const SUBSTATUS_LOCK        = 14;
+const SUBSTATUS_TELEKINESIS = 15;
+const SUBSTATUS_FORESIGHT   = 16;
+const SUBSTATUS_MIRACLEEYE  = 17;
+const SUBSTATUS_HELPINGHAND = 18;
+const SUBSTATUS_CHARGE      = 19;
 
 const COUNTER_SLEEP = 0;
 
 const FLAG_HEALING    = NULL;
 const FLAG_LEVITATING = NULL;
+const FLAG_OHKO       = NULL;
+const FLAG_RECOIL     = NULL;
+const FLAG_PUNCH      = NULL;
+const FLAG_BENEFICIAL = NULL;
+
+const MOVEPHASE_CALBASEPOWER = 0;
 
 const SPECIAL_CONFUSED_MOVE_ID = -1;
 const SPECIAL_STRUGGLE_MOVE_ID = -2;
 
-const FIELD_GRAVITY = 0;
+const FIELD_GRAVITY     = 0;
+const FIELD_WATERSPORT  = 20;
+const FIELD_MUDSPORT    = 21;
+
+const STAT_HP        = 0;
+const STAT_ATTACK    = 1;
+const STAT_DEFENCE   = 2;
+const STAT_SPATTACK  = 3;
+const STAT_SPDEFENCE = 4;
+const STAT_SPEED     = 5;
+const STAT_ACCURACY  = 6;
+const STAT_EVASION   = 7;
+
+const WEATHER_SUNLIGHT      = 1;
+const WEATHER_RAIN          = 2;
+const WEATHER_SANDSTORM     = 3;
+const WEATHER_HAIL          = 4;
+const WEATHER_HARSHSUNLIGHT = 5;
+const WEATHER_HEAVYRAIN     = 6;
+const WEATHER_STREAM        = 7;
+const WEATHER_FOG           = 8;

@@ -4,12 +4,14 @@
 class Battle {
 
     private $pokemon = [];
-    private $party   = [];
-    private $uid     = 0;
-    private $report  = [];
+    private $party = [];
+    private $uid = 0;
+    private $report = [];
+    private $field = ['weather' => ['type' => 0, 'turn' => 0]];
 
     public function Battle($battle_id) {
-        include_once __DIR__ . '/data-constant-battle.php';
+        include_once ROOT . '/include/data-constant-battle.php';
+        include_once ROOT . '/include/db-moves.php';
     }
 
     public function swapPokemon() {
@@ -21,7 +23,8 @@ class Battle {
     }
 
     private function alterStatus(&$status, $value, $chance = 100) {
-        if($status || rand(1, 100) > $chance) return FALSE;
+        if($status || rand(1, 100) > $chance)
+            return FALSE;
         $status = $value;
         return TRUE;
     }
@@ -92,18 +95,21 @@ class Battle {
         PROCESS_CHECKMOBILITY: {
             // Freeze hax and pokemon asleep
             if($attacker['status'] == STATUS_FREEZE) {
-                if(mt_rand(1, 4) === 1) {
+                if(!mt_rand(0, 3)) {
                     $attacker['status'] = 0;
                     $this->appendReport('defrosted', [$attacker['nickname']]);
-                } else {
+                }
+                else {
                     $this->appendReport('frozen', [$attacker['nickname']]);
                     return;
                 }
-            } elseif($attacker['status'] == STATUS_SLEEP) {
+            }
+            elseif($attacker['status'] == STATUS_SLEEP) {
                 if(--$counters[COUNTER_SLEEP] < 1) {
                     $attacker['status'] = 0;
                     $this->appendReport('woke', [$attacker['nickname']]);
-                } else {
+                }
+                else {
                     $this->appendReport('sleeping', [$attacker['nickname']]);
                     return;
                 }
@@ -123,8 +129,10 @@ class Battle {
             }
 
             // Imprison
-            if($substatus[SUBSTATUS_IMPRISON] &&
-                array_uintersect($attacker['moves'], $defencer['moves'], function($a, $b) { return $a['move_id'] - $b['move_id'];})) {
+            if($substatus[SUBSTATUS_IMPRISON] && array_uintersect($attacker['moves'], $defencer['moves'], function($a, $b) {
+                    return $a['move_id'] - $b['move_id'];
+                })
+            ) {
                 $this->appendReport('imprisoned', [$attacker['nickname']]);
                 return;
             }
@@ -143,7 +151,8 @@ class Battle {
                         $move = $this->retrieveMove(SPECIAL_CONFUSED_MOVE_ID);
                         $this->appendReport('attacked_itself', [$attacker['nickname']]);
                     }
-                } else {
+                }
+                else {
                     $this->appendReport('not_confused', [$attacker['nickname']]);
                 }
             }
@@ -179,19 +188,146 @@ class Battle {
                 return;
             }
 
-            // PP
-            if(!$move['pp']) {
-                $move = $this->retrieveMove(SPECIAL_STRUGGLE_MOVE_ID);
-            } else {
-                --$move['pp'];
-            }
-
         }
+
+        // PP
+        if(!$move['pp']) {
+            $move = $this->retrieveMove(SPECIAL_STRUGGLE_MOVE_ID);
+        }
+        else {
+            --$move['pp'];
+        }
+
+        if(!$this->isHit($attacker, $defencer, $move) && ($move['move_id'] == MOVE_HIGHJUMPKICK || $move['move_id'] == MOVE_JUMPKICK)) {
+            // TODO - Jump kick
+        }
+        $this->calculateDamage($attacker, $defencer, $move);
+
+        // Use move
+        $this->useMove($move['move_id']);
 
     }
 
     private function &retrieveMove($move_id, &$pokemon = FALSE) {
         return [];
+    }
+
+    private function loadMove($move_id, $process) {
+
+    }
+
+    private function calculateDamage($attacker, $defencer, &$move) {
+
+        $this->loadMove($move['move_id'], MOVEPHASE_CALBASEPOWER);
+
+        $power = $move['power'];
+
+        if($attacker['ability'] == ABILITY_TECHNICIAN && $move['power'] <= 60)
+            $power *= 1.5;
+        elseif($attacker['ability'] == ABILITY_FLAREBOOST && $attacker['status'] == STATUS_BURN && $move['class'] == MOVECLASS_SPECIAL)
+            $power *= 1.5;
+        elseif($attacker['ability'] == ABILITY_TOXICBOOST && in_array($attacker['status'], [STATUS_POISON, STATUS_TOXIC]) && $move['class'] == MOVECLASS_PHYSICAL)
+            $power *= 1.5;
+        elseif($attacker['ability'] == ABILITY_ANALYTIC && !in_array($move['move_id'], [MOVE_FUTURESIGHT, MOVE_DOOMDESIRE]) && $attacker['battle']['is_last'])
+            $power *= 1.3;
+        elseif($attacker['ability'] == ABILITY_RECKLESS && $move['flags']{FLAG_RECOIL})
+            $power *= 1.2;
+        elseif($attacker['ability'] == ABILITY_IRONFIST && $move['flags']{FLAG_PUNCH})
+            $power *= 1.2;
+        elseif($attacker['ability'] == ABILITY_COMPETITIVE && !in_array(GENDERLESS, [$attacker['gender'], $defencer['gender']]))
+            $power *= $attacker['gender'] == $defencer['gender'] ? 1.25 : 0.75;
+        elseif($attacker['ability'] == ABILITY_SANDFORCE && in_array($move['type'], [TYPE_ROCK, TYPE_STEEL, TYPE_GROUND]))
+            $power *= 1.3;
+        elseif($attacker['ability'] == ABILITY_SHEERFORCE && $move['flags'][FLAG_BENEFICIAL])
+            $power *= 1.3;
+
+        if($defencer['ability'] == ABILITY_HEATPROOF && $move['type'] == TYPE_FIRE)
+            $power *= 0.5;
+        elseif($defencer['ability'] == ABILITY_DRYSKIN && $move['type'] == TYPE_FIRE)
+            $power *= 1.25;
+
+        if($move['move_id'] == MOVE_BRINE && $defencer['hp'] / $defencer['max_hp'] <= 0.5 || $move['move_id'] == MOVE_VENOSHOCK && in_array($defencer['status'], [STATUS_POISON, STATUS_TOXIC]) || $move['move_id'] == MOVE_RETALIATE && $attacker['battle']['is_revenge'] || $move['move_id'] == MOVE_FUSIONFLARE && $this->field['last_move'] == MOVE_FUSIONBOLT || $move['move_id'] == MOVE_FUSIONBOLT && $this->field['last_move'] == MOVE_FUSIONFLARE)
+            $power *= 2;
+        if($move['is_me_first'])
+            $power *= 1.5;
+        if($move['move_id'] == MOVE_SOLARBEAM && !$this->field['weather_block'] && in_array($this->field['weather']['type'], [WEATHER_RAIN, WEATHER_SANDSTORM, WEATHER_HAIL]))
+            $power *= 0.5;
+        if($attacker['battle']['substatus'] == SUBSTATUS_CHARGE && $move['type'] == TYPE_ELECTRIC)
+            $power *= 2;
+        if($attacker['battle']['substatus'] == SUBSTATUS_HELPINGHAND)
+            $power *= 1.5;
+        if($this->field['water_sport'] && $move['type'] == TYPE_FIRE || $this->field['mud_sport'] && $move['type'] == TYPE_ELECTRIC)
+            $power *= 0.5;
+
+        /**
+         * TODO
+         * 如果攻击方携带属性强化道具，且技能是对应属性，威力修正×1.2。
+         * 如果攻击方携带力量头巾，且使用物理技能，威力修正×1.1。
+         * 如果攻击方携带知识眼镜，且使用特殊技能，威力修正×1.1。
+         * 如果攻击方携带怪异之香，且技能是超能属性，威力修正×1.2。
+         * 如果攻击方是携带金刚玉的帝牙卢卡，且技能是钢或龙属性，威力修正×1.2。
+         * 如果攻击方是携带白玉的帕路奇犽，且技能是水或龙属性，威力修正×1.2。
+         * 如果攻击方是携带白金玉的骑拉帝纳，且技能是鬼或龙属性，威力修正×1.2。
+         * 如果此次攻击发动了对应属性宝石，威力修正×1.5。
+         */
+
+
+
+    }
+
+    private function fetchBattleData() {
+
+    }
+
+    private function isHit($attacker, $defencer, $move) {
+
+        if(in_array(ABILITY_NOGUARD, [$attacker['ability'], $defencer['ability']]) || $defencer['battle']['substatus'][SUBSTATUS_LOCK])
+            return TRUE;
+
+        if($move['flags']{FLAG_OHKO})
+            return $attacker['level'] <= $defencer['level'] && mt_rand(1, 100) <= 30 + $attacker['level'] - $defencer['level'];
+
+        if($defencer['battle']['substatus'][SUBSTATUS_TELEKINESIS] || $move['accuracy'] == 101)
+            return TRUE;
+
+        if($attacker['ability'] == ABILITY_UNAWARE)
+            $defencer['battle']['stat_level']['evasion'] = 0;
+        if($defencer['ability'] == ABILITY_UNAWARE)
+            $attacker['battle']['stat_level']['accuracy'] = 0;
+        if(in_array($defencer['battle']['substatus'], [SUBSTATUS_FORESIGHT, SUBSTATUS_MIRACLEEYE]))
+            $defencer['battle']['stat_level']['evasion'] = min(0, $defencer['battle']['stat_level']['evasion']);
+
+        $accuracy = max(-6, min(6, $attacker['battle']['stat_level']['accuracy'] - $defencer['battle']['stat_level']['evasion']));
+        $accuracy = ($accuracy >= 0 ? 3 + $accuracy : 3) / ($accuracy <= 0 ? 3 - $accuracy : 3);
+        $accuracy = floor($move['accuracy'] * $accuracy);
+
+        if($attacker['ability'] == ABILITY_COMPOUNDEYES)
+            $accuracy *= 1.3;
+        elseif($attacker['ability'] == ABILITY_HUSTLE && $move['class'] == MOVECLASS_PHYSICAL)
+            $accuracy *= 0.8;
+        elseif($attacker['ability'] == ABILITY_VICTORYSTAR)
+            $accuracy *= 1.1;
+
+        if(($this->field['weather']['type'] == WEATHER_SANDSTORM && $defencer['ability'] == ABILITY_SANDVEIL) || ($this->field['weather']['type'] == WEATHER_HAIL && $defencer['ability'] == ABILITY_SNOWCLOAK))
+            $accuracy *= 0.8;
+        elseif($this->field['weather']['type'] == WEATHER_FOG)
+            $accuracy *= 0.6;
+
+        if($defencer['ability'] == ABILITY_TANGLEDFEET && $defencer['battle']['substatus'][SUBSTATUS_CONFUSE])
+            $accuracy *= 0.8;
+
+        /**
+         * TODO
+         * 如果防御方携带光粉或舒畅之香，命中×0.9。
+         * 如果攻击方携带广角镜，命中×1.1。
+         * 如果攻击方携带放大镜，并且是当回合最后一个行动，命中×1.2。
+         * 如果攻击方发动了神秘果，命中×1.1。
+         */
+
+        if($this->field['gravity'])
+            $accuracy *= 5 / 3;
+
+        return mt_rand(1, 100) <= $accuracy;
     }
 
     public function initiateBattleField() {
@@ -200,6 +336,10 @@ class Battle {
 
     private function appendReport($id, $args) {
         $this->report[] = Obtain::Text('battle_' . $id, $args);
+    }
+
+    private function useMove($move_id) {
+        call_user_func(['MoveDB', '__' . $move_id]);
     }
 
 }
