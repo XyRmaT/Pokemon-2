@@ -3,7 +3,7 @@
 /**
  * Runtime Extension Hhvm
  *
- * include patch for modified compiled or cached templates
+ * js patch for modified compiled or cached templates
  * HHVM does not check if file was modified when including same file multiple times
  *
  * @package    Smarty

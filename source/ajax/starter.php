@@ -13,7 +13,7 @@ switch($process) {
 			Kit::Library('class', ['pokemon', 'obtain']);
 			Pokemon::Generate($sid, $trainer['uid'], ['met_location' => 600]);
 			DB::query('UPDATE pkm_trainerdata SET has_starter = 1 WHERE uid = ' . $trainer['uid']);
-			$return['js'] = 'window.location.reload();';
+			$return['include'] = 'window.location.reload();';
 		}
 
 		break;

@@ -27,7 +27,7 @@ class Smarty_Internal_Method_GetTemplateVars
      * @param \Smarty_Internal_Data|\Smarty_Internal_Template|\Smarty $data
      * @param  string                                                 $varName        variable name or null
      * @param \Smarty_Internal_Data|\Smarty_Internal_Template|\Smarty $_ptr           optional pointer to data object
-     * @param  bool                                                   $searchParents include parent templates?
+     * @param  bool                                                   $searchParents js parent templates?
      *
      * @return mixed variable value or or array of variables
      */

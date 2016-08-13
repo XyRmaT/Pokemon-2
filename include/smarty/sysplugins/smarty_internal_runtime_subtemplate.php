@@ -35,7 +35,7 @@ class Smarty_Internal_Runtime_SubTemplate
      * @param integer                   $caching        cache mode
      * @param integer                   $cache_lifetime life time of cache data
      * @param array                     $data           passed parameter template variables
-     * @param int                       $scope          scope in which {include} should execute
+     * @param int                       $scope          scope in which {js} should execute
      * @param bool                      $forceTplCache  cache template object
      * @param string                    $uid            file dependency uid
      * @param string                    $content_func   function name

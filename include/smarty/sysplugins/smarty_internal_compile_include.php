@@ -1,7 +1,7 @@
 <?php
 /**
  * Smarty Internal Plugin Compile Include
- * Compiles the {include} tag
+ * Compiles the {js} tag
  *
  * @package    Smarty
  * @subpackage Compiler
@@ -62,7 +62,7 @@ class Smarty_Internal_Compile_Include extends Smarty_Internal_CompileBase
                                  'smarty' => true, 'tpl_root' => true);
 
     /**
-     * Compiles code for the {include} tag
+     * Compiles code for the {js} tag
      *
      * @param  array                                  $args      array with attributes from parser
      * @param  Smarty_Internal_SmartyTemplateCompiler $compiler  compiler object
@@ -152,7 +152,7 @@ class Smarty_Internal_Compile_Include extends Smarty_Internal_CompileBase
 
         $call_nocache = $compiler->tag_nocache || $compiler->nocache;
 
-        // caching was on and {include} is not in nocache mode
+        // caching was on and {js} is not in nocache mode
         if ($compiler->template->caching && !$compiler->nocache && !$compiler->tag_nocache) {
             $_caching = self::CACHING_NOCACHE_CODE;
         }
@@ -186,7 +186,7 @@ class Smarty_Internal_Compile_Include extends Smarty_Internal_CompileBase
         }
 
         /*
-        * if the {include} tag provides individual parameter for caching or compile_id
+        * if the {js} tag provides individual parameter for caching or compile_id
         * the subtemplate must not be included into the common cache file and is treated like
         * a call in nocache mode.
         *
@@ -235,7 +235,7 @@ class Smarty_Internal_Compile_Include extends Smarty_Internal_CompileBase
                 $has_compiled_template = true;
             }
         }
-        // delete {include} standard attributes
+        // delete {js} standard attributes
         unset($_attr['file'], $_attr['assign'], $_attr['cache_id'], $_attr['compile_id'], $_attr['cache_lifetime'], $_attr['nocache'], $_attr['caching'], $_attr['scope'], $_attr['inline'], $_attr['bubble_up']);
         // remaining attributes must be assigned as smarty variable
         $_vars_nc = '';

@@ -83,7 +83,7 @@ class Smarty_Internal_Resource_Php extends Smarty_Internal_Resource_File
         // prepare variables
         extract($_template->getTemplateVars());
 
-        // include PHP template with short open tags enabled
+        // js PHP template with short open tags enabled
         ini_set('short_open_tag', '1');
         /** @var Smarty_Internal_Template $_smarty_template
          * used in included file

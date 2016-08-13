@@ -1,29 +1,30 @@
 <?php
 define('INPOKE', TRUE);
-define('INAJAX', (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest' || !empty($_GET['aaa']) && $_GET['aaa'] === '1') ? TRUE : FALSE);
+define('INAJAX', isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest');
 define('ROOT', __DIR__);
 define('YEAR', date('Y', $_SERVER['REQUEST_TIME']));
 define('TEMPLATEID', 1);
+define('DEBUG_MODE', FALSE);
+define('LANGUAGE', isset($_GET['lang']) && in_array($_GET['lang'], ['zh', 'en', 'de']) ? $_GET['lang'] : 'zh');
+
 const ROOT_IMAGE    = './source-img';
 const ROOT_TEMPLATE = './source-tpl';
 const ROOT_CACHE    = './cache';
 const ROOT_RELATIVE = '.';
 const ROOT_DATA     = './data';
-define('DEBUG_MODE', FALSE);
-define('LANGUAGE', isset($_GET['lang']) && in_array($_GET['lang'], ['zh', 'en', 'de']) ? $_GET['lang'] : 'zh');
 
-include_once ROOT . '/include/class-common.php';
+include_once ROOT . '/include/class/common.php';
 App::Initialize();
 
 // Loading Smarty template engine and setting up CSS parser
 include_once ROOT . '/include/smarty/Smarty.class.php';
-$smarty               = new Smarty();
-$smarty->template_dir = ROOT . '/source-tpl/index/';
-$smarty->compile_dir  = ROOT . '/source-tpl/_compile/';
-$smarty->config_dir   = ROOT . '/include/smarty/config/';
-$smarty->cache_dir    = ROOT . '/cache/template/';
-$smarty->debugging    = 0;
-// $smarty->loadFilter('output', 'indent_html');
+$smarty = new Smarty();
+$smarty
+    ->setCacheDir(ROOT . '/cache/template/')
+    ->setTemplateDir(ROOT . '/source-tpl/index/')
+    ->setCompileDir(ROOT . '/source-tpl/_compile/')
+    ->setConfigDir(ROOT . '/include/smarty/config/')
+    ->setDebugging(FALSE);
 
 Cache::$path_cache = ROOT_CACHE;
 Cache::$path_css   = ROOT_TEMPLATE . '/stylesheet';
@@ -38,7 +39,6 @@ if($system['system_switch'] === 0 && $user['uid'] != 8)
 Kit::Library('class', ['trainer', 'obtain', 'pokemon', 'encounter']);
 
 // Set up some global variables, also keep the minified CSS file up to date
-//$system            = array_merge($system, DB::fetch_first('SELECT shopsell, shopopc FROM pkm_stat'));
 $index       = !empty($user['uid']) && isset($_GET['index']) && in_array($_GET['index'], ['memcp', 'pc', 'copyright', 'starter', 'shop', 'daycare', 'index', 'battle', 'map', 'shelter']) ? $_GET['index'] : 'index';
 $process     = !empty($_GET['process']) ? $_GET['process'] : '';
 $path['css'] = Cache::Css(['common', 'angular-sortable', $index], 'cssvar');
@@ -61,7 +61,7 @@ if(!empty($user['uid'])) {
     }
 
     // Add EXP gained from forum posts to the party
-    if($trainer['extcredit']['exp'] > 0 && $trainer['has_starter']) {
+    if($trainer['extcredit']['exp'] > 0 && $trainer+['has_starter']) {
         DB::query('UPDATE pkm_mypkm SET exp = exp + ' . $trainer['extcredit']['exp'] . ' WHERE uid = ' . $trainer['uid'] . ' AND location IN (1, 2, 3, 4, 5, 6)');
         App::CreditsUpdate($trainer['uid'], 0, 'EXP', TRUE);
     }

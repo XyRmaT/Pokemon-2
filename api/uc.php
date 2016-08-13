@@ -28,7 +28,7 @@ define('DISCUZ_ROOT', '../');
 
 error_reporting(0);
 
-require_once DISCUZ_ROOT . './include/data-config.php';
+require_once DISCUZ_ROOT . './include/data/config.php';
 
 $_DCACHE = $get = $post = [];
 

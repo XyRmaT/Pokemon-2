@@ -1036,7 +1036,7 @@ abstract class Smarty_Internal_TemplateCompilerBase
                 $_output = str_replace("^#^", "'", $_output);
                 $_output = "<?php echo '/*%%SmartyNocache:{$this->nocache_hash}%%*/" . $_output .
                     "/*/%%SmartyNocache:{$this->nocache_hash}%%*/';?>\n";
-                // make sure we include modifier plugins for nocache code
+                // make sure we js modifier plugins for nocache code
                 foreach ($this->modifier_plugins as $plugin_name => $dummy) {
                     if (isset($this->parent_compiler->template->compiled->required_plugins[ 'compiled' ][ $plugin_name ][ 'modifier' ])) {
                         $this->parent_compiler->template->compiled->required_plugins[ 'nocache' ][ $plugin_name ][ 'modifier' ] =

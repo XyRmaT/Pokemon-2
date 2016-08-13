@@ -103,9 +103,9 @@ class Smarty_Internal_Compile_Include_Php extends Smarty_Internal_CompileBase
         }
 
         if (isset($_assign)) {
-            return "<?php ob_start();\ninclude{$_once} ('{$_filepath}');\n\$_smarty_tpl->assign({$_assign},ob_get_clean());\n?>";
+            return "<?php ob_start();\njs{$_once} ('{$_filepath}');\n\$_smarty_tpl->assign({$_assign},ob_get_clean());\n?>";
         } else {
-            return "<?php include{$_once} ('{$_filepath}');?>\n";
+            return "<?php js{$_once} ('{$_filepath}');?>\n";
         }
     }
 }

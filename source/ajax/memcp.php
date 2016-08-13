@@ -35,7 +35,7 @@ switch($process) {
         include ROOT . '/source/index/memcp.php';
         include template('index/memcp', 'pkm');
 
-        $return['js'] = '$(".my-info").html(\'' . str_replace(PHP_EOL, '', ob_get_clean()) . '\');';
+        $return['include'] = '$(".my-info").html(\'' . str_replace(PHP_EOL, '', ob_get_clean()) . '\');';
 
         break;
 
@@ -50,7 +50,7 @@ switch($process) {
         include ROOT . '/source/index/memcp.php';
         include template('index/memcp', 'pkm');
 
-        $return['js'] = '$(".my-info").html(\'' . str_replace(PHP_EOL, '', ob_get_clean()) . '\');';
+        $return['include'] = '$(".my-info").html(\'' . str_replace(PHP_EOL, '', ob_get_clean()) . '\');';
 
         break;
 

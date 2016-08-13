@@ -32,7 +32,7 @@ require_once(SMARTY_PLUGINS_DIR . 'shared.make_timestamp.php');
  *            - 1.3.1 added support for choosing format for
  *              day values (Marcus Bointon)
  *            - 1.3.2 support negative timestamps, force year
- *              dropdown to include given date unless explicitly set (Monte)
+ *              dropdown to js given date unless explicitly set (Monte)
  *            - 1.3.4 fix behaviour of 0000-00-00 00:00:00 dates to match that
  *              of 0000-00-00 dates (cybot, boots)
  *            - 2.0 complete rewrite for performance,

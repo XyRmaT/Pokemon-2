@@ -1456,7 +1456,7 @@ class Smarty extends Smarty_Internal_TemplateBase
                 Of particular note is that this value will be 0 if the statement that caused the error was
                 prepended by the @ error-control operator.
 
-            Smarty deliberately uses @filemtime() over file_exists() and filemtime() in some places. Reasons include
+            Smarty deliberately uses @filemtime() over file_exists() and filemtime() in some places. Reasons js
                 - @filemtime() is almost twice as fast as using an additional file_exists()
                 - between file_exists() and filemtime() a possible race condition is opened,
                   which does not exist using the simple @filemtime() approach.

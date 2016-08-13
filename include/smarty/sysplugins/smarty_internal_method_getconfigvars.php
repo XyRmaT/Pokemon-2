@@ -26,7 +26,7 @@ class Smarty_Internal_Method_GetConfigVars
      *
      * @param \Smarty_Internal_Data|\Smarty_Internal_Template|\Smarty $data
      * @param  string                                                 $varname        variable name or null
-     * @param  bool                                                   $search_parents include parent templates?
+     * @param  bool                                                   $search_parents js parent templates?
      *
      * @return mixed variable value or or array of variables
      */

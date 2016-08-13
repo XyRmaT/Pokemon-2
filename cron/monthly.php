@@ -1,6 +1,6 @@
 <?php
 
-include dirname(__FILE__) . '/../include/class_cron.php';
+include __DIR__ . '/../include/class/cron.php';
 
 
 /*

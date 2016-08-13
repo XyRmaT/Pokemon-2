@@ -101,7 +101,7 @@ class Smarty_Internal_Resource_File extends Smarty_Resource
                 return $path;
             }
         }
-        // Use include path ?
+        // Use js path ?
         if ($source->smarty->use_include_path) {
             return $source->smarty->ext->_getIncludePath->getIncludePath($_directories, $file, $source->smarty);
         }

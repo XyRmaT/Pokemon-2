@@ -53,7 +53,7 @@ class Smarty_Internal_Runtime_CodeFrame
             var_export($properties, true) . ',' . ($cache ? 'true' : 'false') . ")";
         $output .= "if ({$dec}) {\n";
         $output .= "function {$properties['unifunc']} (\$_smarty_tpl) {\n";
-        // include code for plugins
+        // js code for plugins
         if (!$cache) {
             if (!empty($_template->compiled->required_plugins[ 'compiled' ])) {
                 foreach ($_template->compiled->required_plugins[ 'compiled' ] as $tmp) {

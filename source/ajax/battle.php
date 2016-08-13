@@ -135,7 +135,7 @@ $return['battle'] = [
 		'report'     => Battle::$report . '<br>'
 ];
 
-$return['js'] = '';
+$return['include'] = '';
 
 if($process === 'useitem' && !empty($_GET['item_id'])) {
 
@@ -159,11 +159,11 @@ if($process === 'useitem' && !empty($_GET['item_id'])) {
 
 	}
 
-	$return['js'] .= '$(\'#layer-item\').html(\'' . (!empty($tmp) ? $tmp : '你的背包空空如也！') . '\');';
+	$return['include'] .= '$(\'#layer-item\').html(\'' . (!empty($tmp) ? $tmp : '你的背包空空如也！') . '\');';
 
 } elseif($process === 'swappm' && Battle::$swapped) {
 
-	$return['js'] = '$(\'#sbj-self\').html(\'' . Battle::$pokemon[1][0]['name'] . Battle::$pokemon[1][0]['gendersign'] . ' Lv. ' . Battle::$pokemon[1][0]['level'] . '<div class="bar"><div class="hp" style="width:' . ceil(Battle::$pokemon[1][0]['hp'] / Battle::$pokemon[1][0]['max_hp'] * 100) . '%"></div><div class="value">' . Battle::$pokemon[1][0]['hp'] . '/' . Battle::$pokemon[1][0]['max_hp'] . '</div></div><div class="sprite"><img src="' . Obtain::Sprite('pokemon', 'gif', Battle::$pokemon[1][0]['sprite_name'], 0, 1) . '"></div>\');';
+	$return['include'] = '$(\'#sbj-self\').html(\'' . Battle::$pokemon[1][0]['name'] . Battle::$pokemon[1][0]['gendersign'] . ' Lv. ' . Battle::$pokemon[1][0]['level'] . '<div class="bar"><div class="hp" style="width:' . ceil(Battle::$pokemon[1][0]['hp'] / Battle::$pokemon[1][0]['max_hp'] * 100) . '%"></div><div class="value">' . Battle::$pokemon[1][0]['hp'] . '/' . Battle::$pokemon[1][0]['max_hp'] . '</div></div><div class="sprite"><img src="' . Obtain::Sprite('pokemon', 'gif', Battle::$pokemon[1][0]['sprite_name'], 0, 1) . '"></div>\');';
 
 	/*
 		Generate pokemon info
@@ -179,11 +179,11 @@ if($process === 'useitem' && !empty($_GET['item_id'])) {
 
 	}
 
-	$return['js'] .= '$(\'#layer-pokemon\').html(\'' . (!empty($tmp) ? '<ul>' . $tmp . '</ul>' : '没有可战斗的精灵。') . '\');';
+	$return['include'] .= '$(\'#layer-pokemon\').html(\'' . (!empty($tmp) ? '<ul>' . $tmp . '</ul>' : '没有可战斗的精灵。') . '\');';
 
 } else {
 
-	$return['js'] .= '$(\'#layer-item\').html($(\'#layer-item\').html());';
+	$return['include'] .= '$(\'#layer-item\').html($(\'#layer-item\').html());';
 
 }
 

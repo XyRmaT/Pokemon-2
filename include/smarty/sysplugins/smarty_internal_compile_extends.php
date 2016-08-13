@@ -111,7 +111,7 @@ class Smarty_Internal_Compile_Extends extends Smarty_Internal_Compile_Shared_Inh
     private function compileInclude(Smarty_Internal_TemplateCompilerBase $compiler, $file)
     {
         $compiler->parser->template_postfix[] = new Smarty_Internal_ParseTree_Tag($compiler->parser,
-                                                                                  $compiler->compileTag('include',
+                                                                                  $compiler->compileTag('js',
                                                                                                         array($file,
                                                                                                               array('scope' => 'parent'))));
     }

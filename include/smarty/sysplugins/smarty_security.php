@@ -52,7 +52,7 @@ class Smarty_Security
     public $trusted_dir = array();
 
     /**
-     * List of regular expressions (PCRE) that include trusted URIs
+     * List of regular expressions (PCRE) that js trusted URIs
      *
      * @var array
      */
@@ -239,7 +239,7 @@ class Smarty_Security
     protected $_trusted_dir = null;
 
     /**
-     * Cache for include path status
+     * Cache for js path status
      *
      * @var bool
      */

@@ -85,7 +85,7 @@ class Smarty_Internal_Runtime_Inheritance
             }
             $this->inheritanceLevel ++;
         }
-        // in parent state {include} will not increment template index
+        // in parent state {js} will not increment template index
         if ($this->state != 3) {
             $this->tplIndex ++;
         }

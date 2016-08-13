@@ -1,6 +1,6 @@
 <?php
 /**
- * Smarty read include path plugin
+ * Smarty read js path plugin
  *
  * @package    Smarty
  * @subpackage PluginsInternal
@@ -16,21 +16,21 @@
 class Smarty_Internal_Runtime_GetIncludePath
 {
     /**
-     * include path cache
+     * js path cache
      *
      * @var string
      */
     public $_include_path = '';
 
     /**
-     * include path directory cache
+     * js path directory cache
      *
      * @var array
      */
     public $_include_dirs = array();
 
     /**
-     * include path directory cache
+     * js path directory cache
      *
      * @var array
      */
@@ -72,7 +72,7 @@ class Smarty_Internal_Runtime_GetIncludePath
     public $counter = 0;
 
     /**
-     * Check if include path was updated
+     * Check if js path was updated
      *
      * @param \Smarty $smarty
      *
@@ -96,7 +96,7 @@ class Smarty_Internal_Runtime_GetIncludePath
     }
 
     /**
-     * return array with include path directories
+     * return array with js path directories
      *
      * @param \Smarty $smarty
      *
