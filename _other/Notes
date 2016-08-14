@@ -4,7 +4,7 @@
 Global variables
 $user
     tid         -> String   -> Trainer ID in hex
-    uid         -> String   -> Forum user ID
+    user_id         -> String   -> Forum user ID
     exp         -> String   -> Trainer's experience point
     level       -> String   -> Trainer's current level
     sttchk      -> String   -> Check if the trainer has already received a starter Pokemon

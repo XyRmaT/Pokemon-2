@@ -3,11 +3,11 @@
 Kit::Library('class', ['pokemon']);
 
 $query   = DB::query('SELECT m.pkm_id, m.level, m.nickname, m.nat_id, m.time_daycare_sent, m.time_egg_checked,
-                              m.gender, m.uid_initial, m.sprite_name, m.item_holding, m.item_captured, m.has_egg,
+                              m.gender, m.initial_user_id, m.sprite_name, m.item_holding, m.item_captured, m.has_egg,
                               p.egg_group, p.egg_group_b, p.name_zh
                       FROM pkm_mypkm m
                       LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id
-                      WHERE location = ' . LOCATION_DAYCARE . ' AND uid = ' . $trainer['uid'] . ' ORDER BY m.time_daycare_sent LIMIT 2');
+                      WHERE location = ' . LOCATION_DAYCARE . ' AND user_id = ' . $trainer['user_id'] . ' ORDER BY m.time_daycare_sent LIMIT 2');
 $pokemon = [];
 
 while($info = DB::fetch($query)) {
@@ -45,9 +45,9 @@ if($pkm_count === 2) {
     // Deciding the max boundary $egg_chance within 100 that this couple will get an offspring
     if($egg_is_possible) {
         if($pokemon[0]['nat_id'] === $pokemon[1]['nat_id'])
-            $egg_chance = $pokemon[0]['uid_initial'] === $pokemon[1]['uid_initial'] ? 50 : 70;
+            $egg_chance = $pokemon[0]['initial_user_id'] === $pokemon[1]['initial_user_id'] ? 50 : 70;
         else
-            $egg_chance = $pokemon[0]['uid_initial'] === $pokemon[1]['uid_initial'] ? 20 : 50;
+            $egg_chance = $pokemon[0]['initial_user_id'] === $pokemon[1]['initial_user_id'] ? 20 : 50;
     }
 
     if(!empty($pokemon[0]['has_egg']) && !empty($pokemon[1]['has_egg'])) goto FETCH_PARTY;
@@ -74,7 +74,7 @@ if($pkm_count === 2) {
 
 FETCH_PARTY:
 
-$query = DB::query('SELECT m.nat_id, m.nickname, m.pkm_id, m.sprite_name, m.level, m.gender, m.item_captured, m.item_holding, p.egg_group, p.egg_group_b FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE m.location IN (1, 2, 3, 4, 5, 6) AND m.nat_id != 0 AND m.uid = ' . $trainer['uid'] . ' LIMIT 6');
+$query = DB::query('SELECT m.nat_id, m.nickname, m.pkm_id, m.sprite_name, m.level, m.gender, m.item_captured, m.item_holding, p.egg_group, p.egg_group_b FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE m.location IN (1, 2, 3, 4, 5, 6) AND m.nat_id != 0 AND m.user_id = ' . $trainer['user_id'] . ' LIMIT 6');
 $party = [];
 
 while($info = DB::fetch($query)) {

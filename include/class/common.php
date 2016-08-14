@@ -53,29 +53,28 @@ class Kit {
 
     public static function Library($type, $file) {
         foreach($file as $val) {
-            if($type === 'class' || $type === 'db')
-                require_once ROOT . '/include/' . $type . '/' . $val . '.php';
+            require_once ROOT . '/include/' . $type . '/' . $val . '.php';
         }
         return TRUE;
     }
 
-    public static function Memory($size) {
+    public static function memoryFormat($size) {
         $units = ['b', 'kb', 'mb', 'gb', 'tb', 'pb'];
         $pow   = $size ? log($size) / log(1024) : 0;
         $size /= pow(1024, $pow);
-        return round($size, 2) . ' ' . $units[(int)$pow];
+        return round($size, 2) . ' ' . $units[(int) $pow];
     }
 
     public static function SendMessage($title, $content, $from, $to) {
-        DB::query('INSERT INTO pkm_myinbox (title, content, uid_sender, uid_receiver, time_sent) VALUES (\'' . $title . '\', \'' . $content . '\', ' . $from . ', ' . $to . ', ' . $_SERVER['REQUEST_TIME'] . ')');
-        DB::query('UPDATE pkm_trainerdata SET has_new_message = 1 WHERE uid = ' . $to);
+        DB::query('INSERT INTO pkm_myinbox (title, content, sender_user_id, receiver_user_id, time_sent) VALUES (\'' . $title . '\', \'' . $content . '\', ' . $from . ', ' . $to . ', ' . $_SERVER['REQUEST_TIME'] . ')');
+        DB::query('UPDATE pkm_trainerdata SET has_new_message = 1 WHERE user_id = ' . $to);
     }
 
     public static function NumberFormat($num) {
         return ($num > 999999) ? round($num / 1000000) . 'm' : (($num > 999) ? round($num / 1000) . 'k' : $num);
     }
 
-    public static function Cutstr($string, $length, $dot = ' ...') {
+    public static function stringCut($string, $length, $dot = ' ...') {
 
         if(strlen($string) <= $length) return $string;
 
@@ -155,76 +154,87 @@ class App {
 
     public static function Initialize() {
 
-        global $user, $system, $lang, $start_time;
+        global $user, $start_time, $lang, $system;
 
-        $user       = $system = $lang = [];
+        $user       = $lang = $system = [];
         $start_time = microtime(TRUE);
 
-        // Include all the required files, including databse, config data, cache and UC
-        include_once ROOT . '/include/language/' . LANGUAGE . '.php';
-        include_once ROOT . '/include/data/config.php';
-        include_once ROOT . '/../bbs/uc_client/client.php';
-        include_once ROOT . '/include/class/database.php';
-        include_once ROOT . '/include/class/cache.php';
-        include_once ROOT . '/include/constant/common.php';
+        include ROOT . '/include/language/' . LANGUAGE . '.php';
+        include ROOT . '/include/constant/pokemon.php';
+        include ROOT . '/include/constant/common.php';
+        include ROOT . '/include/data/config.php';
+        include ROOT . '/include/class/database.php';
+        include ROOT . '/include/class/cache.php';
 
         // Connect to the database
         DB::connect(UC_DBHOST, UC_DBUSER, UC_DBPW, UC_DBNAME, UC_DBCHARSET);
 
         // Check login status & set data
-        if(!self::IsLoggedIn($_COOKIE['authcode'])) $user = ['uid' => 0];
+        $user = self::loginByToken($_COOKIE['token'] ?? '');
 
     }
 
-    private static function IsLoggedIn($authcode) {
+    public static function loginByEmail($email, $password) {
+        $user = DB::fetch_first('SELECT * FROM pkm_trainerdata WHERE email = \'' . addslashes($email) . '\' AND password = \'' . self::encryptPassword($password) . '\'');
 
-        global $user;
-        list($username, $password, $questionId, $answer) = explode(',,', uc_authcode($authcode, 'DECODE'));
+        if(!$user) return [];
 
-        if(!$username || !$password) return FALSE;
+        $token = self::generateToken();
+        DB::insert('pkm_usertoken', [
+            'user_id'     => [DB_FIELD_NUMBER, $user['user_id']],
+            'token'       => [DB_FIELD_STRING, $token],
+            'expire_time' => [DB_FIELD_NUMBER, 0]
+        ], TRUE);
 
-        list($user['uid'], $user['username'], , $user['email']) = uc_user_login($username, $password, 0, $questionId && $answer, $questionId, $answer);
-
-        // Just a side note that -1 = not existed, -2 = wrong password
-        return $user['uid'] > 0;
-
+        setcookie('token', $token, $_SERVER['REQUEST_TIME'] + 99999999);
+        return $user;
     }
 
-    public static function Login($username, $password, $questionId = 0, $answer = '') {
-        global $user, $synclogin;
-        list($user['uid'], $user['username'], , $user['email']) = uc_user_login($username, $password, 0, $questionId && $answer, $questionId, $answer);
-        if($user['uid'] <= 0) return FALSE;
-        $synclogin = uc_user_synlogin($user['uid']);
-        setcookie('authcode', uc_authcode($username . ',,' . $password . ',,' . $questionId . ',,' . $answer, 'ENCODE'), $_SERVER['REQUEST_TIME'] + 99999999);
+    public static function loginByToken($token) {
+        if(!$token) return [];
+        $user = DB::fetch_first('SELECT t.* FROM pkm_usertoken u 
+            LEFT JOIN pkm_trainerdata t ON t.user_id = u.user_id 
+            WHERE u.token = \'' . addslashes($token) . '\'');
+        return $user ?: [];
+    }
+
+    private static function generateToken() {
+        return md5(mt_rand());
+    }
+
+    private static function encryptPassword($password) {
+        return md5(md5($password));
+    }
+
+    public static function register($email, $password, $trainer_name) {
+
+        if(!filter_var($email, FILTER_VALIDATE_EMAIL)) return ERROR_NOT_EMAIL;
+
+        if(preg_match('/[\'\"]/', $trainer_name)) return ERROR_INVALID_TRAINER_NAME;
+
+        $existed = DB::fetch_first('SELECT user_id, email, trainer_name FROM pkm_trainerdata WHERE email = \'' . $email . '\' OR trainer_name = \'' . $trainer_name . '\'');
+        if($existed) {
+            return $existed['email'] === $email ? ERROR_DUPLICATE_EMAIL : ERROR_DUPLICATE_TRAINER_NAME;
+        }
+
+        $user_id = Trainer::generate();
+        if(!$user_id) return FALSE;
+
+        $password = self::encryptPassword($password);
+        DB::insert('pkm_trainerdata', [
+            'user_id'      => [DB_FIELD_NUMBER, $user_id],
+            'trainer_name' => [DB_FIELD_STRING, $trainer_name],
+            'password'     => [DB_FIELD_STRING, $password],
+            'email'        => [DB_FIELD_STRING, $email]
+        ], TRUE);
+
+        self::loginByEmail($email, $password);
+
         return TRUE;
     }
 
-    public static function CreditsUpdate($uid, $value, $type = 'CURRENCY', $isFixed = FALSE) {
-        global $system, $trainer;
-        if($type === 'EXP') {
-            $field          = $system['exp_field'];
-            $trainer['exp'] = $isFixed ? $value : $trainer['exp'] + $value;
-        } else {
-            $field               = $system['currency_field'];
-            $trainer['currency'] = $isFixed ? $value : $trainer['currency'] + $value;
-        }
-        if($isFixed) return DB::query('UPDATE pre_common_member_count SET `' . $field . '` = ' . $value . ' WHERE uid = ' . $uid);
-        else return DB::query('UPDATE pre_common_member_count SET `' . $field . '` = ' . $field . ' + ' . $value . ' WHERE uid = ' . $uid);
-    }
-
-    private function GetUserIp() {
-        $ip = $_SERVER['REMOTE_ADDR'];
-        if(isset($_SERVER['HTTP_CLIENT_IP']) && preg_match('/^([0-9]{1,3}\.){3}[0-9]{1,3}$/', $_SERVER['HTTP_CLIENT_IP'])) {
-            $ip = $_SERVER['HTTP_CLIENT_IP'];
-        } elseif(isset($_SERVER['HTTP_X_FORWARDED_FOR']) && preg_match_all('#\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}#s', $_SERVER['HTTP_X_FORWARDED_FOR'], $matches)) {
-            foreach($matches[0] AS $xip) {
-                if(!preg_match('#^(10|172\.16|192\.168)\.#', $xip)) {
-                    $ip = $xip;
-                    break;
-                }
-            }
-        }
-        return $ip;
+    public static function CreditsUpdate($user_id, $value, $type = 'CURRENCY', $isFixed = FALSE) {
+        // TODO: STAB
     }
 
 }

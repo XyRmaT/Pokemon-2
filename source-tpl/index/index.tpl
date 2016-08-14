@@ -1,16 +1,14 @@
 {include file='header.tpl'}
 
-{* Since there's no need to update any data in index page, we don't need to bind any data *}
-
 <section class="index-banner">
     <img src="{ROOT_IMAGE}/other/banner-index.jpg">
 </section>
 
-<section class="index-trainer box" ng-if="trainer.uid > 0" ng-cloak>
+<section class="index-trainer box" ng-if="trainer.user_id > 0" ng-cloak>
     <div class="info">
         <img class="avatar float-left" ng-src="%%trainer.avatar%%">
         <span class="ranking float-right"># %%trainer.rank%%</span>
-        <span class="username">%%trainer.username%%</span><br>
+        <span class="trainer_name">%%trainer.trainer_name%%</span><br>
         <span class="signature" ng-bind="_LANG.no_signature"></span>
     </div>
     <div class="other">
@@ -20,11 +18,17 @@
         <div class="party border"><pokemon-icon ng-repeat="i in party" nat-id="i"></pokemon-icon></div>
     </div>
 </section>
-<section class="index-login box" ng-if="trainer.uid < 1">
+<section class="index-login box" ng-if="!trainer.user_id" ng-controller="process-register">
     <div class="title" ng-bind="_LANG.trainer_entrance"></div>
     <div class="content" ng-cloak>
-        <input type="text" name="username" ng-placeholder="%%_LANG.username%%">
-        <input type="text" name="password" ng-placeholder="%%_LANG.password%%">
+        <div ng-if="regProcess === 1">
+            <input type="text" ng-model="reg.email" ng-placeholder="%%_LANG.email%%">
+            <input type="text" ng-model="reg.trainer_name" ng-placeholder="%%_LANG.trainer_name%%">
+        </div>
+        <div ng-if="regProcess === 2">
+            <input type="text" ng-model="reg.password" ng-placeholder="%%_LANG.password%%">
+            <input type="text" ng-model="reg.password_retype" ng-placeholder="%%_LANG.password_retype%%">
+        </div>
         <button id="sign-in" class="float-left" ng-bind="_LANG.sign_in"></button>
         <button id="sign-up" class="float-right" ng-bind="_LANG.sign_up"></button>
     </div>
@@ -60,7 +64,7 @@
 <section class="index-trainers box">
     <div class="title" ng-bind="_LANG.outstanding_trainers"></div>
     <div class="content" ng-cloak>
-        <ul><li ng-repeat="(k, t) in top_trainers"><div>%%k + 1%%</div><img class="avatar" ng-src="%%t.avatar%%"><br>%%t.username%%</li></ul>
+        <ul><li ng-repeat="(k, t) in top_trainers"><div>%%k + 1%%</div><img class="avatar" ng-src="%%t.avatar%%"><br>%%t.trainer_name%%</li></ul>
     </div>
 </section>
 

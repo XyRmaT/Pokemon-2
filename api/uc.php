@@ -74,14 +74,14 @@ class uc_note {
     }
 
     function deleteuser($get, $post) {
-        $uids = $get['ids'];
+        $user_ids = $get['ids'];
         !API_DELETEUSER && exit(API_RETURN_FORBIDDEN);
 
         return API_RETURN_SUCCEED;
     }
 
     function renameuser($get, $post) {
-        $uid         = $get['uid'];
+        $user_id         = $get['user_id'];
         $usernameold = $get['oldusername'];
         $usernamenew = $get['newusername'];
         if(!API_RENAMEUSER) {
@@ -109,14 +109,14 @@ class uc_note {
     }
 
     function synlogin($get, $post) {
-        $uid      = $get['uid'];
-        $username = $get['username'];
+        $user_id      = $get['user_id'];
+        $username = $get['trainer_name'];
         if(!API_SYNLOGIN) {
             return API_RETURN_FORBIDDEN;
         }
 
         header('P3P: CP="CURa ADMa DEVa PSAo PSDo OUR BUS UNI PUR INT DEM STA PRE COM NAV OTC NOI DSP COR"');
-        _setcookie('Example_auth', _authcode($uid . "\t" . $username, 'ENCODE'));
+        _setcookie('Example_auth', _authcode($user_id . "\t" . $username, 'ENCODE'));
     }
 
     function synlogout($get, $post) {
@@ -133,7 +133,7 @@ class uc_note {
         if(!API_UPDATEPW) {
             return API_RETURN_FORBIDDEN;
         }
-        $username = $get['username'];
+        $username = $get['trainer_name'];
         $password = $get['password'];
         return API_RETURN_SUCCEED;
     }
@@ -218,7 +218,7 @@ class uc_note {
         }
         $credit = $get['credit'];
         $amount = $get['amount'];
-        $uid    = $get['uid'];
+        $user_id    = $get['user_id'];
         return API_RETURN_SUCCEED;
     }
 

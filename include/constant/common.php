@@ -1,5 +1,14 @@
 <?php
 
+const DB_FIELD_STRING = 1;
+const DB_FIELD_NUMBER = 2;
+
+const ERROR_NOT_EMAIL = 1;
+const ERROR_INVALID_TRAINER_NAME = 2;
+const ERROR_TRAINER_EXISTED = 3;
+const ERROR_DUPLICATE_EMAIL = 4;
+const ERROR_DUPLICATE_TRAINER_NAME = 5;
+
 const TYPE_FIRE     = 1;
 const TYPE_WATER    = 2;
 const TYPE_GRASS    = 3;
@@ -71,11 +80,11 @@ define('FIELDS_POKEMON_BASIC',
     'm.item_captured, m.status, m.happiness, m.form, m.exp, m.location');
 define('FIELDS_POKEMON_LEVELUP', FIELDS_POKEMON_BASIC .
     ',p.exp_type, p.evolution_data, p.base_stat, p.name_zh name, m.level, m.exp, m.pkm_id, m.nature, ' .
-    'm.nat_id, m.moves, m.new_moves, m.ind_value, m.eft_value, m.hp');
+    'm.nat_id, m.moves, m.new_moves, m.idv_value, m.eft_value, m.hp');
 define('FIELDS_POKEMON_DETAILED', 'm.nat_id, m.pkm_id, m.gender, m.hp, m.exp, m.level, m.nature, ' .
-    'm.nickname, m.form, m.eft_value, m.ind_value, m.new_moves, m.moves, ' .
+    'm.nickname, m.form, m.eft_value, m.idv_value, m.new_moves, m.moves, ' .
     'm.sprite_name, m.item_captured, m.time_hatched, m.met_time, m.met_level, ' .
     'm.met_location, m.beauty, m.item_holding, m.happiness, m.psn_value, ' .
-    'm.form, m.uid_initial, m.status, ' .
+    'm.form, m.initial_user_id, m.status, ' .
     'a.name_zh ability, p.base_stat, p.type, p.type_b, p.exp_type, p.name_zh name, p.evolution_data,' .
-    'mb.username');
+    'mb.trainer_name');

@@ -2,20 +2,28 @@
 
 switch($process) {
 
-	case 'obtain':
+    case 'claim-pokemon':
 
-		$sid  = intval($_GET['sid']); // starter's id
-		$sarr = [1, 4, 7, 152, 155, 158, 252, 255, 258, 387, 390, 393, 495, 498, 501];
+        $nat_id = intval($_GET['nat_id']);
 
-		if(!empty($trainer['has_starter'])) $return['msg'] = '真贪心！';
-		elseif(!in_array($sid, $sarr)) $return['msg'] = '你只能从那几只中选哦！';
-		else {
-			Kit::Library('class', ['pokemon', 'obtain']);
-			Pokemon::Generate($sid, $trainer['uid'], ['met_location' => 600]);
-			DB::query('UPDATE pkm_trainerdata SET has_starter = 1 WHERE uid = ' . $trainer['uid']);
-			$return['include'] = 'window.location.reload();';
-		}
+        if(!empty($trainer['has_starter'])) {
+            $return['msg'] = Obtain::Text('starter_greedy');
+        } elseif(!in_array($nat_id, $system['starter'])) {
+            $return['msg'] = Obtain::Text('starter_invalid_pokemon');
+        } else {
+            try {
+                Pokemon::Generate($nat_id, $trainer['user_id'], [
+                    'met_location' => 600,
+                    'met_level'    => 5,
 
-		break;
+                ]);
+                DB::query('UPDATE pkm_trainerdata SET has_starter = 1 WHERE user_id = ' . $trainer['user_id']);
+                $return['js'] = 'window.location.reload();';
+            } catch(Exception $e) {
+                $return['msg'] = $e->getMessage();
+            }
+        }
+
+        break;
 
 }

@@ -12,10 +12,10 @@
             </div>
             <ul class="shop-list clear" ng-cloak>
                 <li ng-repeat="(k, i) in items" ng-if="(!type || i.type == type) && i.stock > 0" ng-click="$root.item = i; $root.quantity = 1; pop.open('buy-item')"
-                    tooltip="%%(_LANG.stock | semiColumn) + i.stock%%">
+                    tooltip="%%_LANG.click_to_buy%%">
                    <span class="item-wrapper"><img ng-src="%%i.item_sprite%%"></span>
                    <span>
-                       %%i.name%%<br>
+                       %%i.name%% (%%(_LANG.stock | semiColumn) + i.stock%%)<br>
                        <span class="light-text">%%i.description%%</span>
                    </span>
                    <span class="float-right">￥%%i.price%%</span>

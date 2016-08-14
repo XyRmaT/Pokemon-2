@@ -13,9 +13,18 @@ class Cache {
     public static $extendpre  = 'CC';
     public static $rfscache   = FALSE;
     public static $param      = [];
-    public static $path_css   = '';
-    public static $path_cache = '';
     public static $id         = 0;
+
+    private static $path_css   = '';
+    private static $path_cache = '';
+
+    public static function setCachePath($path) {
+        self::$path_cache = $path;
+    }
+
+    public static function setCSSPath($path) {
+        self::$path_css = $path;
+    }
 
     /**
      * Generate a parsable PHP file with an array.
@@ -23,7 +32,7 @@ class Cache {
      * @param $filepath
      * @return bool
      */
-    public static function Write($data, $filepath) {
+    public static function write($data, $filepath) {
 
         $writeFrag = '';
 
@@ -47,7 +56,7 @@ class Cache {
      * @param string $varfilename
      * @return bool|string
      */
-    public static function Css($filename, $varfilename = '') {
+    public static function css($filename, $varfilename = '') {
 
         $file    = '';
         $frmfile = '';
@@ -85,7 +94,7 @@ class Cache {
         $file = preg_replace('/;\s*\}/', '}', $file);
 
         // This one is to convert hex color & transparency into rgba values
-        $file = preg_replace_callback('/_([a-zA-Z\-]+?)\-\-([0-9]+?)_/', function ($matches) use ($replacement) {
+        $file = preg_replace_callback('/_([a-zA-Z\-]+?)\-\-(\d+?)_/', function ($matches) use ($replacement) {
             if(empty($replacement[$matches[1]])) return $matches[0];
             $parts = array_map(function ($str) {
                 return base_convert($str, 16, 10);
@@ -103,19 +112,19 @@ class Cache {
      * @param $actionArr
      * @return bool
      */
-    public static function Refresh($actionArr = []) {
+    public static function refresh($actionArr = []) {
 
         if(empty($actionArr)) return FALSE;
 
         self::$rfscache = TRUE;
         foreach($actionArr as $action)
-            if(self::Load($action) === FALSE) return FALSE;
+            if(self::load($action) === FALSE) return FALSE;
 
         return TRUE;
 
     }
 
-    public static function Load($action, $extra = []) {
+    public static function load($action, $extra = []) {
         self::$param = $extra;
         return call_user_func([self::$extendpre, '__' . $action]);
     }

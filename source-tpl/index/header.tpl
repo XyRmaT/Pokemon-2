@@ -27,7 +27,7 @@
         <li><a href="?index=daycare" ng-bind="_LANG.daycare"></a></li>
         <li><a href="?index=shelter" ng-bind="_LANG.shelter"></a></li>
         <li><a href="?index=map" ng-bind="_LANG.adventure"></a></li>
-        <li ng-if="trainer.uid > 0"><a ng-href="%%trainer.uid > 0 && '../bbs/member.php?mod=logging&action=login' || '../bbs/forum.php'%%" target="_blank" ng-bind="_LANG.forum"></a></li>
+        <li ng-if="trainer.user_id > 0"><a ng-href="%%trainer.user_id > 0 && '../bbs/member.php?mod=logging&action=login' || '../bbs/forum.php'%%" target="_blank" ng-bind="_LANG.forum"></a></li>
     </ul>
     <div class="decoration-bar"></div>
 </header>

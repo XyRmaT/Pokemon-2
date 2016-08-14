@@ -73,7 +73,7 @@ switch($process) {
 								(!empty($ever[$key]) ||
 										($ever[$key] = DB::result_first('SELECT COUNT(*) FROM pkm_luckybaglog WHERE value = \'' . $key . '\'')) >= $available[$key]) ||
 								(!empty($own[$key]) ||
-										($own[$key] = DB::result_first('SELECT COUNT(*) FROM pkm_luckybaglog WHERE value = \'' . $key . '\' AND uid = ' . $trainer['uid'])) > 0)) && ++$looped
+										($own[$key] = DB::result_first('SELECT COUNT(*) FROM pkm_luckybaglog WHERE value = \'' . $key . '\' AND user_id = ' . $trainer['user_id'])) > 0)) && ++$looped
 				)
 
 					goto RAND;
@@ -108,7 +108,7 @@ switch($process) {
 
 				//if($param[1] !== 'again')
 
-				//	DB::query('UPDATE pkm_trainerdata SET lbagnum = lbagnum - 1 WHERE uid = ' . $trainer['uid']);
+				//	DB::query('UPDATE pkm_trainerdata SET lbagnum = lbagnum - 1 WHERE user_id = ' . $trainer['user_id']);
 
 				if($param[1] === 'again') {
 
@@ -124,23 +124,23 @@ switch($process) {
 
 					if($param[0] === 'test') {
 
-						$count = DB::result_first('SELECT COUNT(*) FROM pkm_myitem WHERE item_id = ' . $iid . ' AND uid = ' . $trainer['uid']);
+						$count = DB::result_first('SELECT COUNT(*) FROM pkm_myitem WHERE item_id = ' . $iid . ' AND user_id = ' . $trainer['user_id']);
 
 						if($count < 1)
 
-							DB::query('INSERT INTO pkm_myitem (item_id, uid, quantity) VALUES (' . $iid . ', ' . $trainer['uid'] . ', ' . $num . ')');
+							DB::query('INSERT INTO pkm_myitem (item_id, user_id, quantity) VALUES (' . $iid . ', ' . $trainer['user_id'] . ', ' . $num . ')');
 
 						else
 
-							DB::query('UPDATE pkm_myitem SET quantity = quantity + ' . $num . ' WHERE item_id = ' . $iid . ' AND uid = ' . $trainer['uid']);
+							DB::query('UPDATE pkm_myitem SET quantity = quantity + ' . $num . ' WHERE item_id = ' . $iid . ' AND user_id = ' . $trainer['user_id']);
 
 					}
 
-					DB::query('UPDATE pkm_trainerdata SET lbagnum = ' . $return['quantity'] . ' WHERE uid = ' . $trainer['uid']);
+					DB::query('UPDATE pkm_trainerdata SET lbagnum = ' . $return['quantity'] . ' WHERE user_id = ' . $trainer['user_id']);
 
 				}
 
-				DB::query('INSERT INTO pkm_luckybaglog (uid, value, time, ip) VALUES (' . $trainer['uid'] . ', \'' . $key . '\', ' . $_SERVER['REQUEST_TIME'] . ', \'' . $user['ip'] . '\')');
+				DB::query('INSERT INTO pkm_luckybaglog (user_id, value, time, ip) VALUES (' . $trainer['user_id'] . ', \'' . $key . '\', ' . $_SERVER['REQUEST_TIME'] . ', \'' . $user['ip'] . '\')');
 
 				break 2;
 

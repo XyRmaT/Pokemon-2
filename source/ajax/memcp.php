@@ -6,12 +6,12 @@ switch($process) {
 
         $pkm_id = isset($_GET['pkm_id']) ? intval($_GET['pkm_id']) : 0;
 
-        if(DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE uid = ' . $trainer['uid']) === '0') {
+        if(DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE user_id = ' . $trainer['user_id']) === '0') {
             $return['msg'] = '一只精灵都没有怎么行？';
             break;
         }
 
-        $info = DB::fetch_first('SELECT nat_id, location, uid_initial, uid, met_location FROM pkm_mypkm WHERE pkm_id = ' . $pkm_id);
+        $info = DB::fetch_first('SELECT nat_id, location, initial_user_id, user_id, met_location FROM pkm_mypkm WHERE pkm_id = ' . $pkm_id);
 
         if(!in_array($info['location'], range(1, 6))) {
             $return['msg'] = '精灵不在身上，无法丢弃！';
@@ -21,12 +21,12 @@ switch($process) {
             break;
         }
 
-        DB::query('UPDATE pkm_mypkm SET uid = 0, location = 9 WHERE pkm_id = ' . $pkm_id);
+        DB::query('UPDATE pkm_mypkm SET user_id = 0, location = 9 WHERE pkm_id = ' . $pkm_id);
 
         if($info['nat_id'] !== '0')
-            $trainer['addexp'] -= ($info['uid_initial'] === $info['uid']) ? 8 : 2;
+            $trainer['addexp'] -= ($info['initial_user_id'] === $info['user_id']) ? 8 : 2;
         else
-            ($info['uid_initial'] === $info['uid']) || ($trainer['addexp'] -= 8);
+            ($info['initial_user_id'] === $info['user_id']) || ($trainer['addexp'] -= 8);
 
         ob_start();
 
@@ -81,13 +81,13 @@ switch($process) {
 
         $item_id = isset($_GET['item_id']) ? intval($_GET['item_id']) : 0;
         $pkm_id  = isset($_GET['pkm_id']) ? intval($_GET['pkm_id']) : 0;
-        $pokemon = DB::fetch_first('SELECT pkm_id, nickname, item_holding FROM pkm_mypkm WHERE pkm_id = ' . $pkm_id . ' AND uid = ' . $trainer['uid']);
+        $pokemon = DB::fetch_first('SELECT pkm_id, nickname, item_holding FROM pkm_mypkm WHERE pkm_id = ' . $pkm_id . ' AND user_id = ' . $trainer['user_id']);
 
         if(!$pkm_id || !$pokemon) break;
 
         // If $item_id has a proper value, that means an item is given to the Pokemon.
         if($item_id) {
-            if(!Trainer::Item('DROP', $trainer['uid'], $item_id, 1)) break;
+            if(!Trainer::Item('DROP', $trainer['user_id'], $item_id, 1)) break;
             DB::query('UPDATE pkm_mypkm SET item_holding = ' . $item_id . ' WHERE pkm_id = ' . $pkm_id);
         }
 
@@ -97,7 +97,7 @@ switch($process) {
             if(!$item_id) {
                 DB::query('UPDATE pkm_mypkm SET item_holding = 0 WHERE pkm_id = ' . $pkm_id);
             }
-            Trainer::Item('OBTAIN', $trainer['uid'], $pokemon['item_holding'], 1);
+            Trainer::Item('OBTAIN', $trainer['user_id'], $pokemon['item_holding'], 1);
         }
 
         break;
@@ -114,7 +114,7 @@ switch($process) {
 
         $item = DB::fetch_first('SELECT mi.quantity, i.name_zh name, i.effect, i.is_usable, i.type
                                  FROM pkm_myitem mi LEFT JOIN pkm_itemdata i ON mi.item_id = i.item_id
-                                 WHERE mi.quantity > 0 AND mi.item_id = ' . $item_id . ' AND mi.uid = ' . $trainer['uid']);
+                                 WHERE mi.quantity > 0 AND mi.item_id = ' . $item_id . ' AND mi.user_id = ' . $trainer['user_id']);
 
         if(empty($item)) {
             $return['msg'] = Obtain::Text('no_such_item');
@@ -155,7 +155,7 @@ switch($process) {
 
                 if($item['type'] == ITEM_TYPE_MEDICINE) {
 
-                    $pokemon     = array_merge($pokemon, Obtain::Stat($pokemon['level'], $pokemon['base_stat'], $pokemon['ind_value'], $pokemon['eft_value']));
+                    $pokemon     = array_merge($pokemon, Obtain::Stat($pokemon['level'], $pokemon['base_stat'], $pokemon['idv_value'], $pokemon['eft_value']));
                     $succeed     = $evolved = FALSE;
                     $effectcount = 0;
 
@@ -196,7 +196,7 @@ switch($process) {
                 }
 
                 if($succeed) {
-                    Trainer::Item('DROP', $trainer['uid'], $item_id, 1, $item['quantity']);
+                    Trainer::Item('DROP', $trainer['user_id'], $item_id, 1, $item['quantity']);
                     if(!$evolved) {
                         DB::query('UPDATE pkm_mypkm SET hp = ' . $pokemon['hp'] . ', STATUS = ' . $pokemon['status'] . ', exp = ' . $pokemon['exp'] . ' WHERE pkm_id = ' . $pkm_id);
                         $return['msg'] .= Obtain::Text('use_item_succeed');
@@ -288,7 +288,7 @@ switch($process) {
     case 'achvcheck':
 
         $achvid      = !empty($_GET['achv_id']) ? intval($_GET['achv_id']) : 0;
-        $achievement = DB::fetch_first('SELECT ac.name, mac.dateline FROM pkm_achievementdata ac LEFT JOIN pkm_myachievement mac ON mac.achv_id = ac.achv_id AND mac.uid = ' . $trainer['uid'] . ' WHERE ac.achv_id = ' . $achvid);
+        $achievement = DB::fetch_first('SELECT ac.name, mac.dateline FROM pkm_achievementdata ac LEFT JOIN pkm_myachievement mac ON mac.achv_id = ac.achv_id AND mac.user_id = ' . $trainer['user_id'] . ' WHERE ac.achv_id = ' . $achvid);
 
         if($achvid === 0 || $achievement === FALSE) {
             $return['msg'] = '这是个什么成就？';
@@ -311,7 +311,7 @@ switch($process) {
 
         }
 
-        DB::query('INSERT INTO pkm_myachievement (achv_id, uid, dateline) VALUES (' . $achvid . ', ' . $trainer['uid'] . ', ' . $_SERVER['REQUEST_TIME'] . ')');
+        DB::query('INSERT INTO pkm_myachievement (achv_id, user_id, dateline) VALUES (' . $achvid . ', ' . $trainer['user_id'] . ', ' . $_SERVER['REQUEST_TIME'] . ')');
 
         $return['msg']     = '恭喜你完成了成就【' . $achievement['name'] . '】！';
         $return['succeed'] = !0;
@@ -319,14 +319,14 @@ switch($process) {
         break;
     case 'delete-message':
 
-        $msg_id = DB::result_first('SELECT msg_id FROM pkm_myinbox WHERE msg_id = ' . (isset($_GET['msg_id']) ? intval($_GET['msg_id']) : 0) . ' AND uid_receiver = ' . $trainer['uid']);
+        $message_id = DB::result_first('SELECT message_id FROM pkm_myinbox WHERE message_id = ' . (isset($_GET['message_id']) ? intval($_GET['message_id']) : 0) . ' AND receiver_user_id = ' . $trainer['user_id']);
 
-        if(!$msg_id) {
+        if(!$message_id) {
             $return['msg'] = '不存在！';
             break;
         }
 
-        DB::query('DELETE FROM pkm_myinbox WHERE msg_id = ' . $msg_id);
+        DB::query('DELETE FROM pkm_myinbox WHERE message_id = ' . $message_id);
 
         $_GET['section'] = 'inbox';
         include ROOT . '/source/index/memcp.php';

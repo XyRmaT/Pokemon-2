@@ -8,7 +8,7 @@
 	<div class="map-corrector"></div>
 	<div class="map-tile">
 		<!--{loop $onlineTrainer $val}-->
-			<div class="char" id="$val[nat_id]" style="left:{$val[x]}px;top:{$val[y]}px;" title="$val[username]"></div>
+			<div class="char" id="$val[nat_id]" style="left:{$val[x]}px;top:{$val[y]}px;" title="$val[trainer_name]"></div>
 		<!--{/loop}-->
 	</div>
 	<div class="map-overlay"></div>
@@ -166,9 +166,9 @@
 		});
 		Astar.call(avltile, avltile);
 		
-		/*p = function(trainer_id, username, x, y) {
+		/*p = function(trainer_id, trainer_name, x, y) {
 			if($('.char#t' + trainer_id).length < 1)
-				$('.map-tile').append('<div class="char" id="t' + trainer_id + '" style="left:0px;top:176px;" title="' + username + '"></div>');
+				$('.map-tile').append('<div class="char" id="t' + trainer_id + '" style="left:0px;top:176px;" title="' + trainer_name + '"></div>');
 			$('.char#t' + trainer_id).moveto(x, y);
 		};*/
 		

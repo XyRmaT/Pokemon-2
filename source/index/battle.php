@@ -55,10 +55,10 @@ if(!$map) {
 
     }
 
-    DB::query('INSERT INTO pkm_battlefield (uid) VALUES (' . $trainer['uid'] . ') ON DUPLICATE KEY UPDATE weather = 0, has_trickroom = 0, has_gravity = 0');
+    DB::query('INSERT INTO pkm_battlefield (user_id) VALUES (' . $trainer['user_id'] . ') ON DUPLICATE KEY UPDATE weather = 0, has_trickroom = 0, has_gravity = 0');
 
     Battle::$pokemon[0] = [
-        Pokemon::Generate($appearpkm['nat_id'], $trainer['uid'], [
+        Pokemon::Generate($appearpkm['nat_id'], $trainer['user_id'], [
             'met_location' => $map['map_id'],
             'met_level' => $appearpkm['level'],
             'wild'    => 1
@@ -66,7 +66,7 @@ if(!$map) {
         Battle::GenerateBattleData()
     ];
 
-    $query = DB::query('SELECT m.pkm_id, m.nat_id, m.nickname, m.gender, m.psn_value, m.ind_value, m.eft_value, m.nature, m.level, m.item_holding, m.happiness, m.moves, m.ability, m.hp, m.status, m.sprite_name, p.base_stat, p.type, p.type_b FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE m.uid = ' . $trainer['uid'] . ' AND m.location IN (1, 2, 3, 4, 5, 6) AND m.nat_id != 0 ORDER BY m.location ASC');
+    $query = DB::query('SELECT m.pkm_id, m.nat_id, m.nickname, m.gender, m.psn_value, m.idv_value, m.eft_value, m.nature, m.level, m.item_holding, m.happiness, m.moves, m.ability, m.hp, m.status, m.sprite_name, p.base_stat, p.type, p.type_b FROM pkm_mypkm m LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id WHERE m.user_id = ' . $trainer['user_id'] . ' AND m.location IN (1, 2, 3, 4, 5, 6) AND m.nat_id != 0 ORDER BY m.location ASC');
 
     $hp = 0;
     $i  = 1;

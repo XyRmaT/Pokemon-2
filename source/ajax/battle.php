@@ -1,6 +1,6 @@
 <?php
 
-if($trainer['uid'] == 8) error_reporting(E_ALL);
+if($trainer['user_id'] == 8) error_reporting(E_ALL);
 
 define('BATTLEMODE', 'WILD');
 
@@ -33,7 +33,7 @@ switch($process) {
 		break;
 }
 
-Battle::$pokemon = Battle::LoadBattleData($trainer['uid']);
+Battle::$pokemon = Battle::LoadBattleData($trainer['user_id']);
 
 $hptotal = 0;
 
@@ -71,7 +71,7 @@ if(empty(Battle::$pokemon) || $hptotal < 1) {
 
 
 Battle::$swappid = (!empty($_GET['swappid'])) ? intval($_GET['swappid']) : 0;        // If user wants to switch pokemon, this exists
-Battle::$field   = DB::fetch_first('SELECT weather, has_trickroom, has_gravity, current_turn FROM pkm_battlefield WHERE uid = ' . $trainer['uid']);
+Battle::$field   = DB::fetch_first('SELECT weather, has_trickroom, has_gravity, current_turn FROM pkm_battlefield WHERE user_id = ' . $trainer['user_id']);
 
 if(empty(Battle::$field)) {
 

@@ -28,7 +28,7 @@ class Obtain {
             Then obtain the amount of pokemon in each boxes and party the trainer have
     */
 
-    public static function DepositBox($uid) {
+    public static function DepositBox($user_id) {
 
         global $system, $trainer;
 
@@ -36,7 +36,7 @@ class Obtain {
         self::$box = [];
 
         if(empty(self::$box)) {
-            $query = DB::query('SELECT location, COUNT(*) total FROM pkm_mypkm WHERE uid = ' . $uid . ' AND (location IN (1, 2, 3, 4, 5, 6) OR location > 100) GROUP BY location');
+            $query = DB::query('SELECT location, COUNT(*) total FROM pkm_mypkm WHERE user_id = ' . $user_id . ' AND (location IN (1, 2, 3, 4, 5, 6) OR location > 100) GROUP BY location');
             while($pokemon = DB::fetch($query))
                 self::$box[$pokemon['location']] = $pokemon['total'];
         }
@@ -356,7 +356,7 @@ class Obtain {
         $query     = DB::query('SELECT mi.item_id, mi.quantity, i.name_zh name, i.description, i.type
                                  FROM pkm_myitem mi
                                  LEFT JOIN pkm_itemdata i ON i.item_id = mi.item_id
-                                 WHERE mi.uid = ' . $trainer['uid'] . $condition . $orderby);
+                                 WHERE mi.user_id = ' . $trainer['user_id'] . $condition . $orderby);
         $item      = [];
         while($info = DB::fetch($query)) {
             if($mode !== '') $item[$info[$mode[1]]][] = $info;
@@ -365,21 +365,21 @@ class Obtain {
         return $item;
     }
 
-    public static function TrainerAvatar($uid, $size = 'middle') {
+    public static function TrainerAvatar($user_id, $size = 'middle') {
 
-        $uid  = sprintf("%09d", abs(intval($uid)));
-        $path = '../bbs/uc_server/data/avatar/' . substr($uid, 0, 3) . '/' .
-            substr($uid, 3, 2) . '/' .
-            substr($uid, 5, 2) . '/' .
-            substr($uid, -2) . '_avatar_' . (in_array($size, ['big', 'middle', 'small']) ? $size : 'middle') . '.jpg';
+        $user_id  = sprintf("%09d", abs(intval($user_id)));
+        $path = '../bbs/uc_server/data/avatar/' . substr($user_id, 0, 3) . '/' .
+            substr($user_id, 3, 2) . '/' .
+            substr($user_id, 5, 2) . '/' .
+            substr($user_id, -2) . '_avatar_' . (in_array($size, ['big', 'middle', 'small']) ? $size : 'middle') . '.jpg';
 
         return (file_exists($path) ? $path : '../bbs/uc_server/images/noavatar_' . $size . '.gif');
 
     }
 
-    public static function Avatar($uid, $refresh = FALSE) {
+    public static function Avatar($user_id, $refresh = FALSE) {
 
-        $filenameh = base_convert(hash('joaat', $uid), 16, 32);
+        $filenameh = base_convert(hash('joaat', $user_id), 16, 32);
         $path      = ROOT_CACHE . '/avatar/' . $filenameh . '.png';
 
         if(file_exists($path) && $refresh === FALSE) return $path;
@@ -466,7 +466,7 @@ class Obtain {
 
         global $lang;
 
-        $path = ROOT_CACHE . '/image/trainer-card/' . base_convert(hash('joaat', $trainer['uid']), 16, 32) . '.png';
+        $path = ROOT_CACHE . '/image/trainer-card/' . base_convert(hash('joaat', $trainer['user_id']), 16, 32) . '.png';
 
         if(!$force_refresh && file_exists($path) && filemtime($path) + 600 > $_SERVER['REQUEST_TIME']) return $path;
 
@@ -482,7 +482,7 @@ class Obtain {
         $font_path       = ROOT . '/include/font/yahei-bold.ttf';
         $trainer['rank'] = '#' . $trainer['rank'];
         $text_boxes      = [
-            imagettfbbox(9, 0, $font_path, $trainer['username']),
+            imagettfbbox(9, 0, $font_path, $trainer['trainer_name']),
             imagettfbbox(9, 0, $font_path, $trainer['rank']),
             imagettfbbox(9, 0, $font_path, $trainer['level']),
             imagettfbbox(9, 0, $font_path, $trainer['dex_collected']),
@@ -505,7 +505,7 @@ class Obtain {
         Kit::imagettftextblur($background_resource, 9, 0, 221, 51, 0x000000, $font_path, $lang['level']);
         Kit::imagettftextblur($background_resource, 9, 0, 281, 51, 0x000000, $font_path, $lang['pokedex']);
         Kit::imagettftextblur($background_resource, 9, 0, 341, 51, 0x000000, $font_path, $lang['achievement']);
-        Kit::imagettftextblur($background_resource, 9, 0, $left_offsets[0] + 1, 84, 0x000000, $font_path, $trainer['username']);
+        Kit::imagettftextblur($background_resource, 9, 0, $left_offsets[0] + 1, 84, 0x000000, $font_path, $trainer['trainer_name']);
         Kit::imagettftextblur($background_resource, 9, 0, $left_offsets[1] + 1, 31, 0x000000, $font_path, $trainer['rank']);
         Kit::imagettftextblur($background_resource, 9, 0, $left_offsets[2] + 1, 31, 0x000000, $font_path, $trainer['level']);
         Kit::imagettftextblur($background_resource, 9, 0, $left_offsets[3] + 1, 31, 0x000000, $font_path, $trainer['dex_collected']);
@@ -514,13 +514,13 @@ class Obtain {
         imagettftext($background_resource, 9, 0, 220, 50, 0xFFFFFF, $font_path, $lang['level']);
         imagettftext($background_resource, 9, 0, 280, 50, 0xFFFFFF, $font_path, $lang['pokedex']);
         imagettftext($background_resource, 9, 0, 340, 50, 0xFFFFFF, $font_path, $lang['achievement']);
-        imagettftext($background_resource, 9, 0, $left_offsets[0], 83, 0xFFFFFF, $font_path, $trainer['username']);
+        imagettftext($background_resource, 9, 0, $left_offsets[0], 83, 0xFFFFFF, $font_path, $trainer['trainer_name']);
         imagettftext($background_resource, 9, 0, $left_offsets[1], 30, 0xFFFFFF, $font_path, $trainer['rank']);
         imagettftext($background_resource, 9, 0, $left_offsets[2], 30, 0xFFFFFF, $font_path, $trainer['level']);
         imagettftext($background_resource, 9, 0, $left_offsets[3], 30, 0xFFFFFF, $font_path, $trainer['dex_collected']);
         imagettftext($background_resource, 9, 0, $left_offsets[4], 30, 0xFFFFFF, $font_path, 0);
 
-        $query = DB::query('SELECT nat_id FROM pkm_mypkm WHERE uid = ' . $trainer['uid'] . ' AND location IN (' . LOCATION_PARTY . ')');
+        $query = DB::query('SELECT nat_id FROM pkm_mypkm WHERE user_id = ' . $trainer['user_id'] . ' AND location IN (' . LOCATION_PARTY . ')');
         $i     = 0;
         while($info = DB::fetch($query)) {
             if(!$info['nat_id']) imagecopy($background_resource, self::$resources['egg_icon'], 160 + $i * 36, 63, 0, 0, 32, 32);

@@ -13,8 +13,8 @@
 
 <footer>
     <span ng-bind="_LANG.current_time"></span>: {date('Y-m-d H:i:s', $smarty.server.REQUEST_TIME)}
-    <span ng-bind="_LANG.memory_usage"></span>: {Kit::Memory(memory_get_usage(TRUE))}<br>
-    {if $user['uid'] == 8}Processed in {round(microtime(TRUE) - $start_time, 6)} second(s), {DB::get_query_num()} queries.<br>{/if}
+    <span ng-bind="_LANG.memory_usage"></span>: {Kit::memoryFormat(memory_get_usage(TRUE))}<br>
+    Processed in {round(microtime(TRUE) - $start_time, 6)} second(s), {DB::get_query_num()} queries.<br>
     <div ng-bind-html="_LANG.browser_advice"></div>
     Copyright &copy; 2013-{YEAR} PokeUniv (Pet). Version {$system['version']}.
 </footer>
@@ -35,5 +35,4 @@
         ga('send', 'pageview');
     {/literal}
 </script>
-{$synclogin}
 </html>

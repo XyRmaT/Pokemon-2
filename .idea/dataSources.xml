@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="DataSourceManagerImpl" format="xml" hash="1639690215">
-    <data-source source="LOCAL" name="MySQL - pokeuniv@localhost" uuid="b7d2a4b9-c687-4a2f-b480-2a0ac65399e6">
+  <component name="DataSourceManagerImpl" format="xml" hash="3616461773">
+    <data-source source="LOCAL" name="MySQL - pokemon@localhost" uuid="73a6be2f-c2c5-4da5-acf1-e92dea5b1aa2">
       <driver-ref>mysql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://localhost:3306/pokeuniv</jdbc-url>
+      <jdbc-url>jdbc:mysql://localhost:3306/pokemon</jdbc-url>
       <driver-properties>
+        <property name="autoReconnect" value="true" />
         <property name="zeroDateTimeBehavior" value="convertToNull" />
         <property name="tinyInt1isBit" value="false" />
         <property name="characterEncoding" value="utf8" />

@@ -23,14 +23,9 @@ $system = [
         ['kalos', 650, 721]
     ],
     'daycare_check_hour'    => 2,
-    'fmPlaceCost'           => 10,
     'currency_name'         => $lang['currency_name'],
-    'currency_field'        => 'extcredits7',
-    'c_1wk'                 => 0,
-    'c_1mth'                => 0,
     'happiness_check_cycle' => 30 * 60,
     'happiness_add'         => ['min' => 10, 'max' => 20],
-    'exp_field'             => 'extcredits1',
     'shelter_cost'          => 200,
     'costs'                 => [
         'shelter_claim' => 200
@@ -40,6 +35,14 @@ $system = [
     ],
     'pkm_limits'            => [
         'pc_heal' => 6,
+    ],
+    'starter' => [
+        POKEMON_BULBASAUR, POKEMON_CHARMANDER, POKEMON_SQUIRTLE,
+        POKEMON_CHIKORITA, POKEMON_CYNDAQUIL, POKEMON_TOTODILE,
+        POKEMON_TREECKO, POKEMON_TORCHIC, POKEMON_MUDKIP,
+        POKEMON_TURTWIG, POKEMON_CHIMCHAR, POKEMON_PIPLUP,
+        POKEMON_SNIVY, POKEMON_TEPIG, POKEMON_OSHAWOTT,
+        POKEMON_CHESPIN, POKEMON_FENNEKIN, POKEMON_FROAKIE
     ]
 ];
 

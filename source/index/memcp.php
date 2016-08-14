@@ -7,18 +7,18 @@ switch($_GET['section']) {
     case 'party':
 
         $query   = DB::query('SELECT m.nat_id, m.pkm_id, m.gender, m.hp, m.exp, m.level, m.nature,
-                                      m.nickname, m.form, m.eft_value, m.ind_value, m.new_moves, m.moves,
+                                      m.nickname, m.form, m.eft_value, m.idv_value, m.new_moves, m.moves,
                                       m.sprite_name, m.item_captured, m.time_hatched, m.met_time, m.met_level,
                                       m.met_location, m.beauty, m.item_holding, m.happiness, m.psn_value,
-                                      m.form, m.uid_initial, m.status, m.is_shiny,
+                                      m.form, m.initial_user_id, m.status, m.is_shiny,
                                       a.name_zh ability,
                                       p.base_stat, p.type, p.type_b, p.exp_type, p.name_zh name, p.evolution_data,
-                                      mb.username
+                                      t.trainer_name
                                 FROM pkm_mypkm m
                                 LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id OR m.hatch_nat_id = p.nat_id
                                 LEFT JOIN pkm_abilitydata a ON m.ability = a.abi_id
-                                LEFT JOIN pre_common_member mb ON mb.uid = m.uid_initial
-                                WHERE m.location IN (1, 2, 3, 4, 5, 6) AND m.uid = ' . $trainer['uid'] . '
+                                LEFT JOIN pkm_trainerdata t ON t.user_id = m.initial_user_id
+                                WHERE m.location IN (1, 2, 3, 4, 5, 6) AND m.user_id = ' . $trainer['user_id'] . '
                                 ORDER BY m.location');
         $pokemon = $move_ids = [];
 
@@ -46,7 +46,7 @@ switch($_GET['section']) {
                     break;
                 default:
 
-                    $info = array_merge($info, Obtain::Stat($info['level'], $info['base_stat'], $info['ind_value'], $info['eft_value'], $info['nature'], $info['hp']));
+                    $info = array_merge($info, Obtain::Stat($info['level'], $info['base_stat'], $info['idv_value'], $info['eft_value'], $info['nature'], $info['hp']));
 
                     $info['pkm_sprite']          = Obtain::Sprite('pokemon', 'gif', $info['sprite_name']);
                     $info['hold_item_sprite']   = $info['item_holding'] ? Obtain::Sprite('item', 'png', 'item_' . $info['item_holding']) : '';
@@ -73,7 +73,7 @@ switch($_GET['section']) {
                     break;
             }
 
-            unset($info['eft_value'], $info['ind_value'], $info['base_stat'], $info['beauty'], $info['happiness'], $info['psn_value'], $info['time_hatched'], $info['evolution_data']);
+            unset($info['eft_value'], $info['idv_value'], $info['base_stat'], $info['beauty'], $info['happiness'], $info['psn_value'], $info['time_hatched'], $info['evolution_data']);
 
             $pokemon[] = $info;
         }
@@ -115,7 +115,7 @@ switch($_GET['section']) {
 
         $seen    = 0;
         $count   = DB::result_first('SELECT COUNT(DISTINCT nat_id) FROM pkm_pkmdata');
-        $query   = DB::query('SELECT DISTINCT md.nat_id, md.is_owned, p.name_zh name, p.type, p.type_b FROM pkm_mypokedex md LEFT JOIN pkm_pkmdata p ON p.nat_id = md.nat_id WHERE md.uid = ' . $trainer['uid']);
+        $query   = DB::query('SELECT DISTINCT md.nat_id, md.is_owned, p.name_zh name, p.type, p.type_b FROM pkm_mypokedex md LEFT JOIN pkm_pkmdata p ON p.nat_id = md.nat_id WHERE md.user_id = ' . $trainer['user_id']);
         $pokemon = array_fill(1, $count, ['is_owned' => 'n']);
 
         while($info = DB::fetch($query)) {
@@ -136,7 +136,7 @@ switch($_GET['section']) {
         break;
     case 'achievement':
 
-        $query       = DB::query('SELECT ac.achv_id, ac.name_zh name, ac.cat_id, ac.description, mac.time_obtained FROM pkm_achievementdata ac LEFT JOIN pkm_myachievement mac ON mac.achv_id = ac.achv_id AND mac.uid = ' . $trainer['uid'] . ' ORDER BY cat_id ASC, achv_id ASC');
+        $query       = DB::query('SELECT ac.achv_id, ac.name_zh name, ac.cat_id, ac.description, mac.time_obtained FROM pkm_achievementdata ac LEFT JOIN pkm_myachievement mac ON mac.achv_id = ac.achv_id AND mac.user_id = ' . $trainer['user_id'] . ' ORDER BY cat_id ASC, achv_id ASC');
         $achievement = [];
         $catarr      = ['未分类', '图鉴登录'];
 
@@ -148,23 +148,23 @@ switch($_GET['section']) {
         break;
     case 'inbox':
 
-        $query    = DB::query('SELECT mi.msg_id, mi.title, mi.content, mi.time_sent, mi.time_read, mi.uid_sender, m.username
-                              FROM pkm_myinbox mi LEFT JOIN pre_common_member m ON m.uid = mi.uid_sender
-                              WHERE mi.uid_receiver = ' . $trainer['uid'] . '
+        $query    = DB::query('SELECT mi.message_id, mi.title, mi.content, mi.time_sent, mi.time_read, mi.sender_user_id, t.trainer_name
+                              FROM pkm_myinbox mi LEFT JOIN pkm_trainerdata t ON t.user_id = mi.sender_user_id
+                              WHERE mi.receiver_user_id = ' . $trainer['user_id'] . '
                               ORDER BY mi.time_sent DESC');
         $messages = [];
         $unread   = 0;
 
         while($info = DB::fetch($query)) {
-            $info['avatar']  = Obtain::Avatar($info['uid_sender']);
+            $info['avatar']  = Obtain::Avatar($info['sender_user_id']);
             $info['content'] = str_replace(['&', '<a '], ['&amp;', '<a target="_blank" '], $info['content']);
             $messages[]      = $info;
             if(!$info['time_read']) ++$unread;
         }
 
         if($unread) {
-            DB::query('UPDATE pkm_trainerdata SET has_new_message = 0 WHERE uid = ' . $trainer['uid']);
-            DB::query('UPDATE pkm_myinbox SET time_read = ' . $_SERVER['REQUEST_TIME'] . ' WHERE uid_receiver = ' . $trainer['uid']);
+            DB::query('UPDATE pkm_trainerdata SET has_new_message = 0 WHERE user_id = ' . $trainer['user_id']);
+            DB::query('UPDATE pkm_myinbox SET time_read = ' . $_SERVER['REQUEST_TIME'] . ' WHERE receiver_user_id = ' . $trainer['user_id']);
         }
 
         $r['messages']     = $messages;
@@ -196,7 +196,7 @@ switch($_GET['section']) {
                             'SELECT mi.item_id, mi.quantity, i.name_zh name, i.description, i.type, i.is_usable
                             FROM pkm_myitem mi
                             LEFT JOIN pkm_itemdata i ON i.item_id = mi.item_id
-                            WHERE mi.uid = ' . $trainer['uid'] . ' AND mi.quantity > 0 ');
+                            WHERE mi.user_id = ' . $trainer['user_id'] . ' AND mi.quantity > 0 ');
         $items = [];
 
         while($info = DB::fetch($query)) {

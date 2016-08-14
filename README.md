@@ -1,5 +1,5 @@
 ## Dependencies
-* PHP: v5.6
+* PHP: v7.0
 * Smarty: v3.1.29
 * jQuery: v2.0.3
 * angularJS: v1.4.7
@@ -14,6 +14,10 @@
   * Using AngularJS framework, more easy to deal with JSON updates.
 
 ## Updates
+
+### 2016-08-15
+* Finished starter page.
+* Re-structured `include` folder, made it more manageable.
 
 ### 2016-01-19
 * Finished inventory.
@@ -87,21 +91,23 @@
   - [ ] ranking.tpl (Awaiting for next update)
   - [x] shelter.tpl
   - [x] shop.tpl
-  - [ ] starter.tpl
-- Implement
+  - [x] starter.tpl
+- Implement / Updates
   - [ ] Horde feature
   - [ ] Signature feature
   - [ ] Map system
+    - [ ] Websocket based chatting system
   - [ ] Announcement system
   - [ ] Weather system
   - [ ] Changing of sub-color depends on which page the user's at
   - [ ] PHP queue class
+  - [x] PHP7 compatible
 - Test
   - [x] Daycare take egg
   - [ ] Bad egg
 - [ ] Remove jQuery library
 - [ ] Spinda
-- [ ] Create item sprite sheet, depracate item image caching.
+- [ ] Create item sprite sheet, deprecate item image caching.
 - [ ] Unset ALL unnecessary variables that will be encoded into JSON.
 - [x] Improve the performance of `Kit::imagettftextblur()`.
 - [ ] All other stuff marked as TODO in the code.
@@ -114,5 +120,4 @@
  
 ### Notes
 * Will need to figure out a simple way to fetch fields.
-* Planning to upgrade to PHP7.
 * V1.0 code must be clear, easy to understand and maintain.

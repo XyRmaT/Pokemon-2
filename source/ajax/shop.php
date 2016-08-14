@@ -28,7 +28,7 @@ switch($process) {
                 $return['msg'] = Obtain::Text('unpaid');
             } else {
 
-                if(!Trainer::Item('OBTAIN', $trainer['uid'], $item_id, $quantity)) {
+                if(!Trainer::Item('OBTAIN', $trainer['user_id'], $item_id, $quantity)) {
                     $return['msg'] = Obtain::Text('bag_full');
                     break;
                 }
@@ -37,7 +37,7 @@ switch($process) {
                 DB::query('UPDATE pkm_stat SET value = value + ' . $cost . ' WHERE `key` = \'shop_sale\'');
 
                 Trainer::AddTemporaryStat('item_bought', $quantity);
-                App::CreditsUpdate($trainer['uid'], -$cost);
+                App::CreditsUpdate($trainer['user_id'], -$cost);
 
                 $return['msg'] = Obtain::Text('purchase_succeed');
 

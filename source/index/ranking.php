@@ -6,38 +6,30 @@ $topTrainer = $pokemon = $pokedex = $pokedexb = [];
 
 
 // Trainer's rakning
-
-$query = DB::query('SELECT t.level, t.uid, mb.username FROM pkm_trainerdata t LEFT JOIN pre_common_member mb ON mb.uid = t.uid ORDER BY t.exp DESC LIMIT 10');
-
+$query = DB::query('SELECT level, user_id, trainer_name FROM pkm_trainerdata ORDER BY exp DESC LIMIT 10');
 while($info = DB::fetch($query)) {
-	$info['avatar'] = Obtain::Avatar($info['uid'], 'small');
-	$topTrainer[]   = $info;
+    $info['avatar'] = Obtain::Avatar($info['user_id'], 'small');
+    $topTrainer[]   = $info;
 }
 
 // Pokemon's ranking
-
-$query = DB::query('SELECT m.nat_id, m.nickname, m.level, m.gender, m.uid, mb.username FROM pkm_mypkm m LEFT JOIN pre_common_member mb ON mb.uid = m.uid ORDER BY m.level DESC, m.exp DESC LIMIT 10');
-
+$query = DB::query('SELECT m.nat_id, m.nickname, m.level, m.gender, m.user_id, t.trainer_name FROM pkm_mypkm m LEFT JOIN pkm_trainerdata t ON t.user_id = m.user_id ORDER BY m.level DESC, m.exp DESC LIMIT 10');
 while($info = DB::fetch($query)) {
-	$info['gender'] = Obtain::GenderSign($info['gender']);
-	$pokemon[] = $info;
+    $info['gender'] = Obtain::GenderSign($info['gender']);
+    $pokemon[]      = $info;
 }
 
 // Pokedex's ranking
-
-$query = DB::query('SELECT COUNT(*) total, d.uid, mb.username FROM pkm_mypokedex d LEFT JOIN pre_common_member mb ON mb.uid = d.uid WHERE d.is_owned IN (0, 1) GROUP BY d.uid ORDER BY total DESC LIMIT 10');
-
+$query = DB::query('SELECT COUNT(*) total, d.user_id, t.trainer_name FROM pkm_mypokedex d LEFT JOIN pkm_trainerdata t ON t.user_id = d.user_id WHERE d.is_owned IN (0, 1) GROUP BY d.user_id ORDER BY total DESC LIMIT 10');
 while($info = DB::fetch($query)) {
-	$info['avatar'] = Obtain::Avatar($info['uid'], 'small');
-	$pokedex[]      = $info;
+    $info['avatar'] = Obtain::Avatar($info['user_id'], 'small');
+    $pokedex[]      = $info;
 }
 
 // Pokedex's ranking
-
-$query = DB::query('SELECT COUNT(*) total, d.uid, mb.username FROM pkm_mypokedex d LEFT JOIN pre_common_member mb ON mb.uid = d.uid WHERE d.is_owned = 1 GROUP BY d.uid ORDER BY total DESC LIMIT 10');
-
+$query = DB::query('SELECT COUNT(*) total, d.user_id, t.trainer_name FROM pkm_mypokedex d LEFT JOIN pkm_trainerdata t ON t.user_id = d.user_id WHERE d.is_owned = 1 GROUP BY d.user_id ORDER BY total DESC LIMIT 10');
 while($info = DB::fetch($query)) {
-	$info['avatar'] = Obtain::Avatar($info['uid'], 'small');
-	$pokedexb[]     = $info;
+    $info['avatar'] = Obtain::Avatar($info['user_id'], 'small');
+    $pokedexb[]     = $info;
 }
 

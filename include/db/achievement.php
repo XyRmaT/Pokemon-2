@@ -3,7 +3,7 @@
 class AchievementDb {
 
     public static function DexCollect($num) {
-        $seen = DB::result_first('SELECT COUNT(*) FROM pkm_mypokedex WHERE uid = ' . $GLOBALS['user']['uid']);
+        $seen = DB::result_first('SELECT COUNT(*) FROM pkm_mypokedex WHERE user_id = ' . $GLOBALS['user']['user_id']);
         return ($seen >= $num);
     }
 

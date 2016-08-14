@@ -14,7 +14,7 @@ app
         $httpProvider.interceptors.push(function ($q, $rootScope) {
             var timer;
             return {
-                'request' : function (config) {
+                'request': function (config) {
                     if (config.pushState) pushState('', config.url);
                     config.url += '&t=' + Math.random();
                     $('header .decoration-bar').removeClass('loading active');
@@ -26,6 +26,9 @@ app
                 'response': function (response) {
                     timer = null;
                     $('header .decoration-bar').removeClass('loading').addClass('active');
+                    if (response.data.js) {
+                        eval(response.data.js);
+                    }
                     if (response.data.msg) {
                         $('.pop-up.message > .content').html(response.data.msg);
                         pop.open('message');
@@ -47,7 +50,7 @@ app
         $scope.pop          = pop;
         $scope.array        = function (max) {
             return new Array(max);
-        }
+        };
         $scope.numberFormat = function (num) {
             return (num > 999999) ? Math.round(num / 1000000) + 'm' : ((num > 999) ? Math.round(num / 1000) + 'k' : num);
         };
@@ -78,6 +81,15 @@ app
         $('#pop-up-mask, .pop-up .close, [pop-up-close]').bind('click', pop.closeAll);
         $('header .decoration-bar').addClass('active');
     }])
+    .controller('process-register', ['$scope', '$http', function ($scope, $http) {
+        $scope.regProcess = 1;
+        $scope.reg        = {
+            email: '',
+            password: '',
+            trainer_name: '',
+            password_retype: ''
+        };
+    }])
     .controller('page-daycare', ['$rootScope', '$scope', '$http', function ($rootScope, $scope, $http) {
         $rootScope.putPokemon  = function (pkmId) {
             $http.get('?index=daycare&process=put-pokemon&pkm_id=' + pkmId);
@@ -99,6 +111,11 @@ app
             confirm($scope._LANG.are_you_sure) && $http.get('?index=shop&process=buy-item&item_id=' + itemId + '&quantity=' + quantity);
             pop.closeAll();
         };
+    }])
+    .controller('page-starter', ['$scope', '$http', function($scope, $http) {
+        $scope.claimPokemon = function(natId) {
+            confirm($scope._LANG.are_you_sure) && $http.get('?index=starter&process=claim-pokemon&nat_id=' + natId);
+        }
     }])
     .controller('page-pc', ['$rootScope', '$scope', '$http', function ($rootScope, $scope, $http) {
         var sideMenu = $('.side-menu');
@@ -127,10 +144,10 @@ app
             sideMenu.find('[data-section]');
         });
         $scope.orderListener = {
-            dragStart   : function () {
+            dragStart: function () {
                 isTooltipDisabled = true;
             },
-            dragEnd     : function () {
+            dragEnd: function () {
                 isTooltipDisabled = false;
             },
             orderChanged: function (event) {
@@ -189,7 +206,7 @@ app
     .directive('ngPlaceholder', function () {
         return {
             restrict: 'A',
-            link    : function ($scope, $element, $attr) {
+            link: function ($scope, $element, $attr) {
                 $element.attr('placeholder', $attr.ngPlaceholder)
             }
         };
@@ -197,11 +214,11 @@ app
     .directive('pokemonOverflow', function () {
         return {
             restrict: 'A',
-            link    : function ($scope, $element) {
+            link: function ($scope, $element) {
                 $element.bind('load', function () {
                     $element.css({
                         'left': (($element.parent().outerWidth() - $element.width()) / 2) + 'px',
-                        'top' : (($element.parent().outerHeight() - $element.height()) / 2) + 'px'
+                        'top': (($element.parent().outerHeight() - $element.height()) / 2) + 'px'
                     }).show();
                 });
             }
@@ -210,10 +227,10 @@ app
     .directive('pokemonIcon', function () {
         return {
             restrict: 'E',
-            scope   : {
+            scope: {
                 natId: '='
             },
-            link    : function ($scope, $element) {
+            link: function ($scope, $element) {
                 $element.replaceWith('<span class="pokemon-icon" ' + ($scope.natId ? 'style="background-position:' +
                     '-' + ((parseInt($scope.natId) % 12) * 32) + 'px ' +
                     '-' + (Math.floor(parseInt($scope.natId) / 12) * 32) + 'px"' : '') + '></span>');
@@ -224,7 +241,7 @@ app
         return {
             priority: 1001,
             restrict: 'A',
-            link    : function ($scope, $element, $attr) {
+            link: function ($scope, $element, $attr) {
                 $element.bind('click', function () {
                     pop.open($attr.popUp);
                 });
@@ -234,7 +251,7 @@ app
     .directive('draggable', function () {
         return {
             restrict: 'A',
-            link    : function ($scope, $element) {
+            link: function ($scope, $element) {
                 var elem, x_elem, y_elem, x_pos, y_pos = 0;
                 $element
                     .on('mousedown', function () {
@@ -247,7 +264,7 @@ app
                         y_pos = document.all ? window.event.clientY : e.pageY;
                         if (elem)
                             elem.css({
-                                top : (y_pos - y_elem) + 'px',
+                                top: (y_pos - y_elem) + 'px',
                                 left: (x_pos - x_elem) + 'px'
                             });
                     })
@@ -260,7 +277,7 @@ app
     .directive('tooltip', ['$rootScope', function ($rootScope) {
         return {
             restrict: 'A',
-            link    : function ($scope, $element, $attr) {
+            link: function ($scope, $element, $attr) {
                 if (!$attr.tooltip) return;
                 var tooltip         = $('#tooltip'),
                     decorationWidth = tooltip.find('.triangle').outerWidth();
@@ -271,7 +288,7 @@ app
                     $rootScope.tooltipMessage = $attr.tooltip;
                     $rootScope.$apply();
                     tooltip.css({
-                        top : (offset.top + dis.outerHeight() / 2 - 7) + 'px',
+                        top: (offset.top + dis.outerHeight() / 2 - 7) + 'px',
                         left: (offset.left + dis.outerWidth() + decorationWidth) + 'px'
                     }).show();
                 }).bind('mouseout', function (event) {
@@ -284,7 +301,7 @@ app
     .directive('copieable', ['$rootScope', function ($rootScope) {
         return {
             restrict: 'A',
-            link    : function ($scope, $element, $attr) {
+            link: function ($scope, $element, $attr) {
                 $element.on('click', function (event) {
                     event.preventDefault();
                     var clipboard = $('#clipboard-' + $attr.copieable).select(),
@@ -302,7 +319,7 @@ app
     .directive('vbar', ['$rootScope', '$parse', '$compile', function ($rootScope, $parse, $compile) {
         return {
             restrict: 'E',
-            link    : function ($scope, $element, $attr) {
+            link: function ($scope, $element, $attr) {
                 var options = $parse($attr.options)();
                 $element.replaceWith($compile('<div class="vbar ' + options.type + '">' +
                     '<div class="outer" tooltip="' + options.value + ' / ' + options.max + '">' +
@@ -323,11 +340,11 @@ app
     }]);
 
 var pop = {
-    open    : function (name) {
+    open: function (name) {
         this.closeAll();
         var popUp = $('.pop-up.' + name);
         popUp.fadeIn().css({
-            top : (($window.height() - popUp.height()) / 2.5) + 'px',
+            top: (($window.height() - popUp.height()) / 2.5) + 'px',
             left: (($window.width() - popUp.width()) / 2) + 'px'
         });
         $('#pop-up-mask').fadeIn();

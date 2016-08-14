@@ -10,7 +10,7 @@ switch($process) {
             break;
         }
 
-        $pkm_count = DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE uid = ' . $trainer['uid'] . ' AND location = ' . LOCATION_DAYCARE);
+        $pkm_count = DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE user_id = ' . $trainer['user_id'] . ' AND location = ' . LOCATION_DAYCARE);
 
         if($pkm_count >= 2) {
             $return['msg'] = Obtain::Text('daycare_max_reached');
@@ -56,7 +56,7 @@ switch($process) {
                 break;
             }
 
-            $location = Obtain::DepositBox($trainer['uid']);
+            $location = Obtain::DepositBox($trainer['user_id']);
             if($location === FALSE) {
                 $return['msg'] = Obtain::Text('no_available_box');
                 break;
@@ -64,7 +64,7 @@ switch($process) {
 
             $info = [];
             Pokemon::Update(['time_egg_checked' => 0], [
-                'uid'      => $trainer['uid'],
+                'user_id'      => $trainer['user_id'],
                 'location' => LOCATION_DAYCARE
             ]);
             Pokemon::Update([
@@ -73,7 +73,7 @@ switch($process) {
                 'exp'               => 'exp + ' . $values['exp_increased']
             ], ['pkm_id' => $pkm_id], TRUE, $info, $pkm_id);
 
-            App::CreditsUpdate($trainer['uid'], -$values['cost']);
+            App::CreditsUpdate($trainer['user_id'], -$values['cost']);
 
             $return['msg'] = Obtain::Text('daycare_pay_succeed', [$values['cost'], $pokemon['nickname']]) .
                 ($location > 100 ? Obtain::Text('daycare_moved_to_box', [$location - 100]) : '');
@@ -83,7 +83,7 @@ switch($process) {
         break;
     case 'take-egg':
 
-        $query  = DB::query('SELECT nat_id, gender FROM pkm_mypkm WHERE uid = ' . $trainer['uid'] . ' AND location = ' . LOCATION_DAYCARE . ' AND has_egg = 1 LIMIT 2');
+        $query  = DB::query('SELECT nat_id, gender FROM pkm_mypkm WHERE user_id = ' . $trainer['user_id'] . ' AND location = ' . LOCATION_DAYCARE . ' AND has_egg = 1 LIMIT 2');
         $nat_id = $gender = [];
 
         while($info = DB::fetch($query)) {
@@ -99,7 +99,7 @@ switch($process) {
             $key_male   = array_search(2, $gender);
             $is_bad_egg = $key_ditto === FALSE && $key_male === FALSE || count($nat_id) > 2;
             $nat_id     = $is_bad_egg ? 0 : $nat_id[$key_ditto === FALSE ? intval(!$key_ditto) : $key_male];
-            $code       = Pokemon::Generate($nat_id, $trainer['uid'], [
+            $code       = Pokemon::Generate($nat_id, $trainer['user_id'], [
                 'met_location' => 601,
                 'time_hatched' => 1,
                 'is_egg'       => TRUE,
@@ -113,7 +113,7 @@ switch($process) {
 
             DB::query('UPDATE pkm_mypkm
                         SET has_egg = 0, time_egg_checked = ' . $_SERVER['REQUEST_TIME'] . '
-                        WHERE uid = ' . $trainer['uid'] . ' AND location = ' . LOCATION_DAYCARE);
+                        WHERE user_id = ' . $trainer['user_id'] . ' AND location = ' . LOCATION_DAYCARE);
 
             Trainer::AddExp($trainer, 6, TRUE);
             $return['msg'] = Obtain::Text('daycare_take_care');

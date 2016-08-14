@@ -21,7 +21,7 @@ table.main .header hr {
     border : 1px solid #4D4D54;
 }
 
-table.main .header .username {
+table.main .header .trainer_name {
     color     : #3092C8;
     font-size : 12px;
 }

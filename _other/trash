@@ -2,7 +2,7 @@
 $_GET = [
 	'formhash' => 'a738f57a',
 	'referer' => 'http://127.0.0.1/bbs/forum.php',
-	'username' => '嘟嘟之魂',
+	'trainer_name' => '嘟嘟之魂',
 	'password' => '7cef8228f62a162f0cf2ca9e6cd65e91',
 	'questionid' => '0',
 	'answer' => '',
@@ -23,26 +23,26 @@ exit;
 
 ======================
 
-if($_G['uid'] == 8) {
-	$query = DB::query('SELECT DISTINCT id FROM pkm_mypkm WHERE uid = 5215 AND id != 0');
+if($_G['user_id'] == 8) {
+	$query = DB::query('SELECT DISTINCT id FROM pkm_mypkm WHERE user_id = 5215 AND id != 0');
 
 	while($info = DB::fetch($query)) {
 
-		DB::query('DELETE FROM pkm_mypokedex WHERE uid = 5215 AND id = ' . $info['id']);
-		DB::query('INSERT INTO pkm_mypokedex (uid, id, own) VALUES (5215, ' . $info['id'] . ', 1)');
+		DB::query('DELETE FROM pkm_mypokedex WHERE user_id = 5215 AND id = ' . $info['id']);
+		DB::query('INSERT INTO pkm_mypokedex (user_id, id, own) VALUES (5215, ' . $info['id'] . ', 1)');
 
 	}
 }
 
-if($_G['uid'] == 8) $_G['uid'] = 5215;
+if($_G['user_id'] == 8) $_G['user_id'] = 5215;
 
 =======================
 
 //if(INAJAX)    $_REQUEST = Kit::ArrayIconv('utf-8', 'gb2312', $_REQUEST);
 
-/*while($info = DB::fetch(empty($query) ? ($query = DB::query('SELECT uid FROM pkm_trainerdata')) : $query)) {
+/*while($info = DB::fetch(empty($query) ? ($query = DB::query('SELECT user_id FROM pkm_trainerdata')) : $query)) {
 
-    Obtain::Avatar($info['uid'], 1);
+    Obtain::Avatar($info['user_id'], 1);
 
 }*/
 /*
@@ -50,6 +50,6 @@ $query = DB::query('SELECT msgid FROM pkm_myinbox');
 
 while($info = DB::fetch($query)) {
 
-    DB::query('UPDATE pkm_myinbox SET sender = ' . DB::result_first('SELECT uid FROM pkm_trainerdata ORDER BY RAND()') . ' WHERE msgid = ' . $info['msgid']);
+    DB::query('UPDATE pkm_myinbox SET sender = ' . DB::result_first('SELECT user_id FROM pkm_trainerdata ORDER BY RAND()') . ' WHERE msgid = ' . $info['msgid']);
 
 }*/

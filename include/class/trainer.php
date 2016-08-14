@@ -6,52 +6,52 @@ class Trainer {
 
     /**
      * Generates initial trainer data for a user.
-     * @param $uid
      * @return bool
+     * @internal param $user_id
      */
-    public static function Generate($uid) {
+    public static function generate() {
 
         // Use prepared statement to find out if the trainer id already exists
         if(!($stmt = DB::prepare('SELECT trainer_id FROM pkm_trainerdata WHERE trainer_id = ?'))) return FALSE;
 
-        $stmt->bind_param('s', $trainerId);
-        while(1) {
-            $trainerId = strtoupper(str_pad(dechex(rand(0, 65535)), 4, '0', STR_PAD_LEFT) . str_pad(dechex(rand(0, 65535)), 4, '0', STR_PAD_LEFT));
-            if($stmt->execute() && $stmt->fetch()) break;
-        }
+        //$stmt->bind_param('s', $trainer_id);
+        //while(1) {
+            $trainer_id = strtoupper(
+                str_pad(dechex(rand(0, 65535)), 4, '0', STR_PAD_LEFT) .
+                str_pad(dechex(rand(0, 65535)), 4, '0', STR_PAD_LEFT)
+            );
+        //    if($stmt->execute() && $stmt->fetch()) break;
+        //}
 
         // Insert newly genderated trainer data, also add an stat entry for the trainer
-        DB::query('INSERT INTO pkm_trainerdata (uid, trainer_id, time_begin, time_happiness_checked) VALUES (' . $uid . ', \'' . $trainerId . '\', ' . $_SERVER['REQUEST_TIME'] . ', ' . $_SERVER['REQUEST_TIME'] . ')');
-        DB::query('INSERT INTO pkm_trainerstat (uid) VALUES (' . $uid . ')');
+        DB::query('INSERT INTO pkm_trainerdata (trainer_id, time_begin, time_happiness_checked) VALUES (\'' . $trainer_id . '\', ' . $_SERVER['REQUEST_TIME'] . ', ' . $_SERVER['REQUEST_TIME'] . ')');
+        DB::query('INSERT INTO pkm_trainerstat (user_id) VALUES (' . ($user_id = DB::insertID()) . ')');
 
-        return TRUE;
+        return $user_id;
 
     }
 
-    public static function Fetch($uid) {
+    public static function Fetch($user_id) {
 
         global $system;
 
-        $trainer = DB::fetch_first('SELECT m.uid, username, trainer_id, exp, level, has_starter, box_quantity, time_happiness_checked, is_battling, has_new_message, time_last_visit,
+        $trainer = DB::fetch_first('SELECT user_id, trainer_name, trainer_id, exp, level, has_starter, currency, box_quantity, time_happiness_checked, is_battling, has_new_message, time_last_visit,
                                     FIND_IN_SET(exp, (SELECT GROUP_CONCAT(exp ORDER BY exp DESC) FROM pkm_trainerdata)) rank
                                     FROM pkm_trainerdata t
-                                    LEFT JOIN pre_common_member m ON m.uid = t.uid
-                                    WHERE m.uid = ' . $uid);
+                                    WHERE user_id = ' . $user_id);
 
         if(!$trainer) return FALSE;
 
-        $trainer['extcredit']     = DB::fetch_first('SELECT ' . $system['currency_field'] . ' currency, ' . $system['exp_field'] . ' exp FROM pre_common_member_count WHERE uid = ' . $trainer['uid']);
-        $trainer['gm']            = in_array($trainer['uid'], explode(',', $system['admins']));
-        $trainer['currency']      = $trainer['extcredit']['currency'];
-        $trainer['avatar']        = Obtain::Avatar($trainer['uid']);
-        $trainer['stat']          = DB::fetch_first('SELECT * FROM pkm_trainerstat WHERE uid = ' . $uid);
-        $trainer['dex_collected'] = DB::result_first('SELECT COUNT(*) FROM pkm_mypokedex WHERE uid = ' . $trainer['uid'] . ' AND is_owned = 1');
+        $trainer['gm']            = in_array($trainer['user_id'], explode(',', $system['admins']));
+        $trainer['avatar']        = Obtain::Avatar($trainer['user_id']);
+        $trainer['stat']          = DB::fetch_first('SELECT * FROM pkm_trainerstat WHERE user_id = ' . $user_id);
+        $trainer['dex_collected'] = DB::result_first('SELECT COUNT(*) FROM pkm_mypokedex WHERE user_id = ' . $trainer['user_id'] . ' AND is_owned = 1');
         $trainer['exp_required']  = Trainer::GetRequiredExp($trainer['level'] + 1);
         $trainer['card']          = Obtain::TrainerCard($trainer);
         $trainer['stat_add']      = array_map(function () {
             return 0;
         }, !empty($trainer['stat']) ? $trainer['stat'] : []);
-        unset($trainer['stat']['uid']);
+        unset($trainer['stat']['user_id']);
 
         return $trainer;
 
@@ -68,7 +68,7 @@ class Trainer {
             $trainer['exp'] += $exp_adding;
         } elseif($exp_adding && !empty($trainer['exp'])) {
             $exp = max(0, $trainer['exp'] + $exp_adding);
-            DB::query('UPDATE pkm_trainerdata SET exp = ' . $exp . ', LEVEL = ' . floor(pow(2 * $exp, 1 / 4)) . ' WHERE uid = ' . $trainer['uid']);
+            DB::query('UPDATE pkm_trainerdata SET exp = ' . $exp . ', LEVEL = ' . floor(pow(2 * $exp, 1 / 4)) . ' WHERE user_id = ' . $trainer['user_id']);
         }
     }
 
@@ -83,11 +83,11 @@ class Trainer {
     }
 
     /**
-     * @param $uid
+     * @param $user_id
      * @param $stat_new
      * @return bool|mysqli_result
      */
-    public static function SaveTemporaryStat($uid, $stat_new) {
+    public static function SaveTemporaryStat($user_id, $stat_new) {
 
         if(array_sum($stat_new) === 0) return FALSE;
 
@@ -98,27 +98,27 @@ class Trainer {
         foreach($keys as $val)
             $exts[] = $val . ' = VALUES(' . $val . ')';
 
-        return DB::query('INSERT INTO pkm_trainerstat (uid, ' . implode(',', $keys) . ') VALUES (' . $uid . ', ' . implode(',', $vals) . ') ON DUPLICATE KEY UPDATE ' . implode(',', $exts));
+        return DB::query('INSERT INTO pkm_trainerstat (user_id, ' . implode(',', $keys) . ') VALUES (' . $user_id . ', ' . implode(',', $vals) . ') ON DUPLICATE KEY UPDATE ' . implode(',', $exts));
 
     }
 
-    public static function Item($action, $uid, $iid, $num, $curnum = 'UNKNOWN', $limit = 0) {
+    public static function Item($action, $user_id, $iid, $num, $curnum = 'UNKNOWN', $limit = 0) {
 
         if($curnum === 'UNKNOWN') {
-            $curnum = intval(DB::result_first('SELECT quantity FROM pkm_myitem WHERE item_id = ' . $iid . ' AND uid = ' . $uid));
+            $curnum = intval(DB::result_first('SELECT quantity FROM pkm_myitem WHERE item_id = ' . $iid . ' AND user_id = ' . $user_id));
         }
 
         if($action === 'DROP' && $curnum - $num <= 0) {
             if($curnum - $num < 0) return FALSE;
-            DB::query('DELETE FROM pkm_myitem WHERE item_id = ' . $iid . ' AND uid = ' . $uid);
+            DB::query('DELETE FROM pkm_myitem WHERE item_id = ' . $iid . ' AND user_id = ' . $user_id);
         } elseif($action === 'DROP') {
-            DB::query('UPDATE pkm_myitem SET quantity = ' . ($curnum - $num) . ' WHERE uid = ' . $uid . ' AND item_id = ' . $iid);
+            DB::query('UPDATE pkm_myitem SET quantity = ' . ($curnum - $num) . ' WHERE user_id = ' . $user_id . ' AND item_id = ' . $iid);
         } elseif($action === 'OBTAIN') {
             if($limit !== 0 && $curnum + $num > $limit) return FALSE;
             if(empty($curnum)) {
-                DB::query('INSERT INTO pkm_myitem (item_id, quantity, uid) VALUES (' . $iid . ', ' . $num . ', ' . $uid . ')');
+                DB::query('INSERT INTO pkm_myitem (item_id, quantity, user_id) VALUES (' . $iid . ', ' . $num . ', ' . $user_id . ')');
             } else {
-                DB::query('UPDATE pkm_myitem SET quantity = ' . ($curnum + $num) . ' WHERE item_id = ' . $iid . ' AND uid = ' . $uid);
+                DB::query('UPDATE pkm_myitem SET quantity = ' . ($curnum + $num) . ' WHERE item_id = ' . $iid . ' AND user_id = ' . $user_id);
             }
         }
 

@@ -5,7 +5,7 @@ class Battle {
 
     private $pokemon = [];
     private $party = [];
-    private $uid = 0;
+    private $user_id = 0;
     private $report = [];
     private $field = ['weather' => ['type' => 0, 'turn' => 0]];
 
@@ -29,19 +29,19 @@ class Battle {
         return TRUE;
     }
 
-    private function fetchParty($uid) {
+    private function fetchParty($user_id) {
 
-        $query = DB::query('SELECT m.pkm_id, m.nat_id, m.nickname, m.gender, m.psn_value, m.ind_value, m.eft_value,
-                                    m.nature, m.level, m.exp, m.item_holding, m.happiness, m.moves, m.ability, m.uid,
-                                    m.uid_initial, m.item_captured, m.hp, m.form, m.status, m.new_moves, m.sprite_name,
+        $query = DB::query('SELECT m.pkm_id, m.nat_id, m.nickname, m.gender, m.psn_value, m.idv_value, m.eft_value,
+                                    m.nature, m.level, m.exp, m.item_holding, m.happiness, m.moves, m.ability, m.user_id,
+                                    m.initial_user_id, m.item_captured, m.hp, m.form, m.status, m.new_moves, m.sprite_name,
                                     p.type, p.type_b, p.base_stat, p.height, p.weight
                             FROM pkm_mypkm m
                             LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id AND m.form = p.form
-                            WHERE m.uid = ' . $uid . ' AND m.location IN (' . LOCATION_PARTY . ') AND m.hatch_nat_id != 0');
+                            WHERE m.user_id = ' . $user_id . ' AND m.location IN (' . LOCATION_PARTY . ') AND m.hatch_nat_id != 0');
         while($info = DB::fetch($query)) {
             $info['temporary'] = ['last_move_id' => 0];
             $info['battle']    = $this->fetchBattleData();
-            $info['stats']     = Obtain::Stat($info['level'], $info['base_stat'], $info['ind_value'], $info['eft_value'], $info['nature'], TRUE);
+            $info['stats']     = Obtain::Stat($info['level'], $info['base_stat'], $info['idv_value'], $info['eft_value'], $info['nature'], TRUE);
             $this->party[]     = $info;
         }
 

@@ -6,7 +6,7 @@
             <div ng-cloak>
                 <img class="avatar float-left" ng-src="%%trainer.avatar%%">
                 <span class="ranking float-right" ng-bind="'#' + trainer.rank"></span>
-                <span class="username" ng-bind="trainer.username"></span><br>
+                <span class="trainer_name" ng-bind="trainer.trainer_name"></span><br>
                 <span class="signature" ng-bind="_LANG.no_signature"></span>
                 <hr>
                 <span class="stat inline-block" ng-bind-html="trainer.level + '<br><span>' + _LANG.level + '</span>'" tooltip="%%trainer.exp + ' / ' + trainer.exp_required%%"></span>
@@ -137,7 +137,7 @@
                     </td>
                     <td>
                         <table class="info">
-                            <tr><td>%%_LANG.nickname%%</td><td>%%p.nickname%%</td><td>%%_LANG.owner%%</td><td>%%p.username%%</td></tr>
+                            <tr><td>%%_LANG.nickname%%</td><td>%%p.nickname%%</td><td>%%_LANG.owner%%</td><td>%%p.trainer_name%%</td></tr>
                             <tr><td colspan="4">&nbsp;</td></tr>
                             <tr><td>%%_LANG.hp%%</td><td>%%p.hp > 0 && p.hp || '-'%%</td><td>%%_LANG.special_attack%%</td><td>%%p.spatk > 0 && p.spatk || '-'%%</td></tr>
                             <tr><td>%%_LANG.attack%%</td><td>%%p.atk > 0 && p.atk || '-'%%</td><td>%%_LANG.special_defense%%</td><td>%%p.spdef > 0 && p.spdef || '-'%%</td></tr>
