@@ -32,7 +32,7 @@ class Encounter {
     public function generatePokemon() {
         global $trainer;
         $pokemon = $this->fetchEncounterTable();
-        return !$pokemon ? FALSE : Pokemon::Generate($pokemon['nat_id'], $trainer['user_id'], [
+        return !$pokemon ? FALSE : PokemonGeneral::Generate($pokemon['nat_id'], $trainer['user_id'], [
             'met_location' => $this->map_id,
             'met_level'    => mt_rand($pokemon['level_min'], $pokemon['level_max']),
             'is_wild'      => TRUE

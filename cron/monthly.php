@@ -1,7 +1,9 @@
 <?php
 
+include __DIR__ . '/../include/class/common.php';
 include __DIR__ . '/../include/class/cron.php';
 
+App::Initialize();
 
 /*
 	Generate report for the shop
@@ -21,7 +23,7 @@ $report .= DB::result_first('SELECT shopsell FROM pkm_stat');
 DB::query('UPDATE pkm_itemdata SET month_sale = 0');
 DB::query('UPDATE pkm_stat SET shopsell = 0');
 
-Cron::ReportWrite('shop', $report, 'Y-m', 'w+', $_SERVER['REQUEST_TIME'] - 3600);
+Cron::ReportWrite('shop', $report, 'Y-m', 'w+', time() - 3600);
 Cron::LogInsert('Generate report from shop');
 
 

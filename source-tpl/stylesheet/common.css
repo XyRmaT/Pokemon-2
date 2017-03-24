@@ -712,13 +712,6 @@ button.default {
     font-family   : '幼圆';
 }
 
-span.pokemon-icon {
-    display    : inline-block;
-    width      : 32px;
-    height     : 32px;
-    background : url(_image-root_/pokemon-icon/sheet-32x32.png);
-}
-
 span.shiny:after {
     content : "★";
     color   : #EDB60F;

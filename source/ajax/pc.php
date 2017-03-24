@@ -7,7 +7,7 @@ switch($process) {
 
         $pkm_id = isset($_GET['pkm_id']) ? intval($_GET['pkm_id']) : 0;
         if(!$pkm_id) {
-            $return['msg'] = Obtain::Text('illegal_pokemon');
+            $return['msg'] = General::getText('illegal_pokemon');
             break;
         }
 
@@ -16,29 +16,29 @@ switch($process) {
                                      LEFT JOIN pkm_pkmdata p ON p.nat_id = m.nat_id
                                      WHERE pkm_id = ' . $pkm_id . ' AND user_id = ' . $trainer['user_id'] . ' AND location IN (' . (!$action ? LOCATION_PARTY : LOCATION_PCHEAL) . ')');
         if(!$pokemon) {
-            $return['msg'] = Obtain::Text('illegal_pokemon');
+            $return['msg'] = General::getText('illegal_pokemon');
             break;
         }
 
         if(!$action) {
             $heal_count = DB::result_first('SELECT COUNT(*) FROM pkm_mypkm WHERE user_id = ' . $trainer['user_id'] . ' AND location = ' . LOCATION_PCHEAL);
             if($heal_count >= $system['pkm_limits']['pc_heal']) {
-                $return['msg'] = Obtain::Text('pc_heal_full', [$system['pkm_limits']['pc_heal']]);
+                $return['msg'] = General::getText('pc_heal_full', [$system['pkm_limits']['pc_heal']]);
                 break;
             }
-            Pokemon::MoveLocation($pkm_id, LOCATION_PCHEAL, ['time_pc_sent' => $_SERVER['REQUEST_TIME']]);
+            PokemonGeneral::moveLocation($pkm_id, LOCATION_PCHEAL, ['time_pc_sent' => $_SERVER['REQUEST_TIME']]);
         } else {
             $moved_to = Obtain::DepositBox($trainer['user_id']);
             if($moved_to === FALSE) {
-                $return['msg'] = Obtain::Text('locations_full');
+                $return['msg'] = General::getText('locations_full');
                 break;
             }
             $pokemon = array_merge($pokemon, Obtain::Stat($pokemon['level'], $pokemon['base_stat'], $pokemon['idv_value'], $pokemon['eft_value']));
             if(Obtain::HealRemainTime($pokemon['time_pc_sent'], $pokemon['max_hp'], $pokemon['hp']) > 0) {
-                $return['msg'] = Obtain::Text('pokemon_not_recovered');
+                $return['msg'] = General::getText('pokemon_not_recovered');
                 break;
             }
-            Pokemon::MoveLocation($pkm_id, $moved_to, ['time_pc_sent' => 0, 'hp' => $pokemon['max_hp']]);
+            PokemonGeneral::moveLocation($pkm_id, $moved_to, ['time_pc_sent' => 0, 'hp' => $pokemon['max_hp']]);
         }
 
         $_GET['section'] = 'heal';
@@ -106,7 +106,7 @@ switch($process) {
             DB::query('INSERT INTO pkm_mypkm (pkm_id, location) VALUES ' . implode(',', $sql) . ' ON DUPLICATE KEY UPDATE location = VALUES(location)');
             $return['msg'] .= '移动精灵成功！';
             Kit::Library('class', ['pokemon']);
-            Pokemon::RefreshPartyOrder();
+            PokemonGeneral::RefreshPartyOrder();
         }
 
         if(empty($unable) && empty($sql)) $return['msg'] = '什么都没发生……';
@@ -307,13 +307,13 @@ switch($process) {
             break;
         }
 
-        Pokemon::DexRegister($pokemon[$tradeinfo['pkm_id']]['nat_id'], !0);
-        Pokemon::DexRegister($pokemon[$tradeinfo['pkm_id_target']]['nat_id'], !0, $tradeinfo['user_id']);
+        PokemonGeneral::registerPokedex($pokemon[$tradeinfo['pkm_id']]['nat_id'], $trainer['user_id'], TRUE);
+        PokemonGeneral::registerPokedex($pokemon[$tradeinfo['pkm_id_target']]['nat_id'], $tradeinfo['user_id'], TRUE);
 
         sort($pokemon);
 
         foreach($pokemon as $key => $val)
-            Pokemon::Evolve($pokemon[$key], ['other' => !0, 'otherobj' => $pokemon[$key ^ 1]['nat_id'], 'user_id' => $pokemon[$key ^ 1]['user_id']]);
+            PokemonGeneral::Evolve($pokemon[$key], ['other' => !0, 'otherobj' => $pokemon[$key ^ 1]['nat_id'], 'user_id' => $pokemon[$key ^ 1]['user_id']]);
 
         DB::query('UPDATE pkm_mypkm SET location = ' . $reqpokemon['location'] . ', user_id = ' . $trainer['user_id'] . ' WHERE pkm_id = ' . $tradeinfo['pkm_id']);
         DB::query('UPDATE pkm_mypkm SET location = ' . $oplace . ', user_id = ' . $tradeinfo['user_id'] . ' WHERE pkm_id = ' . $reqpokemon['pkm_id']);

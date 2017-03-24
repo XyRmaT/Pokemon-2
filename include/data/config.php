@@ -1,7 +1,7 @@
 <?php
 
 $system = [
-    'pkm_per_box'           => 30,
+    'pkm_per_box'           => 24,
     'initial_box'           => 6,
     'system_switch'         => TRUE,
     'close_reason'          => '系统更新中，请稍后再试！',
@@ -20,7 +20,8 @@ $system = [
         ['hoenn', 252, 386],
         ['sinnoh', 387, 493],
         ['unova', 494, 649],
-        ['kalos', 650, 721]
+        ['kalos', 650, 721],
+        ['alola', 722, 802]
     ],
     'daycare_check_hour'    => 2,
     'currency_name'         => $lang['currency_name'],
@@ -42,7 +43,8 @@ $system = [
         POKEMON_TREECKO, POKEMON_TORCHIC, POKEMON_MUDKIP,
         POKEMON_TURTWIG, POKEMON_CHIMCHAR, POKEMON_PIPLUP,
         POKEMON_SNIVY, POKEMON_TEPIG, POKEMON_OSHAWOTT,
-        POKEMON_CHESPIN, POKEMON_FENNEKIN, POKEMON_FROAKIE
+        POKEMON_CHESPIN, POKEMON_FENNEKIN, POKEMON_FROAKIE,
+        POKEMON_ROWLET, POKEMON_LITTEN, POKEMON_POPPLIO
     ]
 ];
 

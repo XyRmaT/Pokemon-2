@@ -1,7 +1,5 @@
 <?php
 
-if(empty($system['system_switch'])) exit;
-
 class Cron {
 
     public static $log = '';

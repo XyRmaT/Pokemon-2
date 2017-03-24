@@ -18,7 +18,7 @@ date_default_timezone_set('Asia/Shanghai');
 Kit::Library('class', ['trainer', 'obtain', 'pokemon', 'encounter']);
 App::Initialize();
 //App::register('pokeuniv@gmail.com', 'dwpyk5rz', 'dooooooduo');
-//print_r(App::loginByEmail('pokeuniv@gmail.com', 'dwpyk5rz'));
+App::loginByEmail('pokeuniv@gmail.com', 'dwpyk5rz');
 
 // Loading Smarty template engine and setting up CSS parser
 include_once ROOT . '/include/smarty/Smarty.class.php';
@@ -50,12 +50,22 @@ $r           = ['_LANG' => $lang];
 
 
 if(!empty($user['user_id'])) {
-    $trainer = Trainer::Fetch($user['user_id']);
+    $trainer = Trainer::fetch($user['user_id']);
 
     if(empty($trainer['has_starter'])) {
         $index = 'starter';
     } elseif($index === 'pc') {
         $index = 'pc';
+    }
+
+    DB::query('DELETE FROM pkm_mypkm');
+
+    for($i = 0; $i < 6; $i++) {
+        PokemonGeneral::Generate(rand(1, 802), $trainer['user_id'], [
+            'met_location' => 600,
+            'met_level'    => 66,
+            'is_shiny'     => !!mt_rand(0, 1)
+        ]);
     }
 
     // Each checking cycle randomly add 1~2 happiness to the party, and update the timer
@@ -84,8 +94,8 @@ if(INAJAX && !empty($index) && !empty($process)) {
     if($trainer['is_battling'] === '1' && !in_array($index, ['battle', 'map']))
         DB::query('UPDATE pkm_trainerdata SET is_battling = 0 WHERE user_id = ' . $trainer['user_id']);
 
-    $return['data']['trainer'] = $trainer;
-    $return['data']['system']  = $system;
+    $return['data']['_TNR'] = $trainer;
+    $return['data']['_SYS']  = $system;
 
     echo Kit::JsonConvert($return);
 
@@ -95,11 +105,11 @@ if(INAJAX && !empty($index) && !empty($process)) {
 
     include ROOT . '/source/index/' . $index . '.php';
 
-    $r['trainer'] = $trainer;
-    $r['system']  = $system;
+    $r['_TNR'] = $trainer;
+    $r['_SYS']  = $system;
 
     if(!INAJAX) {
-        $path['css'] = Cache::css(['common', 'angular-sortable', $index], 'cssvar');
+        $path['css'] = Cache::css(['common', 'angular-sortable', 'pokemon-icon', $index], 'cssvar');
         $smarty->assign('r', $r);
         $smarty->assign('path', $path);
         $smarty->assign('user', $user);

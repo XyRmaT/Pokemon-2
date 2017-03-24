@@ -1,6 +1,9 @@
 <?php
 
+include __DIR__ . '/../include/class/common.php';
 include __DIR__ . '/../include/class/cron.php';
+
+App::Initialize();
 
 
 /*

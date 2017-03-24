@@ -1,9 +1,9 @@
 <?php
 
-$_GET['section'] = !empty($_GET['section']) && in_array($_GET['section'], ['heal', 'trade', 'storage'], TRUE) ? $_GET['section'] : 'heal';
-$r['section']    = $_GET['section'];
+$allowed_sections = ['heal', 'trade', 'storage'];
+$r['section']     = $section = !empty($_GET['section']) && in_array($_GET['section'], $allowed_sections, TRUE) ? $_GET['section'] : $allowed_sections[0];
 
-switch($_GET['section']) {
+switch($section) {
     default:
 
         $query = DB::query('SELECT m.pkm_id, m.nickname, m.gender, m.eft_value, m.level, m.nature, m.idv_value,
@@ -49,32 +49,36 @@ switch($_GET['section']) {
         break;
     case 'storage':
 
-        $query   = DB::query('SELECT m.pkm_id, m.nat_id, m.location, m.nickname, m.level, m.gender, m.sprite_name,
+        $query  = DB::query('SELECT m.pkm_id, m.nat_id, m.location, m.nickname, m.level, m.gender, m.sprite_name,
                                       p.name_zh name, p.type, p.type_b, a.name_zh ability_name
                               FROM pkm_mypkm m
                               LEFT JOIN pkm_pkmdata p ON p.nat_id = m.nat_id
                               LEFT JOIN pkm_abilitydata a ON a.abi_id = m.ability
                               WHERE m.user_id = ' . $trainer['user_id'] . ' ORDER BY m.location');
-        $pokemon = [];
-        $boxnum  = $system['initial_box'] + $trainer['box_quantity'];
+        $boxes  = $party = [];
+        $boxnum = $system['initial_box'] + $trainer['box_quantity'];
 
         for($i = 1; $i <= $boxnum; $i++)
-            $pokemon[$i + 100] = [];
+            $boxes[$i + 100] = [];
 
         while($info = DB::fetch($query)) {
 
-            if(!isset($pokemon[$info['location']]) && $info['location'] > 6 || $info['location'] > 6 && $info['location'] < 101)
+            if(!isset($boxes[$info['location']]) && $info['location'] > 6 || $info['location'] > 6 && $info['location'] < 101)
                 continue;
-
-            if($info['location'] < 7)
-                $info['location'] = 'party';
 
             $info['gender'] = Obtain::GenderSign($info['gender']);
             $info['type']   = Obtain::TypeName($info['type'], $info['type_b']);
 
-            $pokemon[$info['location']][] = $info;
+            if($info['location'] < 7) {
+                $party[$info['pkm_id']] = $info;
+            } else {
+                $boxes[$info['location']][$info['pkm_id']] = $info;
+            }
 
         }
+
+        $r['boxes'] = $boxes;
+        $r['party'] = $party;
 
         break;
     case 'trade':

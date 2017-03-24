@@ -4,7 +4,7 @@
     <tr>
         <td class="header">
             <span ng-bind-html="_LANG.shelter_welcome"></span>
-            <span class="currency" ng-bind="trainer.currency"></span>
+            <span class="currency" ng-bind="_TNR.currency"></span>
         </td>
         <td rowspan="2" class="info">
             <div class="pokemon-pool" ng-cloak>
@@ -27,7 +27,7 @@
     </tr>
     <tr>
         <td>
-            <div class="step"><span class="num">1</span><span class="procedure" ng-bind="lang(_LANG.shelter_step_1, [system.shelter_cost, system.currency_name])"></span></div>
+            <div class="step"><span class="num">1</span><span class="procedure" ng-bind="lang(_LANG.shelter_step_1, [_SYS.shelter_cost, _SYS.currency_name])"></span></div>
         </td>
     </tr>
 </table>

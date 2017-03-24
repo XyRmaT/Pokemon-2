@@ -4,14 +4,14 @@
     <tr>
         <td class="header no-bottom-border">
             <div ng-cloak>
-                <img class="avatar float-left" ng-src="%%trainer.avatar%%">
-                <span class="ranking float-right" ng-bind="'#' + trainer.rank"></span>
-                <span class="trainer_name" ng-bind="trainer.trainer_name"></span><br>
+                <img class="avatar float-left" ng-src="%%_TNR.avatar%%">
+                <span class="ranking float-right" ng-bind="'#' + _TNR.rank"></span>
+                <span class="trainer_name" ng-bind="_TNR.trainer_name"></span><br>
                 <span class="signature" ng-bind="_LANG.no_signature"></span>
                 <hr>
-                <span class="stat inline-block" ng-bind-html="trainer.level + '<br><span>' + _LANG.level + '</span>'" tooltip="%%trainer.exp + ' / ' + trainer.exp_required%%"></span>
-                <span class="stat inline-block" ng-bind-html="trainer.dex_collected + '<br><span>' + _LANG.pokedex + '</span>'"></span>
-                <span class="stat inline-block" ng-bind-html="numberFormat(trainer.currency) + '<br><span>' + _LANG.currency + '</span>'"></span>
+                <span class="stat inline-block" ng-bind-html="_TNR.level + '<br><span>' + _LANG.level + '</span>'" tooltip="%%_TNR.exp + ' / ' + _TNR.exp_required%%"></span>
+                <span class="stat inline-block" ng-bind-html="_TNR.dex_collected + '<br><span>' + _LANG.pokedex + '</span>'"></span>
+                <span class="stat inline-block" ng-bind-html="numberFormat(_TNR.currency) + '<br><span>' + _LANG.currency + '</span>'"></span>
             </div>
         </td>
         <td rowspan="2" class="info">
@@ -19,8 +19,8 @@
                 <div class="title"><h3>%%_LANG.info%%</h3></div>
                 <div class="title"><h3>%%_LANG.trainer_card%%</h3></div>
                 <div class="box-b">
-                    <img class="trainer-card float-left" ng-src="%%trainer.card%%">
-                    <textarea id="clipboard-trainer-card">[url=%%location.origin + location.pathname%%][img]%%trainer.card | toAbsoluteLink%%[/img][/url]</textarea>
+                    <img class="trainer-card float-left" ng-src="%%_TNR.card%%">
+                    <textarea id="clipboard-trainer-card">[url=%%location.origin + location.pathname%%][img]%%_TNR.card | toAbsoluteLink%%[/img][/url]</textarea>
                     <button copieable="trainer-card">%%_LANG.copy%%</button>
                 </div>
             </div>
@@ -61,16 +61,16 @@
                 <div class="title">
                     <h3>%%_LANG.pokedex%%</h3>
                     <span class="star yellow"></span> %%_LANG.seen_number%% %%dex_seen%% (%%(dex_seen / pokemon_total * 100 | number : 1) + '%'%%)
-                    <span class="star red"></span> %%_LANG.dex_collected%% %%trainer.dex_collected%% (%%(trainer.dex_collected / pokemon_total * 100 | number : 1) + '%'%%)
+                    <span class="star red"></span> %%_LANG.dex_collected%% %%_TNR.dex_collected%% (%%(_TNR.dex_collected / pokemon_total * 100 | number : 1) + '%'%%)
                 </div>
                 <div class="bar">
-                    <span ng-repeat="(k, r) in system.regions" ng-if="k > 0">
+                    <span ng-repeat="(k, r) in _SYS.regions" ng-if="k > 0">
                         <span class="star"></span>%%_LANG[r[0]]%% %%((count_generations[k] / (r[2] - r[1]) * 100 | number : 1) || 0) + '%'%%
                     </span>
                 </div>
                 <ul class="pokedex">
                     <li ng-repeat="(k, p) in pokemon" ng-class="{ 'not-met': !p.nat_id, 'not-collected': !p.is_owned }" tooltip="%%p.name%%">
-                        <pokemon-icon nat-id="p.nat_id"></pokemon-icon><br>
+                        <span ng-class="picon(p.nat_id)"></span><br>
                         %%k%%
                     </li>
                 </ul>
@@ -99,7 +99,7 @@
                     <img ng-src="%%p.capture_item_sprite%%"><br>
                     <span><img class="to" ng-if="p.item_holding > 0" ng-src="%%p.hold_item_sprite%%" data-item-id="%%p.item_holding%%" data-drag="true" jqyoui-draggable data-jqyoui-options="{ revert: 'invalid', zIndex: 12, helper: 'clone' }"></span>
                 </span><br>
-                <pokemon-icon nat-id="p.nat_id"></pokemon-icon>
+                <span ng-class="picon(p.nat_id)"></span>
                 <hr>
             </div>
         </td>
@@ -173,7 +173,7 @@
                 <img ng-src="%%p.capture_item_sprite%%"><br>
                 <img ng-if="p.item_holding > 0" ng-src="%%p.hold_item_sprite%%">
             </span><br>
-            <pokemon-icon nat-id="p.nat_id"></pokemon-icon>
+            <span ng-class="picon(p.nat_id)"></span>
             <hr>
         </div>
         <div ng-if="!party.length">%%_LANG.no_party_pokemon%%</div>

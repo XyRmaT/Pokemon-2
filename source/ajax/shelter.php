@@ -8,18 +8,18 @@ switch($process) {
                                  WHERE pkm_id = ' . intval($_GET['pkm_id']) . ' AND location = ' . LOCATION_SHELTER);
 
 		if(empty($info)) {
-			$return['msg'] = Obtain::Text('shelter_already_claimed');
+			$return['msg'] = General::getText('shelter_already_claimed');
 		} elseif($trainer['currency'] - $system['costs']['shelter_claim'] < 0) {
-			$return['msg'] = Obtain::Text('unpaid', [$system['currency_name']]);
+			$return['msg'] = General::getText('unpaid', [$system['currency_name']]);
 		} elseif(($location = Obtain::DepositBox($trainer['user_id'])) === FALSE) {
-			$return['msg'] = Obtain::Text('locations_full');
+			$return['msg'] = General::getText('locations_full');
 		} else {
             App::CreditsUpdate($trainer['user_id'], -$system['costs']['shelter_claim']);
-            Pokemon::MoveLocation($info['pkm_id'], $location, ['user_id' => $trainer['user_id']]);
-            Pokemon::DexRegister($info['nat_id'], TRUE);
+            PokemonGeneral::moveLocation($info['pkm_id'], $location, ['user_id' => $trainer['user_id']]);
+            PokemonGeneral::registerPokedex($info['nat_id'], $trainer['user_id'], TRUE);
 
             Trainer::AddExp($trainer, $info['initial_user_id'] != $trainer['user_id'] ? $system['adding_exp']['shelter_claim'] : 0, TRUE);
-            $return['msg']     = Obtain::Text('shelter_claimed');
+            $return['msg']     = General::getText('shelter_claimed');
         }
 
 		break;

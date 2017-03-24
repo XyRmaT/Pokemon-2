@@ -7,9 +7,9 @@ switch($process) {
         $quantity = isset($_GET['quantity']) ? intval($_GET['quantity']) : 0;
 
         if($quantity <= 0) {
-            $return['msg'] = Obtain::Text('enter_quantity');
+            $return['msg'] = General::getText('enter_quantity');
         } elseif($item_id <= 0) {
-            $return['msg'] = Obtain::Text('item_not_available');
+            $return['msg'] = General::getText('item_not_available');
         } else {
 
             $item = DB::fetch_first('SELECT price, name_zh name, stock
@@ -21,15 +21,15 @@ switch($process) {
             $cost = $item['price'] * $quantity;
 
             if(empty($item)) {
-                $return['msg'] = Obtain::Text('item_not_available');
+                $return['msg'] = General::getText('item_not_available');
             } elseif($item['stock'] - $quantity < 0) {
-                $return['msg'] = Obtain::Text('item_not_in_stock');
+                $return['msg'] = General::getText('item_not_in_stock');
             } elseif($trainer['currency'] - $cost < 0) {
-                $return['msg'] = Obtain::Text('unpaid');
+                $return['msg'] = General::getText('unpaid');
             } else {
 
                 if(!Trainer::Item('OBTAIN', $trainer['user_id'], $item_id, $quantity)) {
-                    $return['msg'] = Obtain::Text('bag_full');
+                    $return['msg'] = General::getText('bag_full');
                     break;
                 }
 
@@ -39,7 +39,7 @@ switch($process) {
                 Trainer::AddTemporaryStat('item_bought', $quantity);
                 App::CreditsUpdate($trainer['user_id'], -$cost);
 
-                $return['msg'] = Obtain::Text('purchase_succeed');
+                $return['msg'] = General::getText('purchase_succeed');
 
             }
         }

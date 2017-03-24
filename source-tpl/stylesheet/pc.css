@@ -23,3 +23,35 @@ table.main .step > .num {
     background    : #BB4F4F;
     border-radius : 5px;
 }
+
+.pc-box {
+    float         : left;
+    border        : 1px solid _border-color_;
+    border-radius : 5px;
+    width         : 226px;
+    margin        : 0 15px 15px 0;
+}
+
+.pc-box .box-title {
+    padding       : 10px 0 10px 0;
+    text-align    : center;
+    font-size     : 14px;
+    border-bottom : 1px solid _border-color_;
+}
+
+.pc-box .box-content {
+    height     : 152px;
+    background : #fff;
+    padding    : 0 5px 0 5px;
+    cursor     : default;
+}
+
+.box-content > .picon {
+    margin  : 2px;
+    cursor  : pointer;
+    display : inline-block;
+}
+
+.box-content > .picon.not-selected {
+    opacity : .5;
+}

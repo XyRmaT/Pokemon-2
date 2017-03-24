@@ -4,7 +4,7 @@
     <tr>
         <td class="header">
             <span ng-bind="_LANG.daycare_welcome"></span>
-            <span class="currency" ng-bind="trainer.currency"></span>
+            <span class="currency" ng-bind="_TNR.currency"></span>
         </td>
         <td rowspan="2" class="info">
             <div ng-cloak>
@@ -60,7 +60,7 @@
                 <img ng-src="%%p.capture_item_sprite%%"><br>
                 <img ng-if="p.item_holding" ng-src="%%p.hold_item_sprite%%">
             </span><br>
-            <pokemon-icon nat-id="p.nat_id"></pokemon-icon>
+            <span ng-class="picon(p.nat_id)"></span>
             <hr>
         </div>
         <div ng-if="!party.length">%%_LANG.no_party_pokemon%%</div>

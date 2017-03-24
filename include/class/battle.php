@@ -23,7 +23,7 @@ class Battle {
     }
 
     private function alterStatus(&$status, $value, $chance = 100) {
-        if($status || rand(1, 100) > $chance)
+        if($status || mt_rand(1, 100) > $chance)
             return FALSE;
         $status = $value;
         return TRUE;
@@ -497,7 +497,7 @@ class Battle {
      * @param $args - The replacement texts for formatting
      */
     private function appendReport($id, $args) {
-        $this->report[] = Obtain::Text('battle_' . $id, $args);
+        $this->report[] = General::getText('battle_' . $id, $args);
     }
 
     private function useMove($move_id) {

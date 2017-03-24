@@ -4,21 +4,21 @@
     <img src="{ROOT_IMAGE}/other/banner-index.jpg">
 </section>
 
-<section class="index-trainer box" ng-if="trainer.user_id > 0" ng-cloak>
+<section class="index-trainer box" ng-if="_TNR.user_id > 0" ng-cloak>
     <div class="info">
-        <img class="avatar float-left" ng-src="%%trainer.avatar%%">
-        <span class="ranking float-right"># %%trainer.rank%%</span>
-        <span class="trainer_name">%%trainer.trainer_name%%</span><br>
+        <img class="avatar float-left" ng-src="%%_TNR.avatar%%">
+        <span class="ranking float-right"># %%_TNR.rank%%</span>
+        <span class="trainer_name">%%_TNR.trainer_name%%</span><br>
         <span class="signature" ng-bind="_LANG.no_signature"></span>
     </div>
     <div class="other">
-        <span class="stat inline-block" ng-bind-html="trainer.level + '<br>' + _LANG.level"></span>
-        <span class="stat inline-block" ng-bind-html="trainer.dex_collected + '<br>' + _LANG.pokedex"></span>
-        <span class="stat inline-block" ng-bind-html="numberFormat(trainer.currency) + '<br>' + _LANG.currency"></span>
-        <div class="party border"><pokemon-icon ng-repeat="i in party" nat-id="i"></pokemon-icon></div>
+        <span class="stat inline-block" ng-bind-html="_TNR.level + '<br>' + _LANG.level"></span>
+        <span class="stat inline-block" ng-bind-html="_TNR.dex_collected + '<br>' + _LANG.pokedex"></span>
+        <span class="stat inline-block" ng-bind-html="numberFormat(_TNR.currency) + '<br>' + _LANG.currency"></span>
+        <div class="party border"><span ng-repeat="i in party" ng-class="picon(i)"></span></div>
     </div>
 </section>
-<section class="index-login box" ng-if="!trainer.user_id" ng-controller="process-register">
+<section class="index-login box" ng-if="!_TNR.user_id" ng-controller="process-register">
     <div class="title" ng-bind="_LANG.trainer_entrance"></div>
     <div class="content" ng-cloak>
         <div ng-if="regProcess === 1">

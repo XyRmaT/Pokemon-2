@@ -1,11 +1,14 @@
 <?php
 
-/**
- * Created by PhpStorm.
- * User: dominus
- * Date: 5/01/17
- * Time: 12:48 AM
- */
+
+include '../include/class/PokemonGeneral.php';
+
 class PokemonTest extends PHPUnit_Framework_TestCase {
+
+    public function testDevolution () {
+        $this->assertEquals(1, PokemonGeneral::getDevolution(3));
+        $this->assertEquals(2, PokemonGeneral::getDevolution(3, TRUE));
+        $this->assertEquals(1, PokemonGeneral::getDevolution(1));
+    }
 
 }

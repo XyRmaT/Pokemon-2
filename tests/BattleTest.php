@@ -4,8 +4,8 @@ include '../include/class/battle.php';
 
 use PHPUnit\Framework\TestCase;
 
-class BattleTester extends TestCase {
-    public function test1 () {
-        $this->assertEquals(1, 1);
+class BattleTest extends TestCase {
+    public function testHiddenPower () {
+        $this->assertEquals(1, 2);
     }
 }

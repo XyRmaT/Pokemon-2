@@ -4,7 +4,7 @@
     <tr>
         <td class="header">
             <span ng-bind-html="_LANG.shop_welcome"></span>
-            <span class="currency" ng-bind="trainer.currency"></span>
+            <span class="currency" ng-bind="_TNR.currency"></span>
         </td>
         <td rowspan="2" class="info">
             <div class="tab-group" ng-cloak ng-init="$root.type = 0">

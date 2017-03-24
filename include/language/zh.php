@@ -176,6 +176,7 @@ $lang = [
     'trade'                   => '通信',
     'put'                     => '放置',
     'hint_heal'               => '宝可梦恢复需要时间哟~ 损失的HP越多所需的时间越长。',
+    'hint_storage'            => '通过点击单个箱子内的多只宝可梦选中，再点击其它箱子放入。',
     'pc_which_to_put'         => '您想要恢复哪只宝可梦呢？',
     'pc_illegal_pokemon'      => '无法选择这只宝可梦哟！',
     'heal_need_time'          => '恢复所需 %s 分钟',

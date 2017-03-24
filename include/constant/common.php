@@ -2,12 +2,7 @@
 
 const DB_FIELD_STRING = 1;
 const DB_FIELD_NUMBER = 2;
-
-const ERROR_NOT_EMAIL = 1;
-const ERROR_INVALID_TRAINER_NAME = 2;
-const ERROR_TRAINER_EXISTED = 3;
-const ERROR_DUPLICATE_EMAIL = 4;
-const ERROR_DUPLICATE_TRAINER_NAME = 5;
+const DB_FIELD_ORIGIN = 3;
 
 const TYPE_FIRE     = 1;
 const TYPE_WATER    = 2;
@@ -74,6 +69,53 @@ const MOVE_BY_TMHM  = 2;
 const MOVECLASS_STATUS   = 0;
 const MOVECLASS_PHYSICAL = 1;
 const MOVECLASS_SPECIAL  = 2;
+
+
+const EVOSTRUC_NATID               = 0;
+const EVOSTRUC_BY_LEVEL            = 1;
+const EVOSTRUC_BY_HAPPINESS        = 2;
+const EVOSTRUC_BY_BEAUTY           = 3;
+const EVOSTRUC_BY_MAP              = 4;
+const EVOSTRUC_BY_ITEM             = 5;
+const EVOSTRUC_BY_MOVELEARNT       = 6;
+const EVOSTRUC_BY_PARTYPOKEMON     = 7;
+const EVOSTRUC_BY_GENDER           = 8;
+const EVOSTRUC_BY_TIMEFRAME        = 9;
+const EVOSTRUC_BY_OTHER            = 10;
+const EVOSTRUC_BY_TRADE            = 11;
+const EVOSTRUC_BY_TRADEWITHPOKEMON = 12;
+const EVOSTRUC_BY_ALOLA            = 13;
+
+const EVOSTRUC_BY_OTHER_ATKGTDEF        = 1;
+const EVOSTRUC_BY_OTHER_ATKLTDEF        = 2;
+const EVOSTRUC_BY_OTHER_ATKEQDEF        = 3;
+const EVOSTRUC_BY_OTHER_PVEGTEFIVE      = 4;
+const EVOSTRUC_BY_OTHER_PVLTFIVE        = 5;
+const EVOSTRUC_BY_OTHER_TURN3DS         = 6;
+const EVOSTRUC_BY_OTHER_VERSIONSUN      = 7;
+const EVOSTRUC_BY_OTHER_VERSIONMOON     = 8;
+const EVOSTRUC_BY_OTHER_LEARNTFAIRTMOVE = 9;
+const EVOSTRUC_BY_OTHER_PARTYDARKTYPE   = 10;
+const EVOSTRUC_BY_OTHER_WEATHERRAIN     = 11;
+
+/*
+    * 0
+    *        0=进化链接
+    *        1=等级（1-100）
+    *        2=亲密度（1-255）
+    *        3=美丽度（1-255）
+    *        4=地图（地图编号）
+    *        5=携带道具/使用道具（道具编号）
+    *        6=掌握技能（技能编号）
+    *        7=队伍中存在精灵（精灵编号）
+    *        8=性别（1=无性，2=公，3=母）
+    *        9=时段（）
+    *        10=特殊（1=攻击>防御，2=攻击<防御，3=攻击=防御，4=性格值尾数>=5，5=性格值尾数<5）
+    *        11=其它（1=通信进化，2=使用道具进化）
+    *        12=其它进阶值（如果其它=1，值则为特定交换的精灵的编号。如果其它=2，值则为道具的编号。视精灵进化方式决定值是否为空。）
+    *     1
+    *         ...
+ */
 
 define('FIELDS_POKEMON_BASIC',
     'm.pkm_id, m.nat_id, m.gender, m.sprite_name, m.nickname, m.level, m.item_holding, ' .

@@ -73,7 +73,7 @@ switch($process) {
 
         if($sql) DB::query('INSERT INTO pkm_mypkm (pkm_id, location) VALUES ' . $sql . ' ON DUPLICATE KEY UPDATE location = VALUES(location)');
 
-        Pokemon::RefreshPartyOrder();
+        PokemonGeneral::refreshPartyOrder($trainer['user_id']);
 
         break;
 
@@ -108,7 +108,7 @@ switch($process) {
         $pkm_id  = isset($_GET['pkm_id']) ? intval($_GET['pkm_id']) : 0;
 
         if(!$item_id || !$pkm_id) {
-            $return['msg'] = Obtain::Text('no_pokemon_or_item');
+            $return['msg'] = General::getText('no_pokemon_or_item');
             break;
         }
 
@@ -117,13 +117,13 @@ switch($process) {
                                  WHERE mi.quantity > 0 AND mi.item_id = ' . $item_id . ' AND mi.user_id = ' . $trainer['user_id']);
 
         if(empty($item)) {
-            $return['msg'] = Obtain::Text('no_such_item');
+            $return['msg'] = General::getText('no_such_item');
         } elseif($item['quantity'] <= 0) {
-            $return['msg'] = Obtain::Text('no_more_item');
+            $return['msg'] = General::getText('no_more_item');
         } elseif(!$item['is_usable']) {
-            $return['msg'] = Obtain::Text('item_not_usable');
+            $return['msg'] = General::getText('item_not_usable');
         } elseif(!$item['effect'] && $item['type'] != ITEM_TYPE_EVOSTONE) {
-            $return['msg'] = Obtain::Text('item_no_effect');
+            $return['msg'] = General::getText('item_no_effect');
         } else {
             $effect         = [];
             $return['msg']  = '';
@@ -144,13 +144,13 @@ switch($process) {
                                         WHERE m.pkm_id = ' . $pkm_id);
 
             if(empty($pokemon)) {
-                $return['msg'] = Obtain::Text('no_such_pokemon');
+                $return['msg'] = General::getText('no_such_pokemon');
             } elseif(!$pokemon['nat_id']) {
-                $return['msg'] = Obtain::Text('use_item_on_egg');
+                $return['msg'] = General::getText('use_item_on_egg');
             } elseif($pokemon['location'] > 6) {
-                $return['msg'] = Obtain::Text('not_in_party', [$pokemon['nickname']]);
+                $return['msg'] = General::getText('not_in_party', [$pokemon['nickname']]);
             } elseif($pokemon['hp'] <= 0 && (!empty($effect['hp']) || !empty($effect['status']))) {
-                $return['msg'] = Obtain::Text('item_use_on_fainted', [$pokemon['nickname']]);
+                $return['msg'] = General::getText('item_use_on_fainted', [$pokemon['nickname']]);
             } else {
 
                 if($item['type'] == ITEM_TYPE_MEDICINE) {
@@ -181,7 +181,7 @@ switch($process) {
                             case 'lvup':
                                 if($pokemon['level'] < 100) {
                                     $pokemon['exp'] = Obtain::Exp($pokemon['exp_type'], min(100, $pokemon['level'] + 1));
-                                    Pokemon::Levelup($pokemon, TRUE);
+                                    PokemonGeneral::Levelup($pokemon, TRUE);
                                     ++$effectcount;
                                 }
                                 break;
@@ -192,19 +192,19 @@ switch($process) {
 
                 } elseif($item['type'] == ITEM_TYPE_EVOSTONE) {
                     $temp    = $pokemon['nickname'];
-                    $succeed = $evolved = !!Pokemon::Evolve($pokemon, ['item_used' => $item_id]);
+                    $succeed = $evolved = !!PokemonGeneral::Evolve($pokemon, ['item_used' => $item_id]);
                 }
 
                 if($succeed) {
                     Trainer::Item('DROP', $trainer['user_id'], $item_id, 1, $item['quantity']);
                     if(!$evolved) {
                         DB::query('UPDATE pkm_mypkm SET hp = ' . $pokemon['hp'] . ', STATUS = ' . $pokemon['status'] . ', exp = ' . $pokemon['exp'] . ' WHERE pkm_id = ' . $pkm_id);
-                        $return['msg'] .= Obtain::Text('use_item_succeed');
+                        $return['msg'] .= General::getText('use_item_succeed');
                     } else {
-                        $return['msg'] .= Obtain::Text('pokemon_evolved', [$pokemon['nickname']]);
+                        $return['msg'] .= General::getText('pokemon_evolved', [$pokemon['nickname']]);
                     }
                 } else {
-                    $return['msg'] .= Obtain::Text('nothing_happened');
+                    $return['msg'] .= General::getText('nothing_happened');
                 }
             }
         }

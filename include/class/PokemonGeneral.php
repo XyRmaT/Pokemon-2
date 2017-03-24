@@ -1,6 +1,6 @@
 <?php
 
-class Pokemon {
+class PokemonGeneral {
 
     public static $count = 0;
     public static $temp = [];
@@ -36,13 +36,30 @@ class Pokemon {
         return $_SERVER['REQUEST_TIME'] + floor($egg_cycle * 255 * (mt_rand(0, 5) + $egg_cycle * 0.6) / 6);
     }
 
-    public static function calculateStat ($base_stat, $level, $stat, $nature, $ev, $iv) {
+    public static function getStat ($base_stat, $level, $stat, $nature, $ev, $iv) {
         if (!$base_stat) return 0;
         $ev_factor = floor(min(max($ev, 0), 255) / 4);
         $modifier  = $stat == 0 ? 0 : self::getNatureModifier($nature)[$stat];
         $result    = $stat == 0 ?
             ($base_stat == 1 ? 1 : floor(($base_stat * 2 + $ev_factor + $iv) * $level / 100) + $level + 10) :
             floor((floor(($base_stat * 2 + $ev_factor + $iv) * $level / 100) + 5) * $modifier);
+
+        return $result;
+    }
+
+    public static function getStats ($info) {
+
+        Verifier::assertExists($info, [
+            'bs', 'level', 'nature', 'ev_hp', 'ev_atk', 'ev_def', 'ev_spatk', 'ev_spdef',
+            'ev_spd', 'iv_hp', 'iv_atk', 'iv_def', 'iv_spatk', 'iv_spdef', 'iv_spd'
+        ]);
+
+        $lookup = ['hp', 'atk', 'def', 'spatk', 'spdef', 'spd'];
+        $result = [];
+        for ($i = 0; $i < 6; ++$i) {
+            $suffix     = '_' . $lookup[$i];
+            $result[$i] = self::getStat($info['bs'] . $suffix, $info['level'], $i, $info['nature'], $info['ev'] . $suffix, $info['iv'] . $suffix);
+        }
 
         return $result;
 
@@ -78,6 +95,14 @@ class Pokemon {
         return $nat_id;
     }
 
+    public static function getHealingTime ($max_hp, $hp) {
+        return ceil(($max_hp - $hp) * 6.6);
+    }
+
+
+    public static function getRemainHealingTime ($time_pc_sent, $max_hp, $hp) {
+        return max(0, $time_pc_sent + self::getHealingTime($max_hp, $hp) - $_SERVER['REQUEST_TIME']);
+    }
 
     /**
      * - 60 type (n <= 50, 50 <= n <= 68, 68 < n < 98, 98 <= n <= 100)
@@ -127,6 +152,60 @@ class Pokemon {
         }
         return max(0, floor($nextexp));
     }
+
+
+    public static function getEggPhase ($maturity) {
+        return array_search(TRUE, [
+            $maturity < 27,
+            $maturity >= 27 && $maturity < 51,
+            $maturity >= 51 && $maturity < 93,
+            $maturity >= 93 && $maturity < 100,
+            $maturity >= 100
+        ]);
+    }
+
+    public static function getHappinessPhase ($happiness) {
+        return array_search(TRUE, [
+            $happiness < 50,
+            $happiness >= 50 && $happiness < 90,
+            $happiness >= 90 && $happiness < 150,
+            $happiness >= 150 && $happiness < 220,
+            $happiness >= 220
+        ]);
+    }
+
+    public static function getMaturity ($met_time, $hatch_time) {
+        return floor(($_SERVER['REQUEST_TIME'] - $met_time) / ($hatch_time - $met_time) * 100);
+    }
+
+
+    public static function getInfo ($info) {
+
+        if ($info['nat_id']) {
+
+            $info['maturity']  = self::getMaturity($info['met_time'], $info['time_hatched']);
+            $info['egg_phase'] = self::getEggPhase($info['maturity']);
+
+            if ($info['egg_phase'] === 4) self::hatchEgg($info['pkm_id']);
+
+            unset($info['is_shiny'], $info['nature'], $info['ability'], $info['hp'], $info['new_moves'], $info['moves'], $info['maturity'], $info['time_hatched']);
+
+        } else {
+
+            $info['stats'] = self::getStats($info);
+
+            $info['exp_this_level']  = self::getLevelupExp($info['exp_type'], $info['level']);
+            $info['exp_required']    = self::getLevelupExp($info['exp_type'], $info['level'] + 1) - $info['exp_this_level'];
+            $info['happiness_phase'] = self::getHappinessPhase($info['happiness']);
+            $info['new_moves']       = $info['new_moves'] ? explode(',', $info['new_moves']) : [];
+            $info['moves']           = $info['moves'] ? json_decode($info['moves'], true) : [];
+
+        }
+
+        unset($info['ev'], $info['iv'], $info['pv']);
+
+    }
+
 
     /**
      * This is a rather 'complicated' method, it uses various of jump block, but it's easy to understand.
@@ -421,57 +500,153 @@ class Pokemon {
     }
 
 
-    public static function Avatar($user_id, $refresh = FALSE) {
+    public static function getSprite ($class, $type, $filename, $refresh = FALSE, $side = 0) {
 
-        $filenameh = base_convert(hash('joaat', $user_id), 16, 32);
-        $path      = ROOT_CACHE . '/avatar/' . $filenameh . '.png';
+        $filenameh = base_convert(hash('joaat', $filename . ($side === 1 ? '_b' : '')), 16, 32);
+        $path      = ROOT_CACHE . '/image/' . $filenameh . '.' . $type;
 
-        if(file_exists($path) && $refresh === FALSE) return $path;
+        if (file_exists($path) && $refresh === FALSE) return $path;
 
-        $file  = glob(ROOT_IMAGE . '/avatar-part/skin*');
-        $fileb = glob(ROOT_IMAGE . '/avatar-part/eye*');
-        $filec = glob(ROOT_IMAGE . '/avatar-part/cos*');
-        $filed = glob(ROOT_IMAGE . '/avatar-part/hair*');
-        $filee = glob(ROOT_IMAGE . '/avatar-part/bangs*');
-        $filef = glob(ROOT_IMAGE . '/avatar-part/hat*');
-        $fileg = glob(ROOT_IMAGE . '/avatar-part/dec*');
+        $data = explode('_', $filename);
 
-        $img  = imagecreatefrompng($file[array_rand($file)]);
-        $imgb = imagecreatefrompng($fileb[array_rand($fileb)]);
-        $imgc = imagecreatefrompng($filec[array_rand($filec)]);
-        $imgd = imagecreatefrompng($filed[array_rand($filed)]);
-        $imge = imagecreatefrompng($filee[array_rand($filee)]);
-        $imgf = imagecreatefrompng($filef[array_rand($filef)]);
-        $imgg = imagecreatefrompng($fileg[array_rand($fileg)]);
+        switch ($class) {
+            case 'pokemon':
 
-        imagecopy($img, $imgb, 0, 0, 0, 0, 40, 40);
-        imagecopy($img, $imgc, 0, 0, 0, 0, 40, 40);
-        imagecopy($img, $imgd, 0, 0, 0, 0, 40, 40);
-        imagecopy($img, $imge, 0, 0, 0, 0, 40, 40);
-        imagecopy($img, $imgf, 0, 0, 0, 0, 40, 40);
-        imagecopy($img, $imgg, 0, 0, 0, 0, 40, 40);
+                if (count($data) < 5) {
 
-        $translayer = imagecreate(40, 40);
-        $trans      = imagecolorallocate($translayer, 255, 255, 255);
+                    return ROOT_CACHE . '/image/_unknownpokemon.png';
 
-        imagecolortransparent($translayer, $trans);
-        imagecopy($translayer, $img, 0, 0, 0, 0, 40, 40);
-        imagetruecolortopalette($translayer, TRUE, 256);
-        imageinterlace($translayer);
+                } elseif ($data[1] == 327111 && $side === 0) {
 
-        $img = $translayer;
+                    /*
+                        This is for spinda front sprite only
+                        Do some spot's placement calculation and special layers to generate
+                    */
 
-        ob_start();
-        imagepng($img);
-        imagedestroy($img);
-        $content = ob_get_contents();
-        ob_clean();
-        $handle = fopen($path, 'w+');
-        fwrite($handle, $content);
-        fclose($handle);
+                    $pv = [];
+
+                    for ($i = 0; $i < 8; $i++) {
+                        $pv[$i] = ('0x' . $data[5]{$i}) * 1;
+                    }
+
+                    $spot = [
+                        [$pv[7], $pv[6]],
+                        [$pv[5] + 24, $pv[4] + 2],
+                        [$pv[3] + 3, $pv[2] + 16],
+                        [$pv[1] + 15, $pv[0] + 18]
+                    ];
+
+                    $extrapath = ($data[4] == 1) ? '-shiny' : '';
+
+                    $img  = imagecreatefrompng(ROOT_IMAGE . '/pokemon/front' . $extrapath . '/327.' . $type);
+                    $imgb = imagecreatefrompng(ROOT_IMAGE . '/merge/spinda_' . $extrapath . '_spot_1.png');
+                    $imgc = imagecreatefrompng(ROOT_IMAGE . '/merge/spinda_' . $extrapath . '_spot_2.png');
+                    $imgd = imagecreatefrompng(ROOT_IMAGE . '/merge/spinda_' . $extrapath . '_spot_3.png');
+                    $imge = imagecreatefrompng(ROOT_IMAGE . '/merge/spinda_' . $extrapath . '_spot_4.png');
+                    $imgf = imagecreatefromgif(ROOT_IMAGE . '/merge/spinda_' . $extrapath . '_overlap.gif');
+
+                    imagecopymerge($img, $imgb, $spot[0][0] + 23, $spot[0][1] + 15, 0, 0, 8, 8, 80);
+                    imagecopymerge($img, $imgc, $spot[1][0] + 23, $spot[1][1] + 15, 0, 0, 8, 8, 80);
+                    imagecopymerge($img, $imgd, $spot[2][0] + 23, $spot[2][1] + 15, 0, 0, 7, 9, 80);
+                    imagecopymerge($img, $imge, $spot[3][0] + 23, $spot[3][1] + 15, 0, 0, 9, 10, 80);
+                    imagecopymerge($img, $imgf, 0, 0, 0, 0, 96, 96, 100);
+
+                    $translayer = imagecreatetruecolor(96, 96);
+                    $trans      = imagecolorallocate($translayer, 255, 255, 255);
+
+                    imagecolortransparent($translayer, $trans);
+                    imagecopy($translayer, $img, 0, 0, 0, 0, 96, 96);
+                    imagetruecolortopalette($translayer, TRUE, 256);
+                    imageinterlace($translayer);
+
+                    $img = $translayer;
+
+                } else {
+
+                    $extrapath = (($side === 1) ? '/back' : '/front') .
+                        (($data[4] == 1) ? '-shiny' : '') .
+                        (($data[2] == 1) ? '/female' : '') .
+                        (($data[3] > 0) ? '/' . $data[1] . '-' . $data[3] : '/' . $data[1] . '.') .
+                        (($type === 'jpeg') ? 'jpg' : $type);
+
+                    copy(ROOT_IMAGE . '/pokemon' . $extrapath, $path);
+
+                    return $path;
+                }
+
+                /*
+                    [Currently unavailable]
+                    Gray filter for the dead pokemon
+                    if($data['hp'] == 0) {
+                        //imagefilter($img, IMG_FILTER_GRAYSCALE);
+                        imagecopymergegray($img, $img, 0, 0, 0, 0, 96, 96, 0);
+                    }
+                */
+
+                break;
+            case 'item':
+
+                if (!file_exists(ROOT_IMAGE . '/item/' . $data[1] . '.' . $type))
+                    return ROOT_CACHE . '/image/_unknownitem.png';
+
+                $img        = imagecreatefrompng(ROOT_IMAGE . '/item/' . $data[1] . '.' . $type);
+                $translayer = imagecreate(24, 24);
+                $trans      = imagecolorallocate($translayer, 255, 255, 255);
+
+                imagecolortransparent($translayer, $trans);
+                imagecopy($translayer, $img, 0, 0, 0, 0, 24, 24);
+                imagetruecolortopalette($translayer, TRUE, 256);
+                imageinterlace($translayer);
+
+                $img = $translayer;
+
+                break;
+            case 'other':
+
+                // Other sprites such as hp bar or exp bar, maybe more in the future
+
+                if (in_array($data[0], ['hp', 'exp'])) {
+                    $img  = imagecreatefromgif(ROOT_IMAGE . '/other/' . $data[0] . '_border.' . $type);
+                    $imgb = imagecreatefromgif(ROOT_IMAGE . '/other/' . $data[0] . '_fill.' . $type);
+                    imagecopy($img, $imgb, 1, 1, 0, 0, $data[2], 4);
+                } else {
+                    $head = 'imagecreatefrom' . $type;
+                    $img  = $head(ROOT_IMAGE . '/other/' . $data[0] . '.' . $type);
+                }
+
+                break;
+            case 'egg':
+                $img = imagecreatefrompng(ROOT_IMAGE . '/pokemon/0.' . $type);
+                break;
+            case 'pokemon-icon':
+
+                $img        = imagecreatefrompng(ROOT_IMAGE . '/pokemon-icon/' . $data[1] . '.' . $type);
+                $translayer = imagecreate(32, 32);
+                $trans      = imagecolorallocate($translayer, 255, 255, 255);
+
+                imagecolortransparent($translayer, $trans);
+                imagecopy($translayer, $img, 0, 0, 0, 0, 32, 32);
+                imagetruecolortopalette($translayer, TRUE, 256);
+                imageinterlace($translayer);
+
+                $img = $translayer;
+
+                break;
+        }
+
+        if (isset($img)) {
+            ob_start();
+            imagepng($img);
+            imagedestroy($img);
+            $content = ob_get_contents();
+            ob_clean();
+            $handle = fopen($path, 'w+');
+            fwrite($handle, $content);
+            fclose($handle);
+        }
+
         return $path;
 
     }
-
 
 }

@@ -49,7 +49,7 @@
 * Imported Generation 6 data.
 * Changed the way `Obtain::Sprite()` works for Pokemon sprites.
 * Added file `include/data-constant.php`.
-* Added method `Obtain::Text()` to fetch language text, supports randomization if it's an array and it's not a data array.
+* Added method `General::getText()` to fetch language text, supports randomization if it's an array and it's not a data array.
 * Decided not to apply backward compatability at all (Removed all related CSS properties).
 
 ### 2015-12-24

@@ -26,9 +26,6 @@ app
                 'response': function (response) {
                     timer = null;
                     $('header .decoration-bar').removeClass('loading').addClass('active');
-                    if (response.data.js) {
-                        eval(response.data.js);
-                    }
                     if (response.data.msg) {
                         $('.pop-up.message > .content').html(response.data.msg);
                         pop.open('message');
@@ -48,6 +45,7 @@ app
         $scope.Math         = Math;
         $scope.location     = window.location;
         $scope.pop          = pop;
+        $scope.alert        = window.alert;
         $scope.array        = function (max) {
             return new Array(max);
         };
@@ -71,11 +69,14 @@ app
                 elem.html(oldValue);
             }, 22);
         });
-        $scope.lang = function (text, varriables) {
+        $scope.lang  = function (text, varriables) {
             for (var i in varriables) {
                 text = text.replace(/%[a-z]/, varriables[i]);
             }
             return text;
+        };
+        $scope.picon = function (nat_id) {
+            return 'picon p' + nat_id;
         };
 
         $('#pop-up-mask, .pop-up .close, [pop-up-close]').bind('click', pop.closeAll);
@@ -112,8 +113,8 @@ app
             pop.closeAll();
         };
     }])
-    .controller('page-starter', ['$scope', '$http', function($scope, $http) {
-        $scope.claimPokemon = function(natId) {
+    .controller('page-starter', ['$scope', '$http', function ($scope, $http) {
+        $scope.claimPokemon = function (natId) {
             confirm($scope._LANG.are_you_sure) && $http.get('?index=starter&process=claim-pokemon&nat_id=' + natId);
         }
     }])
@@ -126,10 +127,42 @@ app
             $http.get('?index=pc&section=' + $(this).data('section'), {pushState: true});
             sideMenu.find('.current').removeClass('current');
             $(this).addClass('current');
-            sideMenu.find('[data-section]');
         });
-        $rootScope.healPokemon = function (pkmId, isTake) {
+        $rootScope.healPokemon      = function (pkmId, isTake) {
             (isTake && confirm($scope._LANG.are_you_sure) || !isTake) && $http.get('?index=pc&process=heal-pokemon&pkm_id=' + pkmId + '&action=' + (isTake ? 'take' : ''));
+        };
+        $scope.storageObject        = {
+            selectedBox: null,
+            selectedPokemon: {},
+            movingPokemon: {}
+        };
+        $scope.moveToStorage        = function (box) {
+            var o = $scope.storageObject;
+            if (o.selectedBox === null || o.selectedBox == box) return;
+            if (Object.keys($scope.boxes[box]).length < $scope._SYS.pkm_per_box) {
+                for (var i in o.selectedPokemon) {
+                    o.movingPokemon[i]   = box;
+                    $scope.boxes[box][i] = $scope.boxes[o.selectedBox][i];
+                    delete $scope.boxes[o.selectedBox][i];
+                }
+                o.selectedBox     = null;
+                o.selectedPokemon = {};
+            }
+        };
+        $scope.storageSelectPokemon = function (event, pkmId, box) {
+            event.stopPropagation();
+            var o = $scope.storageObject;
+            if (o.selectedBox !== null && o.selectedBox != box) {
+                $scope.moveToStorage(box);
+                return;
+            }
+            if (!o.selectedPokemon[pkmId]) {
+                o.selectedBox            = box;
+                o.selectedPokemon[pkmId] = true;
+            } else {
+                delete o.selectedPokemon[pkmId];
+                if (!Object.keys(o.selectedPokemon).length) o.selectedBox = null;
+            }
         };
     }])
     .controller('page-memcp', ['$rootScope', '$scope', '$http', function ($rootScope, $scope, $http) {
@@ -337,7 +370,21 @@ app
         return function (input) {
             return input + $rootScope._LANG.semi_column;
         }
-    }]);
+    }])
+    .filter('orderObjectBy', function () {
+        return function (items, field, reverse) {
+            var filtered = [];
+            angular.forEach(items, function (item) {
+                filtered.push(item);
+            });
+            filtered.sort(function (a, b) {
+                return (a[field] > b[field] ? 1 : -1);
+            });
+            if (reverse) filtered.reverse();
+            return filtered;
+        };
+    });
+
 
 var pop = {
     open: function (name) {
@@ -350,7 +397,7 @@ var pop = {
         $('#pop-up-mask').fadeIn();
     },
     closeAll: function () {
-        $('.pop-up, #pop-up-mask').fadeOut();
+        $('.pop-up, #pop-up-mask').hide();
     }
 };
 

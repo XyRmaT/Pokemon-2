@@ -125,6 +125,59 @@ class Trainer {
     }
 
 
+    public static function getAvatar ($user_id, $refresh = FALSE) {
+
+        $filenameh = base_convert(hash('joaat', $user_id), 16, 32);
+        $path      = ROOT_CACHE . '/avatar/' . $filenameh . '.png';
+
+        if (file_exists($path) && $refresh === FALSE) return $path;
+
+        $file  = glob(ROOT_IMAGE . '/avatar-part/skin*');
+        $fileb = glob(ROOT_IMAGE . '/avatar-part/eye*');
+        $filec = glob(ROOT_IMAGE . '/avatar-part/cos*');
+        $filed = glob(ROOT_IMAGE . '/avatar-part/hair*');
+        $filee = glob(ROOT_IMAGE . '/avatar-part/bangs*');
+        $filef = glob(ROOT_IMAGE . '/avatar-part/hat*');
+        $fileg = glob(ROOT_IMAGE . '/avatar-part/dec*');
+
+        $img  = imagecreatefrompng($file[array_rand($file)]);
+        $imgb = imagecreatefrompng($fileb[array_rand($fileb)]);
+        $imgc = imagecreatefrompng($filec[array_rand($filec)]);
+        $imgd = imagecreatefrompng($filed[array_rand($filed)]);
+        $imge = imagecreatefrompng($filee[array_rand($filee)]);
+        $imgf = imagecreatefrompng($filef[array_rand($filef)]);
+        $imgg = imagecreatefrompng($fileg[array_rand($fileg)]);
+
+        imagecopy($img, $imgb, 0, 0, 0, 0, 40, 40);
+        imagecopy($img, $imgc, 0, 0, 0, 0, 40, 40);
+        imagecopy($img, $imgd, 0, 0, 0, 0, 40, 40);
+        imagecopy($img, $imge, 0, 0, 0, 0, 40, 40);
+        imagecopy($img, $imgf, 0, 0, 0, 0, 40, 40);
+        imagecopy($img, $imgg, 0, 0, 0, 0, 40, 40);
+
+        $translayer = imagecreate(40, 40);
+        $trans      = imagecolorallocate($translayer, 255, 255, 255);
+
+        imagecolortransparent($translayer, $trans);
+        imagecopy($translayer, $img, 0, 0, 0, 0, 40, 40);
+        imagetruecolortopalette($translayer, TRUE, 256);
+        imageinterlace($translayer);
+
+        $img = $translayer;
+
+        ob_start();
+        imagepng($img);
+        imagedestroy($img);
+        $content = ob_get_contents();
+        ob_clean();
+        $handle = fopen($path, 'w+');
+        fwrite($handle, $content);
+        fclose($handle);
+        return $path;
+
+    }
+
+
     public static function fetch ($user_id) {
 
         $trainer = DB::fetch_first('SELECT user_id, trainer_name, trainer_id, exp, level, has_starter, currency, box_quantity, time_happiness_checked, is_battling, has_new_message, time_last_visit,
@@ -185,6 +238,7 @@ class Trainer {
         return ceil(0.5 * pow($level, 4));
     }
 
+    // TODO
     public static function Item ($action, $user_id, $iid, $num, $curnum = 'UNKNOWN', $limit = 0) {
 
         if ($curnum === 'UNKNOWN') {

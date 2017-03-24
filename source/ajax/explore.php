@@ -111,7 +111,7 @@ switch($process) {
             DB::query('UPDATE pkm_trainerdata SET is_battling = 1 WHERE user_id = ' . $trainer['user_id']);
 
             Battle::$pokemon[0] = [
-                Pokemon::Generate($appearpkm['nat_id'], $trainer['user_id'], [
+                PokemonGeneral::Generate($appearpkm['nat_id'], $trainer['user_id'], [
                     'met_location' => $mapid,
                     'met_level' => $appearpkm['level'],
                     'wild'    => 1
@@ -142,7 +142,7 @@ switch($process) {
 
             Battle::$report = '野生的' . Battle::$pokemon[0][0]['name'] . '出现了！<br>' . $trainer['trainer_name'] . '派出了' . Battle::$pokemon[1][0]['name'] . '！<br>';
 
-            if(Pokemon::DexRegister($appearpkm['nat_id']) === FALSE)
+            if(PokemonGeneral::registerPokedex($appearpkm['nat_id'], $trainer['user_id']) === FALSE)
 
                 Battle::$report .= Battle::$pokemon[0][0]['name'] . '被登记在了图鉴中。<br>';
 
