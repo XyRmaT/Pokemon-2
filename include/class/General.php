@@ -24,7 +24,7 @@ class General {
      * @param int $data_index
      * @return string
      */
-    public static function getText ($key, $args = [], $is_data = FALSE, $add_linebreak = FALSE, $data_index = 0) {
+    public static function getText (string $key, array $args = [], bool $is_data = FALSE, bool $add_linebreak = FALSE, int $data_index = 0) {
 
         if (!isset($GLOBALS['lang'][$key]))
             return $GLOBALS['lang']['inoccupied_text'];
@@ -39,5 +39,13 @@ class General {
 
         return $text . ($add_linebreak ? '<br>' : '');
 
+    }
+
+
+    public static function fuzzyHas ($needle, $haystack, bool $strict = TRUE) {
+        if (gettype($haystack) === 'array')
+            return array_search($needle, $haystack, $strict);
+        else
+            return $strict ? $needle === $haystack : $needle == $haystack;
     }
 }

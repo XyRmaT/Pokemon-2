@@ -39,12 +39,13 @@ const EGGGROUP_AMORPHOUS    = 13;
 const EGGGROUP_DITTO        = 14;
 const EGGGROUP_UNDISCOVERED = 15;
 
-const STATUS_BURN      = 1;
-const STATUS_FREEZE    = 2;
-const STATUS_PARALYSIS = 3;
-const STATUS_SLEEP     = 4;
-const STATUS_POISON    = 5;
-const STATUS_TOXIC     = 6;
+const STATUS_BURN         = 1;
+const STATUS_FREEZE       = 2;
+const STATUS_PARALYSIS    = 3;
+const STATUS_SLEEP        = 4;
+const STATUS_POISON       = 5;
+const STATUS_TOXIC        = 6;
+const STATUS_POISON_GROUP = [STATUS_POISON, STATUS_TOXIC];
 
 const GENDERLESS    = 0;
 const GENDER_MALE   = 1;

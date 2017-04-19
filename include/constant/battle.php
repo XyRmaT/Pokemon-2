@@ -22,6 +22,9 @@ const SUBSTATUS_HELPINGHAND = 18;
 const SUBSTATUS_CHARGE      = 19;
 const SUBSTATUS_FLASHFIRE   = 20;
 const SUBSTATUS_SLOWSTART   = 21;
+const SUBSTATUS_MEFIRST     = 22;
+const SUBSTATUS_HELPHAND    = 23;
+const SUBSTATUS_MINIMIZE    = 24;
 
 const COUNTER_SLEEP = 0;
 
@@ -31,15 +34,22 @@ const FLAG_OHKO       = NULL;
 const FLAG_RECOIL     = NULL;
 const FLAG_PUNCH      = NULL;
 const FLAG_BENEFICIAL = NULL;
+const FLAG_BITE       = NULL;
+const FLAG_AURAPULSE  = NULL;
+const FLAG_CONTACT    = NULL;
 
 const MOVEPHASE_CALBASEPOWER = 0;
 
 const SPECIAL_CONFUSED_MOVE_ID = -1;
 const SPECIAL_STRUGGLE_MOVE_ID = -2;
 
-const FIELD_GRAVITY     = 0;
-const FIELD_WATERSPORT  = 20;
-const FIELD_MUDSPORT    = 21;
+const FIELD_GRAVITY    = 0;
+const FIELD_WATERSPORT = 20;
+const FIELD_MUDSPORT   = 21;
+
+const SINGLEFIELD_REFLECT     = 1;
+const SINGLEFIELD_LIGHTSCREEN = 2;
+const SINGLEFIELD_AURORAVEIL  = 3;
 
 const STAT_HP        = 0;
 const STAT_ATTACK    = 1;
@@ -50,11 +60,24 @@ const STAT_SPEED     = 5;
 const STAT_ACCURACY  = 6;
 const STAT_EVASION   = 7;
 
-const WEATHER_SUNLIGHT      = 1;
-const WEATHER_RAIN          = 2;
-const WEATHER_SANDSTORM     = 3;
-const WEATHER_HAIL          = 4;
-const WEATHER_HARSHSUNLIGHT = 5;
-const WEATHER_HEAVYRAIN     = 6;
-const WEATHER_STREAM        = 7;
-const WEATHER_FOG           = 8;
+const WEATHER_NONE           = 0;
+const WEATHER_SUNLIGHT       = 1;
+const WEATHER_RAIN           = 2;
+const WEATHER_SANDSTORM      = 3;
+const WEATHER_HAIL           = 4;
+const WEATHER_HARSHSUNLIGHT  = 5;
+const WEATHER_HEAVYRAIN      = 6;
+const WEATHER_STREAM         = 7;
+const WEATHER_FOG            = 8;
+const WEATHER_SUNLIGHT_GROUP = [WEATHER_SUNLIGHT, WEATHER_HARSHSUNLIGHT];
+const WEATHER_RAIN_GROUP     = [WEATHER_RAIN, WEATHER_HEAVYRAIN];
+
+const BATTLETYPE_SINGLE = 1;
+const BATTLETYPE_DOUBLE = 2;
+const BATTLETYPE_MULTI  = 3;
+
+const TERRAIN_NONE     = 0;
+const TERRAIN_GRASSY   = 1;
+const TERRAIN_PSYCHIC  = 2;
+const TERRAIN_ELECTRIC = 3;
+const TERRAIN_MISTY    = 4;

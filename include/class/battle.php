@@ -1,35 +1,198 @@
 <?php
 
+class BattlePokemon {
+    private $stats;
+    private $stat_levels;
+    private $basic_data;
+    private $substatus;
+    private $previous = [
+        'last_move_id' => 0
+    ];
+    private $current  = [
+        'ability' => 0,
+        'hp'      => 0,
+        'status'  => 0,
+        'types'   => []
+    ];
+    private $counter  = [
+        COUNTER_SLEEP => 0
+    ];
 
-class Battle {
+    public function __construct ($basic_data) {
 
-    private $pokemon = [];
-    private $party = [];
-    private $user_id = 0;
-    private $report = [];
-    private $field = ['weather' => ['type' => 0, 'turn' => 0]];
+        Verifier::assertExists($basic_data, [
+            'hp', 'ability', 'type', 'type_b', 'status', 'happiness',
+            'weight', 'holding_item'
+        ]);
 
-    public function Battle($battle_id) {
-        include_once ROOT . '/include/constant/battle.php';
-        include_once ROOT . '/include/db/moves.php';
+        $this->stats                   = [0, 0, 0, 0, 0, 0, 0, 0];
+        $this->basic_data              = $basic_data;
+        $this->current['ability']      = $basic_data['ability'];
+        $this->current['types']        = array_filter([$basic_data['type'], $basic_data['type_b']]);
+        $this->current['hp']           = $basic_data['hp'];
+        $this->current['status']       = $basic_data['status'];
+        $this->current['holding_item'] = $basic_data['holding_item'];
+
     }
 
-    public function swapPokemon() {
-
+    private function initBattleData () {
+        // TODO
+        return [];
     }
 
-    public function reorderPokemon() {
-
+    public function calculateBasicStats () : array {
+        return $this->stats = PokemonGeneral::getStats($this->basic_data);
     }
 
-    private function alterStatus(&$status, $value, $chance = 100) {
-        if($status || mt_rand(1, 100) > $chance)
-            return FALSE;
-        $status = $value;
+    public function setStatus (int $status, int $chance = 100, callable $callback = NULL) {
+        if (mt_rand(1, 100) <= $chance) {
+            if ($callback !== NULL)
+                $callback();
+
+            return $this->current['status'] = $status;
+        }
+        return FALSE;
+    }
+
+    public function getStatus () : int {
+        return $this->current['status'];
+    }
+
+    public function isStatus ($status) : bool {
+        return General::fuzzyHas($this->current['status'], $status);
+    }
+
+
+    public function getSubstatus (int $substatus) {
+        return $this->substatus[$substatus] ?? 0;
+    }
+
+    public function setSubstatus (int $substatus, $value) {
+        $this->substatus[$substatus] = $value;
+    }
+
+    public function incrementSubstatus (int $substatus, int $value = 1, callable $callback = NULL) : bool {
+        if ($value < 0 && !empty($this->substatus[$substatus]) || $value > 0) {
+            if ($callback !== NULL)
+                $callback();
+            return $this->substatus[$substatus] = isset($this->substatus[$substatus]) ?
+                $this->substatus[$substatus] + $value : $value;
+        }
+        return FALSE;
+    }
+
+    public function incrementCounter (int $counter, int $value = 1, callable $callback = NULL) {
+        if ($this->counter[$counter]) {
+            if ($callback !== NULL)
+                $callback();
+            return $this->counter[$counter] += $value;
+        }
+        return FALSE;
+    }
+
+    public function getLastMoveID () : int {
+        return $this->previous['last_move_id'];
+    }
+
+    public function isAbility ($ability) {
+        return General::fuzzyHas($this->current['ability'], $ability);
+    }
+
+    public function isHolding ($item) {
+        return General::fuzzyHas($this->basic_data['item_holding'], $item);
+    }
+
+    public function is ($nat_id) {
+        return General::fuzzyHas($this->basic_data['nat_id'], $nat_id);
+    }
+
+    public function getStat (int $stat_id) : int {
+        return $this->stats[$stat_id];
+    }
+
+    public function getHPPercent () : float {
+        return floor($this->basic_data['hp'] / $this->getStat(STAT_HP));
+    }
+
+    public function getStatLevel (int $stat) : int {
+        return $this->stat_levels[$stat];
+    }
+
+    public function getStatLevels () : array {
+        return $this->stat_levels;
+    }
+
+    public function isType ($type) : bool {
+        // TODO
         return TRUE;
     }
 
-    private function fetchParty($user_id) {
+    public function hasEvolution () : bool {
+        // TODO
+        return TRUE;
+    }
+
+    public function getCurrentHP () : int {
+        return $this->current['hp'];
+    }
+
+    public function getHappiness () : int {
+        return $this->basic_data['happiness'];
+    }
+
+    public function getWeight () : int {
+        return $this->basic_data['weight'];
+    }
+
+    public function isFloating () : bool {
+        // TODO
+        return TRUE;
+    }
+
+    public function isHoldingItemPokemonSpecific () : bool {
+        // TODO
+        return TRUE;
+    }
+
+    public function getLevel () : int {
+        return $this->basic_data['level'];
+    }
+
+    public function getTypes () {
+        return $this->current['types'];
+    }
+
+    public function setType (int $type, bool $fixed = FALSE) {
+        if ($fixed) {
+            $this->current['types'] = [$type];
+        } else {
+            $this->current['types'][] = $type;
+            $this->current['types']   = array_unique($this->current['types']);
+        }
+    }
+
+    public function getHoldingItem () : int {
+        return $this->current['holding_item'];
+    }
+
+    public function hasField (int $field) : bool {
+        // TODO
+        return TRUE;
+    }
+
+    public function getAbility () : int {
+        return $this->current['ability'];
+    }
+}
+
+class BattleTrainer {
+    private $user_id;
+    private $party;
+
+    public function __construct (int $user_id) {
+        if (!$user_id) return;
+
+        $this->user_id = $user_id;
 
         $query = DB::query('SELECT m.pkm_id, m.nat_id, m.nickname, m.gender, m.psn_value, m.idv_value, m.eft_value,
                                     m.nature, m.level, m.exp, m.item_holding, m.happiness, m.moves, m.ability, m.user_id,
@@ -38,54 +201,280 @@ class Battle {
                             FROM pkm_mypkm m
                             LEFT JOIN pkm_pkmdata p ON m.nat_id = p.nat_id AND m.form = p.form
                             WHERE m.user_id = ' . $user_id . ' AND m.location IN (' . LOCATION_PARTY . ') AND m.hatch_nat_id != 0');
-        while($info = DB::fetch($query)) {
-            $info['temporary'] = ['last_move_id' => 0];
-            $info['battle']    = $this->fetchBattleData();
-            $info['stats']     = Obtain::Stat($info['level'], $info['base_stat'], $info['idv_value'], $info['eft_value'], $info['nature'], TRUE);
-            $this->party[]     = $info;
+        while ($info = DB::fetch($query)) {
+            $pokemon = new BattlePokemon($info);
+            $pokemon->calculateBasicStats();
+            $this->party[] = $pokemon;
         }
+    }
+}
 
-        // Initialize pokemon array by putting self as index 0
-        if(!empty($this->party[0])) {
-            $this->pokemon[0] = $this->party[0];
+class BattleMove {
+    private $flags;
+    private $current = [
+        'class'  => 0,
+        'type'   => 0,
+        'type_b' => 0
+    ];
+    private $basic_data;
+    private $class_name;
+    private $targets;
+
+    public function __construct (array $basic_data) {
+        Verifier::assertExists($basic_data, ['type', 'pp', 'class', 'move_id', 'base_power', 'flags']);
+
+        // TODO - load move
+
+        $this->basic_data = $basic_data;
+        $this->class_name = 'Move' . $basic_data['move_id'];
+
+        // TODO - flags
+    }
+
+    public function setType (int $type) {
+        $this->current['type'] = $type;
+    }
+
+    public function getType () : int {
+        return $this->current['type'];
+    }
+
+    public function hasFlag (int $flag) : bool {
+        return !empty($this->flags{$flag});
+    }
+
+    public function isClass (int $class) {
+        return $this->current['class'] == $class;
+    }
+
+    public function getPP () : int {
+        return $this->basic_data['pp'];
+    }
+
+    public function reducePP () {
+        return --$this->basic_data['pp'];
+    }
+
+    public function is ($move_id) {
+        return General::fuzzyHas($this->basic_data['move_id'], $move_id);
+    }
+
+    public function getID () : int {
+        return $this->basic_data['move_id'];
+    }
+
+    public function isType ($type) : bool {
+        $ptype = [$this->current['type'], $this->current['type_b']];
+        if (!is_array($type)) $type = [$type];
+        foreach ($type as $t) {
+            if (in_array($t, $ptype, TRUE)) return TRUE;
         }
+        return FALSE;
+    }
 
-        return !$this->party ? FALSE : $this;
+    public function getBasePower () : int {
+        return $this->basic_data['base_power'];
+    }
+
+    public function getClassName () : string {
+        return $this->class_name;
+    }
+
+    public function getTargets () : array {
+        return $this->targets;
+    }
+}
+
+class BattleFactory {
+    public static $weather_ball = [
+        WEATHER_NONE          => TYPE_NORMAL,
+        WEATHER_SUNLIGHT      => TYPE_FIRE,
+        WEATHER_HARSHSUNLIGHT => TYPE_FIRE,
+        WEATHER_RAIN          => TYPE_WATER,
+        WEATHER_HEAVYRAIN     => TYPE_WATER,
+        WEATHER_SANDSTORM     => TYPE_ROCK,
+        WEATHER_HAIL          => TYPE_ICE,
+        WEATHER_FOG           => TYPE_NORMAL
+    ];
+
+    public static $type_skin_ability = [
+        ABILITY_AERILATE    => TYPE_FLYING,
+        ABILITY_PIXILATE    => TYPE_FAIRY,
+        ABILITY_REFRIGERATE => TYPE_ICE,
+        ABILITY_GALVANIZE   => TYPE_ELECTRIC,
+        ABILITY_NORMALIZE   => TYPE_NORMAL
+    ];
+
+    public static $type_gems = [
+        ITEM_FIREGEM     => TYPE_FIRE,
+        ITEM_WATERGEM    => TYPE_WATER,
+        ITEM_GRASSGEM    => TYPE_GRASS,
+        ITEM_ELECTRICGEM => TYPE_ELECTRIC,
+        ITEM_NORMALGEM   => TYPE_NORMAL,
+        ITEM_FIGHTINGGEM => TYPE_FIGHTING,
+        ITEM_FLYINGGEM   => TYPE_FLYING,
+        ITEM_BUGGEM      => TYPE_BUG,
+        ITEM_POISONGEM   => TYPE_POISON,
+        ITEM_ROCKGEM     => TYPE_ROCK,
+        ITEM_GROUNDGEM   => TYPE_GROUND,
+        ITEM_STEELGEM    => TYPE_STEEL,
+        ITEM_ICEGEM      => TYPE_ICE,
+        ITEM_PSYCHICGEM  => TYPE_PSYCHIC,
+        ITEM_DARKGEM     => TYPE_DARK,
+        ITEM_GHOSTGEM    => TYPE_GHOST,
+        ITEM_DRAGONGEM   => TYPE_DRAGON,
+        ITEM_FAIRYGEM    => TYPE_FAIRY
+    ];
+
+    public static $type_plates = [
+        ITEM_FLAMEPLATE  => TYPE_FIRE,
+        ITEM_SPLASHPLATE => TYPE_WATER,
+        ITEM_MEADOWPLATE => TYPE_GRASS,
+        ITEM_ZAPPLATE    => TYPE_ELECTRIC,
+        ITEM_FISTPLATE   => TYPE_FIGHTING,
+        ITEM_SKYPLATE    => TYPE_FLYING,
+        ITEM_INSECTPLATE => TYPE_BUG,
+        ITEM_TOXICPLATE  => TYPE_POISON,
+        ITEM_STONEPLATE  => TYPE_ROCK,
+        ITEM_EARTHPLATE  => TYPE_GROUND,
+        ITEM_IRONPLATE   => TYPE_STEEL,
+        ITEM_ICICLEPLATE => TYPE_ICE,
+        ITEM_MINDPLATE   => TYPE_PSYCHIC,
+        ITEM_DREADPLATE  => TYPE_DARK,
+        ITEM_SPOOKYPLATE => TYPE_GHOST,
+        ITEM_DRACOPLATE  => TYPE_DRAGON,
+        ITEM_PIXIEPLATE  => TYPE_FAIRY
+    ];
+
+    public static $type_boosts = [
+        ITEM_CHARCOAL     => TYPE_FIRE,
+        ITEM_MYSTICWATER  => TYPE_WATER,
+        ITEM_MIRACLESEED  => TYPE_GRASS,
+        ITEM_MAGNET       => TYPE_ELECTRIC,
+        ITEM_SILKSCARF    => TYPE_NORMAL,
+        ITEM_BLACKBELT    => TYPE_FIGHTING,
+        ITEM_SHARPBEAK    => TYPE_FLYING,
+        ITEM_SILVERPOWDER => TYPE_BUG,
+        ITEM_POISONBARB   => TYPE_POISON,
+        ITEM_HARDSTONE    => TYPE_ROCK,
+        ITEM_SOFTSAND     => TYPE_GROUND,
+        ITEM_METALCOAT    => TYPE_STEEL,
+        ITEM_NEVERMELTICE => TYPE_ICE,
+        ITEM_TWISTEDSPOON => TYPE_PSYCHIC,
+        ITEM_BLACKGLASSES => TYPE_DARK,
+        ITEM_SPELLTAG     => TYPE_GHOST,
+        ITEM_DRAGONFANG   => TYPE_DRAGON
+    ];
+
+    public static $type_berries = [
+        ITEM_OCCABERRY   => TYPE_FIRE,
+        ITEM_PASSHOBERRY => TYPE_WATER,
+        ITEM_RINDOBERRY  => TYPE_GRASS,
+        ITEM_WACANBERRY  => TYPE_ELECTRIC,
+        ITEM_CHILANBERRY => TYPE_NORMAL,
+        ITEM_CHOPLEBERRY => TYPE_FIGHTING,
+        ITEM_COBABERRY   => TYPE_FLYING,
+        ITEM_TANGABERRY  => TYPE_BUG,
+        ITEM_KEBIABERRY  => TYPE_POISON,
+        ITEM_CHARTIBERRY => TYPE_ROCK,
+        ITEM_SHUCABERRY  => TYPE_GROUND,
+        ITEM_BABIRIBERRY => TYPE_STEEL,
+        ITEM_YACHEBERRY  => TYPE_ICE,
+        ITEM_PAYAPABERRY => TYPE_PSYCHIC,
+        ITEM_COLBURBERRY => TYPE_DARK,
+        ITEM_KASIBBERRY  => TYPE_GHOST,
+        ITEM_HABANBERRY  => TYPE_DRAGON,
+        ITEM_ROSELIBERRY => TYPE_FAIRY
+    ];
+
+    public static function calculatePositiveTotal ($c, $v) {
+        return $c + ($v > 0 ? $v : 0);
+    }
+}
+
+class Battle {
+
+    private $report = [];
+    private $field  = [
+        'weather' => ['type' => 0, 'counter' => 0],
+        'terrain' => ['type' => 0, 'counter' => 0]
+    ];
+
+    private $is_wild  = TRUE;
+    private $type     = BATTLETYPE_SINGLE;
+    private $trainers = [];
+
+    private $attacking_queue = [];
+
+
+    public function Battle (int $battle_id, int $type, bool $is_wild, array $user_ids) {
+        include_once '../constant/battle.php';
+
+        $this->is_wild = $is_wild;
+        $this->type    = $type;
+
+        $this->initTrainers($user_ids);
+    }
+
+    private function initTrainers (array $user_ids) {
+        switch ($this->type) {
+            case BATTLETYPE_SINGLE:
+                $this->trainers = [[new BattleTrainer($user_ids[0][0])]];
+                break;
+            case BATTLETYPE_DOUBLE:
+                $this->trainers = [
+                    [new BattleTrainer($user_ids[0][0])],
+                    [new BattleTrainer($user_ids[1][0])],
+                ];
+                break;
+            case BATTLETYPE_MULTI:
+                $this->trainers = [
+                    [new BattleTrainer($user_ids[0][0]), new BattleTrainer($user_ids[0][1])],
+                    [new BattleTrainer($user_ids[1][0]), new BattleTrainer($user_ids[1][1])]
+                ];
+                break;
+        }
+    }
+
+    public function isWild () : bool {
+        return $this->is_wild;
+    }
+
+    public function swapPokemon () {
+        // TODO
+    }
+
+    public function reorderPokemon () {
+        // TODO
+    }
+
+    private function decideOrder () {
+        // TODO
+    }
+
+    private function main () {
 
     }
 
-    private function decideOrder() {
+    private function processTurn (BattlePokemon $attacker, BattlePokemon $defencer, &$field, $move_id) {
 
-        foreach($this->pokemon as &$pokemon) {
-
-        }
-
-    }
-
-    private function main() {
-
-    }
-
-    private function processTurn(&$attacker, &$defencer, &$field, $move_id) {
-
-        $substatus = &$attacker['battle']['substatus'];
-        $counters  = &$attacker['battle']['counters'];
+        /*$substatus = &$attacker['battle']['substatus'];
+        $counters  = &$attacker['battle']['counters'];*/
 
         // Reset Destiny Bond, Grudge and Rage status
-        $substatus[SUBSTATUS_DESTINYBOND] = 0;
-        $substatus[SUBSTATUS_GRUDGE]      = 0;
-        $substatus[SUBSTATUS_RAGE]        = 0;
+        $attacker->setSubstatus(SUBSTATUS_DESTINYBOND, 0);
+        $attacker->setSubstatus(SUBSTATUS_GRUDGE, 0);
+        $attacker->setSubstatus(SUBSTATUS_RAGE, 0);
 
         // Decrease Torment and Encore counter, also record last used move id if being encored
-        $substatus[SUBSTATUS_TORMENT] = $substatus[SUBSTATUS_TORMENT] ? $substatus[SUBSTATUS_TORMENT] - 1 : 0;
-        if($substatus[SUBSTATUS_ENCORE]) {
-            $move_id = $attacker['temporary']['last_move_id'];
-            --$substatus[SUBSTATUS_ENCORE];
-        }
+        $attacker->incrementSubstatus(SUBSTATUS_TORMENT, -1);
+        $attacker->incrementSubstatus(SUBSTATUS_ENCORE, -1, function () use (&$move_id, $attacker) {
+            $move_id = $attacker->getLastMoveID();
+        });
 
         // Move recharging, if so reset the variable then ends the attack
-        if($substatus[SUBSTATUS_RECHARGE]) {
-            $substatus[SUBSTATUS_RECHARGE] = 0;
+        if ($attacker->getSubstatus(SUBSTATUS_RECHARGE)) {
+            $attacker->setSubstatus(SUBSTATUS_RECHARGE, 0);
             $this->appendReport('recharging', [$attacker['nickname']]);
             return;
         }
@@ -93,58 +482,61 @@ class Battle {
         $move = $this->retrieveMove($move_id, $attacker);
 
         PROCESS_CHECKMOBILITY: {
+
             // Freeze hax and pokemon asleep
-            if($attacker['status'] == STATUS_FREEZE) {
-                if(!mt_rand(0, 3)) {
-                    $attacker['status'] = 0;
+            if ($attacker['status'] == STATUS_FREEZE) {
+                // Freeze has 25% chance defrost
+                if ($attacker->setStatus(0, 25) !== FALSE) {
                     $this->appendReport('defrosted', [$attacker['nickname']]);
                 } else {
                     $this->appendReport('frozen', [$attacker['nickname']]);
                     return;
                 }
-            } elseif($attacker['status'] == STATUS_SLEEP) {
-                if(--$counters[COUNTER_SLEEP] < 1) {
-                    $attacker['status'] = 0;
+            } elseif ($attacker['status'] == STATUS_SLEEP) {
+                if ($attacker->incrementCounter(COUNTER_SLEEP, -1) === FALSE) {
                     $this->appendReport('woke', [$attacker['nickname']]);
                 } else {
                     $this->appendReport('sleeping', [$attacker['nickname']]);
-                    return;
+                    // Only Snore & Sleeptalk can bypass the sleeping status
+                    if (!$move->is([MOVE_SNORE, MOVE_SLEEPTALK]))
+                        return;
                 }
             }
 
             // Truant
-            if($substatus[SUBSTATUS_TRUANT]) {
-                $substatus[SUBSTATUS_TRUANT] = 0;
+            if ($attacker->getSubstatus(SUBSTATUS_TRUANT)) {
+                $attacker->setSubstatus(SUBSTATUS_TRUANT, 0);
                 $this->appendReport('truanted', [$attacker['nickname']]);
                 return;
             }
 
-            // Disable
-            if($move_id == $substatus[SUBSTATUS_DISABLE]) {
+            // Disable, if the move used is disabled, then cannot move
+            if ($move_id == $attacker->getSubstatus(SUBSTATUS_DISABLE)) {
                 $this->appendReport('disabled', [$attacker['nickname']]);
                 return;
             }
 
             // Imprison
-            if($substatus[SUBSTATUS_IMPRISON] && array_uintersect($attacker['moves'], $defencer['moves'], function($a, $b) {
-                    return $a['move_id'] - $b['move_id'];
-                })
-            ) {
+            $imprisoned_moves = $attacker->getSubstatus(SUBSTATUS_IMPRISON);
+            if ($imprisoned_moves && in_array($move_id, $imprisoned_moves)) {
                 $this->appendReport('imprisoned', [$attacker['nickname']]);
                 return;
             }
 
             // Heal block
-            if($substatus[SUBSTATUS_HEALBLOCK] && $move['flags']{FLAG_HEALING}) {
+            if ($attacker->getSubstatus(SUBSTATUS_HEALBLOCK) && $move->hasFlag(FLAG_HEALING)) {
                 $this->appendReport('healblocked', [$attacker['nickname']]);
                 return;
             }
 
             // Confused
-            if($substatus[SUBSTATUS_CONFUSE]) {
-                if(--$substatus[SUBSTATUS_CONFUSE]) {
+            $confuse_turn = $attacker->getSubstatus(SUBSTATUS_CONFUSE);
+            if ($confuse_turn) {
+                $attacker->setSubstatus(SUBSTATUS_CONFUSE, --$confuse_turn);
+                if ($confuse_turn) {
                     $this->appendReport('confused', [$attacker['nickname']]);
-                    if(mt_rand(0, 1)) {
+                    if (mt_rand(0, 1)) {
+                        // Attacking itself using a special move
                         $move = $this->retrieveMove(SPECIAL_CONFUSED_MOVE_ID);
                         $this->appendReport('attacked_itself', [$attacker['nickname']]);
                     }
@@ -154,32 +546,33 @@ class Battle {
             }
 
             // Flinch
-            if($substatus[SUBSTATUS_FLINCH]) {
-                $substatus[SUBSTATUS_FLINCH] = 0;
+            if ($attacker->getSubstatus(SUBSTATUS_FLINCH)) {
+                $attacker->setSubstatus(SUBSTATUS_FLINCH, 0);
                 $this->appendReport('flinched', [$attacker['nickname']]);
+
                 return;
             }
 
             // Taunt
-            if($substatus[SUBSTATUS_TAUNT] && $move['class'] == MOVECLASS_STATUS) {
+            if ($attacker->getSubstatus(SUBSTATUS_TAUNT) && $move->isClass(MOVECLASS_STATUS)) {
                 $this->appendReport('taunted', [$attacker['nickname']]);
                 return;
             }
 
             // Gravity
-            if($field[FIELD_GRAVITY] && $move['flags']{FLAG_LEVITATING}) {
+            if ($this->hasField(FIELD_GRAVITY) && $move->hasFlag(FLAG_LEVITATING)) {
                 $this->appendReport('gravitational_force', [$attacker['nickname']]);
                 return;
             }
 
-            // Attract
-            if($substatus[SUBSTATUS_ATTRACT] && mt_rand(0, 1)) {
+            // Attract, has 50% percent of chance not being able to move
+            if ($attacker->getSubstatus(SUBSTATUS_ATTRACT) && mt_rand(0, 1)) {
                 $this->appendReport('attracted', [$attacker['nickname']]);
                 return;
             }
 
-            // Paralyze
-            if($attacker['status'] == STATUS_PARALYSIS && !mt_rand(0, 3)) {
+            // Paralyze, has 25% percent of chance not being able to move
+            if ($attacker->isStatus(STATUS_PARALYSIS) && !mt_rand(0, 3)) {
                 $this->appendReport('paralyzed', [$attacker['nickname']]);
                 return;
             }
@@ -187,199 +580,425 @@ class Battle {
         }
 
         // PP
-        if(!$move['pp']) {
+        if ($move->getPP() <= 0) {
             $move = $this->retrieveMove(SPECIAL_STRUGGLE_MOVE_ID);
         } else {
-            --$move['pp'];
+            $move->reducePP();
         }
 
-        if(!$this->isHit($attacker, $defencer, $move) && in_array($move['move_id'], [MOVE_HIGHJUMPKICK, MOVE_JUMPKICK])) {
+        if (!$this->isHit($attacker, $defencer, $move) && in_array($move['move_id'], [MOVE_HIGHJUMPKICK, MOVE_JUMPKICK])) {
             // TODO - Jump kick
         }
+
         $this->calculateDamage($attacker, $defencer, $move);
 
         // Use move
         $this->useMove($move['move_id']);
 
-    }
-
-    private function &retrieveMove($move_id, &$pokemon = FALSE) {
-        return [];
-    }
-
-    private function loadMove($move_id, $process) {
+        PROCESS_END: {
+        }
 
     }
 
-    private function calculateDamage($attacker, $defencer, &$move) {
+    private function retrieveMove ($move_id, &$pokemon = FALSE) : BattleMove {
+        // TODO
+        return new BattleMove([]);
+    }
 
-        $this->loadMove($move['move_id'], MOVEPHASE_CALBASEPOWER);
+    private function loadMove ($move_id, $process) {
+        // TODO
+    }
 
-        $is_physical = $move['class'] == MOVECLASS_PHYSICAL;
-        $hp_percent  = $attacker['hp'] / $attacker['max_hp'];
+    private function hasField (int $field) : bool {
+        // TODO
+        return FALSE;
+    }
 
-        PROCESS_CALCPOWER : {
+    public function isMulti () : bool {
+        return $this->type !== BATTLETYPE_SINGLE;
+    }
 
-            $power = $move['power'];
+    public function calculateDamage (BattlePokemon $attacker, BattlePokemon $defencer, BattleMove $move) {
 
-            if($attacker['ability'] == ABILITY_TECHNICIAN && $move['power'] <= 60) {
-                $power *= 1.5;
-            } elseif($attacker['ability'] == ABILITY_FLAREBOOST && $attacker['status'] == STATUS_BURN && $move['class'] == MOVECLASS_SPECIAL) {
-                $power *= 1.5;
-            } elseif($attacker['ability'] == ABILITY_TOXICBOOST && in_array($attacker['status'], [STATUS_POISON, STATUS_TOXIC]) && $move['class'] == MOVECLASS_PHYSICAL) {
-                $power *= 1.5;
-            } elseif($attacker['ability'] == ABILITY_ANALYTIC && !in_array($move['move_id'], [MOVE_FUTURESIGHT, MOVE_DOOMDESIRE]) && $attacker['battle']['is_last']) {
-                $power *= 1.3;
-            } elseif($attacker['ability'] == ABILITY_RECKLESS && $move['flags']{FLAG_RECOIL}) {
-                $power *= 1.2;
-            } elseif($attacker['ability'] == ABILITY_IRONFIST && $move['flags']{FLAG_PUNCH}) {
-                $power *= 1.2;
-            } elseif($attacker['ability'] == ABILITY_COMPETITIVE && !in_array(GENDERLESS, [$attacker['gender'], $defencer['gender']])) {
-                $power *= $attacker['gender'] == $defencer['gender'] ? 1.25 : 0.75;
-            } elseif($attacker['ability'] == ABILITY_SANDFORCE && in_array($move['type'], [TYPE_ROCK, TYPE_STEEL, TYPE_GROUND])) {
-                $power *= 1.3;
-            } elseif($attacker['ability'] == ABILITY_SHEERFORCE && $move['flags'][FLAG_BENEFICIAL]) {
-                $power *= 1.3;
-            }
+        $self_attack  = $this->calculateAttack($attacker, $defencer, $move);
+        $oppo_defence = $this->calculateDefence($attacker, $defencer, $move);
+        $move_power   = $this->calculateMoveBasePower($attacker, $defencer, $move);
+        $damage       = floor(($attacker->getLevel() * 2 + 10) / 250 * $move_power * ($self_attack / $oppo_defence) + 2);
+        $is_crit      = $this->isCriticalHit($attacker, $defencer, $move);
+        $oppo_type    = $defencer->getTypes();
+        $type_mod     = $this->calculateTypeModifier($move->getType(), $oppo_type, $move);
 
-            if($defencer['ability'] == ABILITY_HEATPROOF && $move['type'] == TYPE_FIRE) {
-                $power *= 0.5;
-            } elseif($defencer['ability'] == ABILITY_DRYSKIN && $move['type'] == TYPE_FIRE) {
-                $power *= 1.25;
-            }
+        // Multi battle modifier
+        // When a single field has more than 1 pokemon, it's defined as multi battle
+        if ($this->isMulti() && isset($move->getTargets()[1]))
+            $damage = floor($damage * 0.75);
 
-            if($move['move_id'] == MOVE_BRINE && $defencer['hp'] / $defencer['max_hp'] <= 0.5 || $move['move_id'] == MOVE_VENOSHOCK && in_array($defencer['status'], [STATUS_POISON, STATUS_TOXIC]) || $move['move_id'] == MOVE_RETALIATE && $attacker['battle']['is_revenge'] || $move['move_id'] == MOVE_FUSIONFLARE && $this->field['last_move'] == MOVE_FUSIONBOLT || $move['move_id'] == MOVE_FUSIONBOLT && $this->field['last_move'] == MOVE_FUSIONFLARE)
-                $power *= 2;
-            if($move['is_me_first'])
-                $power *= 1.5;
-            if($move['move_id'] == MOVE_SOLARBEAM && $this->checkWeathers([WEATHER_RAIN, WEATHER_HEAVYRAIN, WEATHER_SANDSTORM, WEATHER_HAIL]))
-                $power *= 0.5;
-            if($attacker['battle']['substatus'] == SUBSTATUS_CHARGE && $move['type'] == TYPE_ELECTRIC)
-                $power *= 2;
-            if($attacker['battle']['substatus'] == SUBSTATUS_HELPINGHAND)
-                $power *= 1.5;
-            if($this->field['water_sport'] && $move['type'] == TYPE_FIRE || $this->field['mud_sport'] && $move['type'] == TYPE_ELECTRIC)
-                $power *= 0.5;
-
-            /**
-             * TODO
-             * 如果攻击方携带属性强化道具，且技能是对应属性，威力修正×1.2。
-             * 如果攻击方携带力量头巾，且使用物理技能，威力修正×1.1。
-             * 如果攻击方携带知识眼镜，且使用特殊技能，威力修正×1.1。
-             * 如果攻击方携带怪异之香，且技能是超能属性，威力修正×1.2。
-             * 如果攻击方是携带金刚玉的帝牙卢卡，且技能是钢或龙属性，威力修正×1.2。
-             * 如果攻击方是携带白玉的帕路奇犽，且技能是水或龙属性，威力修正×1.2。
-             * 如果攻击方是携带白金玉的骑拉帝纳，且技能是鬼或龙属性，威力修正×1.2。
-             * 如果此次攻击发动了对应属性宝石，威力修正×1.5。
-             */
-
+        // Weather modifier
+        // Sunny: water * 0.5, fire * 1.5; rainy: water * 1.5, fire * 0.5
+        $weather_mod = 1;
+        if ($this->isWeather(WEATHER_SUNLIGHT_GROUP)) {
+            if ($move->isType(TYPE_FIRE))
+                $weather_mod = 1.5;
+            elseif ($move->isType(TYPE_WATER))
+                $weather_mod = 0.5;
+        } elseif ($this->isWeather(WEATHER_RAIN_GROUP)) {
+            if ($move->isType(TYPE_WATER))
+                $weather_mod = 1.5;
+            elseif ($move->isType(TYPE_FIRE))
+                $weather_mod = 0.5;
         }
+        $damage = floor($damage * $weather_mod);
 
-        PROCESS_CALCATTACK : {
+        // Critical hit modifier
+        // Sniper is calculated in calculateDamageModifier
+        if ($is_crit)
+            $damage = floor($damage * 1.5);
 
-            $attack = $move['move_id'] == MOVE_FOULPLAY ? $defencer['stats'][STAT_ATTACK] : $attacker['stats'][$is_physical ? STAT_ATTACK : STAT_SPATTACK];
+        // Random modifier
+        $damage = floor($damage * rand(85, 100) / 100);
 
-            if($defencer['ability'] != ABILITY_UNAWARE)
-                $attack *= $attacker['stat_mods'][$is_physical ? STAT_ATTACK : STAT_SPATTACK];
+        // STAB modifier
+        // Adaptability will increase the damage by 2*, instead of 1.5*
+        if ($move->isType($attacker->getTypes()))
+            $damage = floor($damage * ($attacker->isAbility(ABILITY_ADAPTABILITY) ? 2 : 1.5));
 
-            if($defencer['ability'] == ABILITY_THICKFAT && in_array($move['type'], [TYPE_FIRE, TYPE_ICE]))
-                $attack *= 0.5;
+        // Type modifier
+        $damage = floor($damage * $type_mod);
 
-            if($attacker['ability'] == ABILITY_OVERGROW && $move['type'] == TYPE_GRASS && $hp_percent < 1 / 3) {
-                $attack *= 1.5;
-            } elseif($attacker['ability'] == ABILITY_BLAZE && $move['type'] == TYPE_FIRE && $hp_percent < 1 / 3) {
-                $attack *= 1.5;
-            } elseif($attacker['ability'] == ABILITY_TORRENT && $move['type'] == TYPE_WATER && $hp_percent < 1 / 3) {
-                $attack *= 1.5;
-            } elseif($attacker['ability'] == ABILITY_SWARM && $move['type'] == TYPE_BUG && $hp_percent < 1 / 3) {
-                $attack *= 1.5;
-            } elseif($attacker['ability'] == ABILITY_GUTS && $attacker['status']) {
-                $attack *= 1.5;
-            } elseif($attacker['ability'] == ABILITY_DEFEATIST && $hp_percent <= 0.5) {
-                $attack *= 0.5;
-            } elseif(in_array($attacker['ability'], [ABILITY_PUREPOWER, ABILITY_HUGEPOWER]) && $is_physical) {
-                $attack *= 2;
-            } elseif($attacker['ability'] == ABILITY_SOLARPOWER && $this->checkWeathers([WEATHER_SUNLIGHT, WEATHER_HARSHSUNLIGHT]) && !$is_physical) {
-                $attack *= 1.5;
-            } elseif($attacker['ability'] == ABILITY_HUSTLE && $is_physical) {
-                $attack *= 1.5;
-            } elseif($attacker['ability'] == ABILITY_FLOWERGIFT && $this->checkWeathers([WEATHER_SUNLIGHT, WEATHER_HARSHSUNLIGHT]) && $is_physical) {
-                $attack *= 1.5;
-            }
+        // Burn modifier
+        if ($attacker->isStatus(STATUS_BURN) && $move->isClass(MOVECLASS_PHYSICAL) && !$attacker->isAbility(ABILITY_GUTS))
+            $damage = floor($damage * 0.5);
 
-            if($attacker['battle']['substatus'][SUBSTATUS_FLASHFIRE] && $move['type'] == TYPE_FIRE)
-                $attack *= 1.5;
-            if($attacker['battle']['substatus'][SUBSTATUS_SLOWSTART] && $is_physical)
-                $attack *= 0.5;
-
-            /**
-             * TODO
-             * 在双打对战或三打对战中，如果攻击方拥有正极或负极特性且攻击方的队友拥有正极或负极特性，且使用特殊技能，攻击力修正×1.5。
-             * 如果攻击方是携带粗骨头的可拉可拉或嘎拉嘎拉，且使用物理技能，攻击力修正×2。
-             * 如果攻击方是携带深海之牙的珍珠贝，且使用特殊技能，攻击力修正×2。
-             * 如果攻击方是携带电珠的皮卡丘，攻击力修正×2。
-             * 如果攻击方是携带心之水珠的拉帝欧斯或拉帝亚斯，且使用特殊技能，攻击力修正×1.5。
-             * 如果攻击方携带专爱头巾，且使用物理技能，攻击力修正×1.5。
-             * 如果攻击方携带专爱眼镜，且使用特殊技能，攻击力修正×1.5。
-             * 攻击力＝⌊攻击力×攻击力修正⌉。
-             */
-        }
-
-        PROCESS_CALCDEFENCE : {
-
-            $defence = $attacker['stats'][$is_physical ? STAT_DEFENCE : STAT_SPDEFENCE];
-
-            if($this->checkWeathers([WEATHER_SANDSTORM]) && !$is_physical && in_array(TYPE_ROCK, [$defencer['type'], $defencer['type_b']])) {
-                $defence *= 1.5;
-            } elseif($this->checkWeathers([WEATHER_SUNLIGHT, WEATHER_HARSHSUNLIGHT]) && $defencer['ability'] == ABILITY_FLOWERGIFT && !$is_physical) {
-                $defence *= 1.5;
-            }
-
-            if($defencer['ability'] == ABILITY_MARVELSCALE && $defencer['status'] && $is_physical)
-                $defence *= 2;
-
-            /**
-             * TODO
-             * 如果防御方是携带深海之鳞的珍珠贝，且技能是特殊技能，防御力修正×2。
-             * 如果防御方是携带金属粉末的百变怪，且技能是物理技能，防御力修正×2。
-             * 如果防御方是携带心之水珠的拉帝欧斯或拉帝亚斯，且技能是特殊技能，防御力修正×1.5。
-             * 如果防御方携带进化辉石，且防御方拥有进化型，防御力修正×1.5。
-             */
-
-        }
-
-        $damage = floor(floor(floor($attacker['level'] * 2 / 5 + 2) * $power * $attack / $defence) / 50) + 2;
-
-        PROCESS_CALCMISC : {
-            
-            if($this->checkWeathers([WEATHER_SUNLIGHT, WEATHER_HARSHSUNLIGHT]) && $move['type'] == TYPE_FIRE ||
-                $this->checkWeathers([WEATHER_RAIN, WEATHER_HEAVYRAIN]) && $move['type'] == TYPE_WATER) {
-                $damage *= 1.5;
-            } elseif($this->checkWeathers([WEATHER_SUNLIGHT]) && $move['type'] == TYPE_WATER ||
-                $this->checkWeathers([WEATHER_RAIN]) && $move['type'] == TYPE_FIRE) {
-                $damage *= 0.5;
-            }
-
-            if($this->isCriticalHit($attacker, $defencer, $move))
-                $damage *= 1.5;
-
-            $damage = $damage * mt_rand(85, 100) / 100;
-
-            if(in_array($move['type'], [$attacker['type'], $attacker['type_b']]))
-                $damage *= $attacker['ability'] == ABILITY_ADAPTABILITY ? 2 : 1.5;
-
-            $damage *= $this->calculateTypeModifier($move['type'], $defencer['type'], $defencer['type_b']);
-
-            if($attacker['status'] == STATUS_BURN && $is_physical && $attacker['ability'] != ABILITY_GUTS)
-                $damage *= 0.5;
-
-        }
-
-        return $damage;
+        return floor($damage * $this->calculateDamageModifier($attacker, $defencer, $move, $is_crit, $type_mod));
 
     }
 
-    private function calculateTypeModifier($atktype, $deftype, $deftype_b) {
+    public function calculateAttack (BattlePokemon $attacker, BattlePokemon $defencer, BattleMove $move) : int {
+
+        $atk_hppercent = $attacker->getHPPercent();
+        $move_type     = $move->getType();
+        $is_foulplay   = $move->is(MOVE_FOULPLAY);
+        $attack_key    = $move->isClass(MOVECLASS_PHYSICAL) ? STAT_ATTACK : STAT_SPATTACK;
+
+        $attack = $is_foulplay ? $defencer->getStat(STAT_ATTACK) : $attacker->getStat($attack_key);
+        $attack = floor($attack * $this->getStatModifier(($is_foulplay ? $attacker : $defencer)->getStatLevel($attack_key)));
+
+        $mod = 1.0;
+
+        // TODO
+        if (($index = $attacker->isAbility([ABILITY_OVERGROW, ABILITY_BLAZE, ABILITY_TORRENT, ABILITY_SWARM])) &&
+            $move_type === [TYPE_GRASS, TYPE_FIRE, TYPE_WATER, TYPE_BUG][$index] && $atk_hppercent < 33
+        )
+            $mod *= 1.5;
+        elseif ($attacker->isAbility(ABILITY_GUTS) && $attacker->getStatus())
+            $mod *= 1.5;
+        elseif ($attacker->isAbility(ABILITY_DEFEATIST) && $atk_hppercent <= 50)
+            $mod *= 0.5;
+        elseif ($attacker->isAbility([ABILITY_HUGEPOWER, ABILITY_PUREPOWER]) && $move->isClass(MOVECLASS_PHYSICAL))
+            $mod *= 2.0;
+        elseif ($attacker->isAbility(ABILITY_SOLARPOWER) && $move->isClass(MOVECLASS_SPECIAL) &&
+            $this->isWeather([WEATHER_SUNLIGHT, WEATHER_HARSHSUNLIGHT])
+        )
+            $mod *= 1.5;
+        elseif ($attacker->isAbility(ABILITY_HUSTLE) && $move->isClass(MOVECLASS_PHYSICAL))
+            $mod *= 1.5;
+
+        if ($attacker->isHolding(ITEM_THICKCLUB) && $move->isClass(MOVECLASS_PHYSICAL) &&
+            $attacker->is([POKEMON_CUBONE, POKEMON_MAROWAK, POKEMON_MAROWAKALOLAFORM])
+        )
+            $mod *= 2.0;
+        elseif ($attacker->isHolding(ITEM_DEEPSEATOOTH) && $attacker->is(POKEMON_CLAMPERL) && $move->isClass(MOVECLASS_SPECIAL))
+            $mod *= 2.0;
+        elseif ($attacker->isHolding(ITEM_LIGHTBALL) && $attacker->is(POKEMON_PIKACHU))
+            $mod *= 2.0;
+        elseif ($attacker->isHolding(ITEM_CHOICEBAND) && $move->isClass(MOVECLASS_PHYSICAL))
+            $mod *= 1.5;
+        elseif ($attacker->isHolding(ITEM_CHOICESPECS) && $move->isClass(MOVECLASS_SPECIAL))
+            $mod *= 1.5;
+
+        // TODO - plus/minus
+
+        return floor($attack * $mod);
+    }
+
+    public function calculateDefence (BattlePokemon $attacker, BattlePokemon $defencer, BattleMove $move) : int {
+
+        $def_key = $move->isClass(MOVECLASS_PHYSICAL) ? STAT_DEFENCE : STAT_SPDEFENCE;
+        $defence = $attacker->getStat($def_key);
+        $defence = floor($defence * $this->getStatModifier($attacker->getStatLevel($def_key)));
+
+        $mod = 1.0;
+
+        if ($this->isWeather(WEATHER_SANDSTORM) && $defencer->isType(TYPE_ROCK) && $move->isClass(MOVECLASS_SPECIAL))
+            $mod *= 1.5;
+        elseif ($this->isWeather(WEATHER_SUNLIGHT) && $defencer->getSubstatus(ABILITY_FLOWERGIFT) && $move->isClass(MOVECLASS_SPECIAL))
+            $mod *= 1.5;
+
+        if ($defencer->isAbility(ABILITY_MARVELSCALE) && $defencer->getStatus() && $move->isClass(MOVECLASS_PHYSICAL))
+            $mod *= 1.5;
+
+        if ($defencer->isHolding(ITEM_DEEPSEASCALE) && $defencer->is(POKEMON_CLAMPERL) && $move->isClass(MOVECLASS_SPECIAL))
+            $mod *= 2.0;
+        elseif ($defencer->isHolding(ITEM_EVIOLITE) && $defencer->hasEvolution())
+            $mod *= 1.5;
+        elseif ($defencer->isHolding(ITEM_ASSAULTVEST) && $move->isClass(MOVECLASS_SPECIAL))
+            $mod *= 1.5;
+
+        return floor($defence * $mod);
+    }
+
+    public function calculateMoveBasePower (BattlePokemon $attacker, BattlePokemon $defencer, BattleMove $move) : int {
+
+        $power = $move->getBasePower();
+
+        /*$class_name = $move->getClassName();
+        if (method_exists($class_name, 'getBasePower')) {
+            call_user_func([$class_name, 'getBasePower']);
+        }*/
+
+        // TODO - place them into different files
+        switch ($move->getID()) {
+            case MOVE_WRINGOUT:
+            case MOVE_CRUSHGRIP:
+                $power = floor(1 + 120 * $defencer->getCurrentHP() / $defencer->getStat(STAT_HP));
+                break;
+            case MOVE_ELECTROBALL:
+                $speed_diff = $attacker->getStat(STAT_SPEED) / $defencer->getStat(STAT_SPEED);
+                if ($speed_diff >= 4) $power = 150;
+                elseif ($speed_diff >= 3) $power = 120;
+                elseif ($speed_diff >= 2) $power = 80;
+                elseif ($speed_diff >= 1) $power = 60;
+                else                      $power = 40;
+                break;
+            case MOVE_ERUPTION:
+            case MOVE_WATERSPOUT:
+                $power = floor(max(1, 150 * $attacker->getCurrentHP() / $attacker->getStat(STAT_HP)));
+                break;
+            case MOVE_FLAIL:
+            case MOVE_REVERSAL:
+                $remain = 48 * $attacker->getCurrentHP() / $attacker->getStat(STAT_HP);
+                if ($remain <= 1) $power = 200;
+                elseif ($remain <= 4) $power = 150;
+                elseif ($remain <= 9) $power = 100;
+                elseif ($remain <= 16) $power = 80;
+                elseif ($remain <= 32) $power = 40;
+                else                   $power = 20;
+                break;
+            case MOVE_FRUSTRATION:
+                $power = floor((255 - $attacker->getHappiness()) / 2.5);
+                break;
+            case MOVE_RETURN:
+                $power = floor($attacker->getHappiness() / 2.5);
+                break;
+            case MOVE_LOWKICK:
+            case MOVE_GRASSKNOT:
+                $weight = $defencer->getWeight();
+                if ($weight >= 200) $power = 200;
+                elseif ($weight >= 100) $power = 100;
+                elseif ($weight >= 50) $power = 80;
+                elseif ($weight >= 25) $power = 60;
+                elseif ($weight >= 10) $power = 40;
+                else                   $power = 20;
+                break;
+            case MOVE_HEAVYSLAM:
+            case MOVE_HEATCRASH:
+                $diff = $attacker->getWeight() / $defencer->getWeight();
+                if ($diff >= 5) $power = 120;
+                elseif ($diff >= 4) $power = 100;
+                elseif ($diff >= 3) $power = 80;
+                elseif ($diff >= 2) $power = 60;
+                else                $power = 40;
+                break;
+            case MOVE_GYROBALL:
+                $power = floor(min(150, 25 * $defencer->getStat(STAT_SPEED) / $attacker->getStat(STAT_SPEED)));
+                break;
+            case MOVE_STOREDPOWER:
+            case MOVE_POWERTRIP:
+                $power = 20 + 20 * array_reduce($attacker->getStatLevels(), ['BattleFactory', 'calculatePositiveTotal'], 0);
+                break;
+            case MOVE_PUNISHMENT:
+                $power = min(200, 60 + 20 * array_reduce($defencer->getStatLevels(), ['BattleFactory', 'calculatePositiveTotal'], 0));
+                break;
+            case MOVE_PRESENT:
+            case MOVE_TRUMPCARD:
+            case MOVE_WATERSHURIKEN:
+                // TODO
+                break;
+        }
+
+        $mod = 1.0;
+        if ($move->is(MOVE_ACROBATICS) && $attacker->isHolding(0) ||
+            $move->is(MOVE_BRINE) && $defencer->getHPPercent() <= 50 ||
+            $move->is(MOVE_FACADE) && $attacker->getStatus() ||
+            $move->is(MOVE_HEX) && $defencer->getStatus() ||
+            $move->is(MOVE_RETALIATE) && 1 === 2 /* TODO */ ||
+            $move->is(MOVE_VENOSHOCK) && in_array($defencer->getStatus(), [STATUS_POISON, STATUS_TOXIC], TRUE) ||
+            $move->is([MOVE_ASSURANCE, MOVE_AVALANCHE, MOVE_PAYBACK]) && !$this->isFasterThan($attacker, $defencer)
+        ) {
+            $mod *= 2.0;
+        } elseif ($move->is(MOVE_SOLARBEAM) && $this->isWeather([WEATHER_RAIN, WEATHER_HEAVYRAIN, WEATHER_SANDSTORM, WEATHER_HAIL])) {
+            $mod *= 0.5;
+        } elseif ($move->is(MOVE_WEATHERBALL) && ($weather = $this->getWeather())) {
+            $mod *= 2.0;
+            $move->setType(BattleFactory::$weather_ball[$weather] ?? TYPE_NORMAL);
+        }
+
+        if (!$attacker->isAbility(ABILITY_LEVITATE) && !$attacker->isType(TYPE_FLYING) &&
+            (
+                $this->isTerrain(TERRAIN_GRASSY) && $move->isType(TYPE_GRASS) ||
+                $this->isTerrain(TERRAIN_ELECTRIC) && $move->isType(TYPE_ELECTRIC) ||
+                $this->isTerrain(TERRAIN_PSYCHIC) && $move->isType(TYPE_PSYCHIC)
+            )
+        )
+            $mod *= 1.5;
+
+        $ability = $attacker->getAbility();
+        if ($attacker->isAbility(ABILITY_TECHNICIAN) && $power <= 60 ||
+            $attacker->isAbility(ABILITY_FLAREBOOST) && $attacker->isStatus(STATUS_BURN) && $move->isClass(MOVECLASS_SPECIAL) ||
+            $attacker->isAbility(ABILITY_TOXICBOOST) && $attacker->isStatus(STATUS_POISON_GROUP) && $move->isClass(MOVECLASS_PHYSICAL) ||
+            $attacker->isAbility(ABILITY_STRONGJAW) && $move->hasFlag(FLAG_BITE) ||
+            $attacker->isAbility(ABILITY_STEELWORKER) && $move->isType(TYPE_STEEL) ||
+            $attacker->isAbility(ABILITY_MEGALAUNCHER) && $move->hasFlag(FLAG_AURAPULSE)
+        ) {
+            $mod *= 1.5;
+        } elseif (
+            $attacker->isAbility(ABILITY_ANALYTIC) && !$move->is([MOVE_FUTURESIGHT, MOVE_DOOMDESIRE]) && !$this->isFasterThan($attacker, $defencer) ||
+            $attacker->isAbility(ABILITY_SANDFORCE) && $this->isWeather(WEATHER_SANDSTORM) && $attacker->isType([TYPE_ROCK, TYPE_GROUND, TYPE_STEEL]) ||
+            $attacker->isAbility(ABILITY_SHEERFORCE) && 1 === 2 /* TODO */
+        ) {
+            $mod *= 1.3;
+        } elseif ($attacker->isAbility(ABILITY_IRONFIST) && $move->hasFlag(FLAG_PUNCH)) {
+            $mod *= 1.2;
+        } elseif (($type = BattleFactory::$type_skin_ability[$ability] ?? FALSE) !== FALSE &&
+            ($move->isType(TYPE_NORMAL) || $ability === ABILITY_NORMALIZE)
+        ) {
+            $mod *= 1.2;
+            $move->setType($type);
+        } elseif ($attacker->isAbility(ABILITY_TOUGHCLAWS) && $move->hasFlag(FLAG_CONTACT)) {
+            $mod *= 4 / 3;
+        } elseif ($attacker->isAbility(ABILITY_WATERBUBBLE) && $move->isType(TYPE_WATER)) {
+            $mod *= 2.0;
+        }
+
+        if ($defencer->isAbility(ABILITY_HEATPROOF) && $move->isType(TYPE_FIRE))
+            $mod *= 0.5;
+        elseif ($defencer->isAbility(ABILITY_DRYSKIN) && $move->isType(TYPE_FIRE))
+            $mod *= 1.25;
+
+        if (($type = BattleFactory::$type_gems[$attacker->getHoldingItem()] ?? FALSE) !== FALSE && $move->isType($type)) {
+            $mod *= 1.5;
+            $move->gemBoosted();
+        } elseif (
+            $attacker->isHolding(ITEM_MUSCLEBAND) && $move->isClass(MOVECLASS_PHYSICAL) ||
+            $attacker->isHolding(ITEM_WISEGLASSES) && $move->isClass(MOVECLASS_SPECIAL)
+        ) {
+            $mod *= 1.1;
+        } elseif (
+            $attacker->isHolding(ITEM_ADAMANTORB) && $attacker->is(POKEMON_DIALGA) && $move->isType([TYPE_STEEL, TYPE_DRAGON]) ||
+            $attacker->isHolding(ITEM_LUSTROUSORB) && $attacker->is(POKEMON_PALKIA) && $move->isType([TYPE_WATER, TYPE_DRAGON]) ||
+            ($type = BattleFactory::$type_boosts[$move->getType()] ?? FALSE) !== FALSE && $move->isType($type)
+        ) {
+            $mod *= 1.2;
+        }
+
+        if ($attacker->getSubstatus(SUBSTATUS_MEFIRST))
+            $mod *= 1.5;
+        if ($attacker->getSubstatus(SUBSTATUS_CHARGE) && $move->isType(TYPE_ELECTRIC))
+            $mod *= 2.0;
+        if ($attacker->getSubstatus(SUBSTATUS_HELPHAND))
+            $mod *= 1.5;
+        if ($this->hasField(FIELD_WATERSPORT) && $move->isType(TYPE_FIRE) ||
+            $this->hasField(FIELD_MUDSPORT) && $move->isType(TYPE_ELECTRIC)
+        )
+            $mod *= 1 / 3;
+
+        // TODO - BW dragon's signature moves
+        // TODO - air lock, sheer force, echoed voice, pledges, furry cutter, gust, magnitude, ice ball, pursuit, reckless
+        // TODO - rollout, round, stomping tantrum, consecutive moves, twister, whirlpool, fling, frustration, natural gift, power trip, present, accuracy & evasion, trump card, stakeout, battery
+
+        return floor($power * $mod);
+    }
+
+    public function calculateDamageModifier (BattlePokemon $attacker, BattlePokemon $defencer, BattleMove $move, bool $is_crit, float $type_mod) : float {
+
+        $mod = 1;
+
+        $double_mod = $this->isMulti() ? 2 / 3 : 0.5;
+        if ($defencer->hasField(SINGLEFIELD_REFLECT) && $move->isClass(MOVECLASS_PHYSICAL) ||
+            $defencer->hasField(SINGLEFIELD_LIGHTSCREEN) && $move->isClass(MOVECLASS_SPECIAL)
+        )
+            $mod *= $double_mod;
+        if ($defencer->hasField(SINGLEFIELD_AURORAVEIL))
+            $mod *= $double_mod;
+
+        if ($defencer->isAbility([ABILITY_MULTISCALE, ABILITY_SHADOWSHIELD]) && $defencer->getHPPercent() >= 100 ||
+            $defencer->isAbility(ABILITY_WATERBUBBLE) && $move->isType(TYPE_FIRE)
+        ) {
+            $mod *= 0.5;
+        } elseif ($defencer->isAbility([ABILITY_FILTER, ABILITY_SOLIDROCK, ABILITY_PRISMARMOR]) && $type_mod > 1) {
+            $mod *= 0.75;
+        } elseif ($defencer->isAbility(ABILITY_FLUFFY)) {
+            if ($move->hasFlag(FLAG_CONTACT)) $mod *= 0.5;
+            if ($move->isType(TYPE_FIRE)) $mod *= 2.0;
+        } elseif ($defencer->isAbility(ABILITY_FURCOAT) && $move->isClass(MOVECLASS_PHYSICAL)) {
+            $mod *= 0.5;
+        }
+
+        if ($attacker->isAbility(ABILITY_TINTEDLENS) && $type_mod < 1)
+            $mod *= 2;
+        elseif ($attacker->isAbility(ABILITY_SNIPER) && $is_crit)
+            $mod *= 1.5;
+
+        if (!$defencer->isFloating() &&
+            (
+                $this->isTerrain(TERRAIN_MISTY) && $move->isType(TYPE_DRAGON) ||
+                $this->isTerrain(TERRAIN_GRASSY) && $move->is([MOVE_EARTHQUAKE, MOVE_BULLDOZE, MOVE_MAGNITUDE])
+            )
+        )
+            $mod *= 0.5;
+
+        if ($attacker->isHolding(ITEM_EXPERTBELT) && $type_mod > 1)
+            $mod *= 1.2;
+        elseif ($attacker->isHolding(ITEM_LIFEORB))
+            $mod *= 1.3;
+        elseif (($type = BattleFactory::$type_berries[$defencer->getHoldingItem()] ?? FALSE) !== FALSE &&
+            $move->isType($type) && ($move->isType(TYPE_NORMAL) || $type_mod > 1)
+        )
+            $mod *= 0.5;
+
+        if ($move->is([MOVE_STOMP, MOVE_BODYSLAM, MOVE_DRAGONRUSH, MOVE_HEAVYSLAM, MOVE_HEATCRASH,
+                       MOVE_STEAMROLLER, MOVE_FLYINGPRESS, MOVE_PHANTOMFORCE]) && $defencer->getSubstatus(SUBSTATUS_MINIMIZE) ||
+            $move->is(MOVE_WAKEUPSLAP) && $defencer->isStatus(STATUS_SLEEP) ||
+            $move->is(MOVE_SMELLINGSALTS) && $defencer->isStatus(STATUS_PARALYSIS)
+        )
+            $mod *= 2.0;
+
+        if ($move->is(MOVE_KNOCKOFF) && !$attacker->isHoldingItemPokemonSpecific())
+            $mod *= 1.5;
+
+        // TODO - Friend Guard, Surf, Earthquake
+
+        return $mod;
+    }
+
+    public function isTerrain (int $terrain) {
+        return $terrain === $this->field['terrain']['type'];
+    }
+
+    public function isFasterThan (BattlePokemon $a, BattlePokemon $b) : bool {
+        // TODO
+        return TRUE;
+    }
+
+    public function getWeather () : int {
+        return $this->field['weather']['type'];
+    }
+
+    public function getStatModifier (int $stat_level) : float {
+        return ($stat_level > 0 ? 2 + $stat_level : 2) / ($stat_level < 0 ? 2 - $stat_level : 2);
+    }
+
+    private function calculateTypeModifier ($atktypes, $deftypes, BattleMove $move = NULL) : float {
         $type_chart = [
             TYPE_NORMAL   => [[], [TYPE_ROCK, TYPE_STEEL], [TYPE_GHOST]],
             TYPE_FIRE     => [[TYPE_GRASS, TYPE_ICE, TYPE_BUG, TYPE_STEEL], [TYPE_FIRE, TYPE_WATER, TYPE_ROCK, TYPE_DRAGON], []],
@@ -400,77 +1019,85 @@ class Battle {
             TYPE_STEEL    => [[TYPE_ICE, TYPE_ROCK, TYPE_FAIRY], [TYPE_FIRE, TYPE_WATER, TYPE_ELECTRIC, TYPE_STEEL], []],
             TYPE_FAIRY    => [[TYPE_FIGHTING, TYPE_DRAGON, TYPE_DARK], [TYPE_FIRE, TYPE_POISON, TYPE_STEEL], []]
         ];
-        
-        $deftypes = [$deftype, $deftype_b];
-        $modifier = 1;
-        
-        foreach($deftypes as $deftype) {
-            if(empty($type_chart[$deftype])) {
-                // TODO - language
-                Log::writeError();
-                continue;
-            }
-            if(in_array($atktype, $type_chart[$atktype][0])) {
-                $modifier *= 2;
-            } elseif(in_array($atktype, $type_chart[$deftype][1])) {
-                $modifier *= 0.5;
-            } elseif(in_array($atktype, $type_chart[$deftype][2])) {
-                $modifier *= 0;
+
+        if ($move !== NULL && $move->is(MOVE_FLYINGPRESS))
+            $atktypes[] = TYPE_FIGHTING;
+
+        $mod = 1;
+        foreach ($atktypes as $atktype) {
+            foreach ($deftypes as $deftype) {
+                if (in_array($atktype, $type_chart[$atktype][0]) ||
+                    $move && $move->is(MOVE_FREEZEDRY) && $deftype === TYPE_WATER
+                ) {
+                    $mod *= 2.0;
+                } elseif (in_array($atktype, $type_chart[$deftype][1])) {
+                    $mod *= 0.5;
+                } elseif (in_array($atktype, $type_chart[$deftype][2])) {
+                    $mod *= 0.0;
+                    return $mod;
+                }
             }
         }
 
-        return $modifier;
+        return $mod;
     }
 
-    private function isCriticalHit($attacker, $defencer, $move) {
-        return true;
+    private function isCriticalHit ($attacker, $defencer, $move) : bool {
+        // TODO
+        return TRUE;
     }
 
-    private function checkWeathers($weathers) {
+    private function checkWeathers ($weathers) {
         return !$this->field['weather_block'] && in_array($this->field['weather']['type'], $weathers);
     }
 
-    private function fetchBattleData() {
+    // TODO - Cloud Nine, Delta Stream
+    private function isWeather ($weather) : bool {
+        return General::fuzzyHas($this->field['weather'], $weather);
+    }
+
+    // TODO
+    private function fetchBattleData () {
 
     }
 
-    private function isHit($attacker, $defencer, $move) {
+    private function isHit ($attacker, $defencer, $move) {
 
-        if(in_array(ABILITY_NOGUARD, [$attacker['ability'], $defencer['ability']]) || $defencer['battle']['substatus'][SUBSTATUS_LOCK])
+        if (in_array(ABILITY_NOGUARD, [$attacker['ability'], $defencer['ability']]) || $defencer['battle']['substatus'][SUBSTATUS_LOCK])
             return TRUE;
 
-        if($move['flags']{FLAG_OHKO})
+        if ($move['flags']{FLAG_OHKO})
             return $attacker['level'] <= $defencer['level'] && mt_rand(1, 100) <= 30 + $attacker['level'] - $defencer['level'];
 
-        if($defencer['battle']['substatus'][SUBSTATUS_TELEKINESIS] || $move['accuracy'] == 101)
+        if ($defencer['battle']['substatus'][SUBSTATUS_TELEKINESIS] || $move['accuracy'] == 101)
             return TRUE;
 
-        if($attacker['ability'] == ABILITY_UNAWARE)
+        if ($attacker['ability'] == ABILITY_UNAWARE)
             $defencer['battle']['stat_level']['evasion'] = 0;
-        if($defencer['ability'] == ABILITY_UNAWARE)
+        if ($defencer['ability'] == ABILITY_UNAWARE)
             $attacker['battle']['stat_level']['accuracy'] = 0;
-        if(in_array($defencer['battle']['substatus'], [SUBSTATUS_FORESIGHT, SUBSTATUS_MIRACLEEYE]))
+        if (in_array($defencer['battle']['substatus'], [SUBSTATUS_FORESIGHT, SUBSTATUS_MIRACLEEYE]))
             $defencer['battle']['stat_level']['evasion'] = min(0, $defencer['battle']['stat_level']['evasion']);
 
         $accuracy = max(-6, min(6, $attacker['battle']['stat_level']['accuracy'] - $defencer['battle']['stat_level']['evasion']));
         $accuracy = ($accuracy >= 0 ? 3 + $accuracy : 3) / ($accuracy <= 0 ? 3 - $accuracy : 3);
         $accuracy = floor($move['accuracy'] * $accuracy);
 
-        if($attacker['ability'] == ABILITY_COMPOUNDEYES) {
+        if ($attacker['ability'] == ABILITY_COMPOUNDEYES) {
             $accuracy *= 1.3;
-        } elseif($attacker['ability'] == ABILITY_HUSTLE && $move['class'] == MOVECLASS_PHYSICAL) {
+        } elseif ($attacker['ability'] == ABILITY_HUSTLE && $move['class'] == MOVECLASS_PHYSICAL) {
             $accuracy *= 0.8;
-        } elseif($attacker['ability'] == ABILITY_VICTORYSTAR) {
+        } elseif ($attacker['ability'] == ABILITY_VICTORYSTAR) {
             $accuracy *= 1.1;
         }
 
-        if(($this->checkWeathers([WEATHER_SANDSTORM]) && $defencer['ability'] == ABILITY_SANDVEIL) || ($this->checkWeathers([WEATHER_HAIL]) && $defencer['ability'] == ABILITY_SNOWCLOAK)) {
+        if (($this->checkWeathers([WEATHER_SANDSTORM]) && $defencer['ability'] == ABILITY_SANDVEIL) || ($this->checkWeathers([WEATHER_HAIL]) && $defencer['ability'] == ABILITY_SNOWCLOAK)) {
             $accuracy *= 0.8;
-        } elseif($this->checkWeathers([WEATHER_FOG])) {
+        } elseif ($this->checkWeathers([WEATHER_FOG])) {
             $accuracy *= 0.6;
         }
 
-        if($defencer['ability'] == ABILITY_TANGLEDFEET && $defencer['battle']['substatus'][SUBSTATUS_CONFUSE])
+        if ($defencer['ability'] == ABILITY_TANGLEDFEET && $defencer['battle']['substatus'][SUBSTATUS_CONFUSE])
             $accuracy *= 0.8;
 
         /**
@@ -481,26 +1108,26 @@ class Battle {
          * 如果攻击方发动了神秘果，命中×1.1。
          */
 
-        if($this->field['gravity'])
+        if ($this->field['gravity'])
             $accuracy *= 5 / 3;
 
         return mt_rand(1, 100) <= $accuracy;
     }
 
-    public function initiateBattleField() {
+    public function initiateBattleField () {
 
     }
 
     /**
      * Append a line of report.
-     * @param $id - The identifier of the text
+     * @param $id   - The identifier of the text
      * @param $args - The replacement texts for formatting
      */
-    private function appendReport($id, $args) {
+    private function appendReport ($id, $args) {
         $this->report[] = General::getText('battle_' . $id, $args);
     }
 
-    private function useMove($move_id) {
+    private function useMove ($move_id) {
         call_user_func(['MoveDB', '__' . $move_id]);
     }
 

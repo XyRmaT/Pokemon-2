@@ -1,0 +1,12 @@
+Wild battles
+- respond instantly
+
+Trainer battles
+- after all people choose their action, the battle session should respond, then return the result to both trainers
+- possible implementation using Swoole
+
+Questions
+- to maintain a common battle framework, should wild battles also use Swoole?
+- what's the best option to cache data?
+- could the performance lost be disgarded using OOP? if not what's the best way to optimize it?
+- how to implement the timer in trainer battles?
